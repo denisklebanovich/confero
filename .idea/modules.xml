@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/confero.iml" filepath="$PROJECT_DIR$/confero.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/confero-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/confero-api.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/confero-ui.iml" filepath="$PROJECT_DIR$/confero-ui.iml" />
     </modules>
   </component>
