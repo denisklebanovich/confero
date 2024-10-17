@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: confero-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/confero
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:admin}
+
+logging:
+  level:
+    feign:
+      client:
+        OrcidClient: DEBUG
