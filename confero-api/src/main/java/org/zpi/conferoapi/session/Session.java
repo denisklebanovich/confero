@@ -1,18 +1,22 @@
 package org.zpi.conferoapi.session;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.zpi.conferoapi.proposal.Presenter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Session {
     @Id
-    private String id;
+    @GeneratedValue
+    private Long id;
 
     private Integer duration;
     private String title;

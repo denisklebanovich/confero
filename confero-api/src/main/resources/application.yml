@@ -6,6 +6,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/confero
     username: ${DB_USER:postgres}
     password: ${DB_PASS:admin}
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 logging:
   level:

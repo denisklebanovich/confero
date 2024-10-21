@@ -1,6 +1,9 @@
-import {Route, Routes} from "react-router-dom";
-import ProposalView from "@/views/ProposalView.tsx";
-import Layout from "@/components/layout/Layout.tsx";
+import {RouterProvider} from "react-router-dom";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {router} from "@/router.tsx";
+
+
+const queryClient = new QueryClient()
 
 function App() {
     return (
@@ -15,11 +18,9 @@ function App() {
         //           }
         //       }}
         // >
-        <Routes>
-            <Route path='/' element={<Layout/>}>
-                <Route index element={<ProposalView/>}/>
-            </Route>
-        </Routes>
+        <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router}/>
+        </QueryClientProvider>
         /*</Auth>*/
     )
 }
