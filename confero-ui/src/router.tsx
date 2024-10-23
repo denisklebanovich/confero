@@ -3,6 +3,7 @@ import Layout from "@/components/layout/Layout.tsx";
 import {Home} from "lucide-react";
 import SessionsView from "@/views/SessionsView.tsx";
 import ProposalView from "@/views/ProposalView.tsx";
+import LoginView from "@/views/LoginView.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -26,5 +27,9 @@ export const router = createBrowserRouter([
                 element: <ProposalView/>
             }
         ]
+    },
+    {
+        path: '/login',
+        element: <LoginView/>
     }
 ])
