@@ -1,10 +1,11 @@
-'use client'
-
+/// <reference types="vite-plugin-svgr/client" />
 import {useState} from 'react'
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
-import {Linkedin} from 'lucide-react'
 import {supabase} from "@/service/supabaseClient.ts";
+import Footer from "@/components/layout/Footer.tsx";
+import GoogleIcon from "@/assets/google.svg?react";
+import LinkedInIcon from "@/assets/linkedin.svg?react";
 
 export default function LoginView() {
     const [loading, setLoading] = useState(false)
@@ -56,22 +57,24 @@ export default function LoginView() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Button
+                        variant='secondary'
                         className="w-full"
                         onClick={handleGoogleLogin}
                         disabled={loading}
                     >
-                        {loading ? 'Loading...' : 'Login with Google'}
+                        <GoogleIcon/> {loading ? 'Loading...' : 'Login with Google'}
                     </Button>
                     <Button
+                        variant='secondary'
                         className="w-full"
                         onClick={handleLinkedInLogin}
                         disabled={loading}
                     >
-                        <Linkedin className="mr-2 h-4 w-4"/>
-                        Login with LinkedIn
+                        <LinkedInIcon/> {loading ? 'Loading...' : 'Login with LinkedIn'}
                     </Button>
                 </CardContent>
             </Card>
+            <Footer/>
         </div>
     )
 }
