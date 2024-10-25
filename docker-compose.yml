@@ -1,10 +1,9 @@
-
 services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: ${DB_USER:postgres}
-      POSTGRES_PASSWORD: ${DB_PASS:admin}
+      POSTGRES_USER: "${DB_USER:-postgres}"
+      POSTGRES_PASSWORD: "${DB_PASS:-admin}"
       POSTGRES_DB: confero
     ports:
       - "5432:5432"

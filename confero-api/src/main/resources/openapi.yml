@@ -1,0 +1,899 @@
+openapi: 3.0.3
+info:
+  title: Confero API
+  description: |-
+    Some description
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: ORCID
+    description: ORCID
+  - name: Conference Edition
+    description: All data related to managing the conference editions
+  - name: Admin
+    description: endpoints admin will interact with
+  - name: User
+    description: endpoints accessible for all users
+  - name: Application
+    description: All data related to managing the applications to the special sessions
+  - name: Session
+    description: All data related to managing the sessions
+
+paths:
+  /orcid:
+    get:
+      tags:
+        - ORCID
+      summary: Get ORCID data
+      operationId: getOrcidData
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrcidInfoResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /conference-edition:
+    post:
+      tags:
+        - Conference Edition
+        - Admin
+      summary: Create new conference edition
+      description: |-
+        Admin-only endpoint to create a new conference edition.
+        A new edition will not be created if there is already an active edition (i.e., the application deadline has not passed).
+      operationId: createConferenceEdition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConferenceEditionRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceEditionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Conference Edition
+        - Admin
+      summary: Get all conference editions
+      description: |-
+        Admin-only endpoint to get all conference editions.
+        It will return all editions.
+      operationId: getAllConferenceEditions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConferenceEditionResponse'
+
+  /conference-edition/summary:
+    get:
+      tags:
+        - Conference Edition
+        - User
+      summary: Get conference edition summary
+      description: |-
+        Get conference edition summary. Will provide useful information about the current conference edition, for example, if it is accepting new applications.
+      operationId: getConferenceEditionSummary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceEditionSummaryResponse'
+
+
+  /conference-edition/{id}:
+    put:
+      tags:
+        - Conference Edition
+        - Admin
+      summary: Update conference edition
+      operationId: updateConferenceEdition
+      parameters:
+        - $ref: '#/components/parameters/ConferenceEditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConferenceEditionRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceEditionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /conference-edition/{id}/invitees:
+    post:
+      tags:
+        - Conference Edition
+        - Admin
+      summary: Invite users to the conference edition
+      operationId: inviteUsers
+      description: |-
+        Admin-only endpoint to invite users to the conference edition.
+        Admin provides csv file with emails of users to invite. It will override previous invitations.
+        It will be possible only if the application deadline has not passed.
+      parameters:
+        - $ref: '#/components/parameters/ConferenceEditionId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                contentType: text/csv
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceEditionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /application:
+    post:
+      tags:
+        - Application
+        - User
+      summary: Create new application.
+
+      description:
+        |-
+        Create new application. Application will be created if the application deadline has not passed. Application
+        will be created as "draft" if the "saveAsDraft" is true.
+      
+
+      operationId: createApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationPreviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Application
+        - User
+      summary: Get all applications for the user.
+      operationId: getApplications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationPreviewResponse'
+
+  /application/{id}:
+    get:
+      tags:
+        - Application
+        - User
+        - Admin
+      summary: Get complete application data as well as comments
+      operationId: getApplication
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Application
+        - User
+      summary: Update an application
+      description: |-
+        Update an application. It will be possible only if the application is not "resolved".
+        Changes made to the draft application will be saved as draft only if the "saveAsDraft" is true, otherwise, the application will be sent for review.
+      operationId: updateApplication
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationPreviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Application
+        - User
+      summary: Delete an application
+      description: |-
+        Delete an application. It will be possible only if the application is not "resolved".
+      operationId: deleteApplication
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /application/{id}/review:
+    get:
+      tags:
+        - Application
+        - Admin
+      summary: Get all applications sent for review.
+
+      description:
+        |-
+        Admin-only endpoint to get all applications sent for review. This will not return "draft" and "resolved" applications.
+
+      operationId: getApplicationsForReview
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationPreviewResponse'
+
+
+  /application/{id}/review/ask-for-adjustments:
+    post:
+      tags:
+        - Application
+        - Admin
+      summary: Ask for adjustments
+      description: |-
+        Admin-only endpoint to ask for adjustments in the application.
+        It will be possible only if the application is not "resolved".
+      operationId: askForAdjustments
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdjustmentsRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationPreviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /application/{id}/review/accept:
+    post:
+      tags:
+        - Application
+        - Admin
+      summary: Accept an application
+      description: |-
+        Admin-only endpoint to accept an application.
+        It will be possible only if the application is not "resolved".
+      operationId: acceptApplication
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationPreviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /application/{id}/review/reject:
+    post:
+      tags:
+        - Application
+        - Admin
+      summary: Reject an application
+      description: |-
+        Admin-only endpoint to reject an application.
+        It will be possible only if the application is not "resolved".
+      operationId: rejectApplication
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationPreviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /session:
+    get:
+      tags:
+        - Session
+        - User
+        - Admin
+      summary: Get all sessions
+      description: |-
+        Retrieve all sessions available to the user. If the user is a participant, they will see all sessions in the conference edition they were invited to.
+        If the user is a presenter, they will see all sessions they are involved in.
+        This will return only sessions with configured timetable.
+        Admin will see all sessions.
+      operationId: getSessions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionPreviewResponse'
+  /session/{id}:
+    get:
+      tags:
+        - Session
+        - User
+      summary: Get a session
+      operationId: getSession
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /session/{id}/timetable:
+    get:
+      tags:
+        - Session
+        - User
+        - Admin
+      summary: Get session timetable
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      operationId: getSessionTimetable
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTimetableResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Session
+        - Admin
+      summary: Update session timetable
+      description: |-
+        Update session timetable.
+      operationId: updateSessionTimetable
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TimeTableEntryRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTimetableResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /session/{id}/attachment:
+    post:
+      tags:
+        - Session
+        - User
+      summary: Add attachment to the session
+      description: |-
+        Add attachment to the session. It will be possible only for orginizers of the session.
+      operationId: addAttachment
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AttachmentRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /session/{id}/attachment/{attachmentId}:
+    delete:
+      tags:
+        - Session
+        - User
+      summary: Delete attachment
+      description: |-
+        Delete attachment. It will be possible only for owner of the attachment.
+      operationId: deleteAttachment
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/AttachmentId'
+      responses:
+        '204':
+          description: No content
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+      BearerAuth:        
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+  parameters:
+    SessionId:
+        name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Session ID
+    ConferenceEditionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Conference edition ID
+    AttachmentId:
+      name: attachmentId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Attachment ID
+    ApplicationId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Application ID
+  
+  responses:
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: "CONFERO-001"
+        message:
+          type: string
+          example: "Invalid data provided"
+    OrcidInfoResponse:
+      type: object
+      properties:
+        orcid:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+    CreateConferenceEditionRequest:
+      type: object
+      properties:
+        applicationDeadlineTime:
+          type: string
+          format: date-time
+    ConferenceEditionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        applicationDeadlineTime:
+          type: string
+          format: date-time
+        numberOfInvitations:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    ConferenceEditionSummaryResponse:
+      type: object
+      properties:
+        acceptingNewApplications:
+          type: boolean
+    CreateApplicationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [ SESSION, WORKSHOP, TUTORIAL ]
+        tags:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterDto'
+        saveAsDraft:
+          type: boolean
+
+    PresenterDto:
+      type: object
+      properties:
+        orcid:
+          type: string
+        email:
+          type: string
+    ApplicationPreviewResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterDto'
+        lastUpdated:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [ PENDING, DRAFT, REJECTED, ACCEPTED, CHANGE_REQUESTED ]
+    ApplicationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum: [ SESSION, WORKSHOP, TUTORIAL ]
+        tags:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterDto'
+        lastUpdated:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [ PENDING, DRAFT, REJECTED, ACCEPTED, CHANGE_REQUESTED ]
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+
+    CommentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AdjustmentsRequest:
+      type: object
+      properties:
+        comment:
+          type: string
+    SessionPreviewResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterDto'
+    SessionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterDto'
+        tags:
+          type: array
+          items:
+            type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+    AttachmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+    AttachmentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        file:
+          type: string
+          format: binary
+    SessionTimetableResponse:
+      type: object
+      properties:
+        timetable:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimetableEntryResponse'
+    TimetableEntryResponse:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        presenterFirstName:
+          type: string
+        presenterLastName:
+          type: string
+        presenterId:
+          type: string
+    TimeTableEntryRequest:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        presenterId:
+          type: string
