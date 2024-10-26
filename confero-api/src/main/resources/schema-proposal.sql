@@ -1,9 +1,25 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    email VARCHAR(255) PRIMARY KEY,
-    role  VARCHAR(255) NOT NULL,
-    CONSTRAINT users_role_check CHECK (role IN ('ADMIN', 'USER', 'PARTICIPANT'))
+    email    VARCHAR(255) PRIMARY KEY,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+CREATE TABLE IF NOT EXISTS conference_edition
+(
+    id                        BIGSERIAL PRIMARY KEY,
+    application_deadline_time TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS conference_invitee
+(
+    user_id    BIGINT NOT NULL,
+    edition_id BIGINT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (email),
+    FOREIGN KEY (edition_id) REFERENCES conference_edition (id),
+    PRIMARY KEY (user_id, edition_id)
+);
+
 
 CREATE TABLE IF NOT EXISTS session
 (
@@ -12,12 +28,14 @@ CREATE TABLE IF NOT EXISTS session
     type        VARCHAR(255)                NOT NULL,
     creator_id  BIGINT                      NOT NULL,
     tags        JSONB,
+    edition_id  BIGINT                      NOT NULL,
     description VARCHAR(40000)              NOT NULL,
     status      VARCHAR(255)                NOT NULL,
     created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CONSTRAINT session_type_check CHECK (type IN ('SESSION', 'WORKSHOP', 'TUTORIAL')),
     CONSTRAINT session_status_check CHECK (status IN ('PENDING', 'DRAFT', 'REJECTED', 'ACCEPTED', 'CHANGE_REQUESTED')),
-    FOREIGN KEY (creator_id) REFERENCES users (email)
+    FOREIGN KEY (creator_id) REFERENCES users (email),
+    FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
 
 
@@ -60,11 +78,4 @@ CREATE TABLE IF NOT EXISTS presenter_attachment
     title        VARCHAR(255) NOT NULL,
     url          VARCHAR(255) NOT NULL,
     FOREIGN KEY (presenter_id) REFERENCES presenter (id)
-);
-
-CREATE TABLE IF NOT EXISTS configuration
-(
-    key   VARCHAR(255) PRIMARY KEY NOT NULL,
-    value JSONB                    NOT NULL,
-    CONSTRAINT configuration_key_unique UNIQUE (key)
 );
