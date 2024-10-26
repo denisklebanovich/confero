@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS conference_edition
 (
     id                        BIGSERIAL PRIMARY KEY,
-    application_deadline_time TIMESTAMP WITHOUT TIME ZONE NOT NULL
+    application_deadline_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_at                TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 
