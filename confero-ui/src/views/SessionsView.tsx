@@ -1,6 +1,6 @@
 import {apiInstance} from "@/service/api-instance.ts";
 import {useQuery} from "@tanstack/react-query";
-import SessionCard from "@/components/session/SessionCard.tsx";
+import SessionCard from "@/components/sessions/SessionCard.tsx";
 
 const SessionsView = () => {
     function useSessions() {
@@ -15,12 +15,18 @@ const SessionsView = () => {
     const {data: sessions} = useSessions();
 
     return (
-        <div>
-            <div className='text-2xl font-bold'>Sessions:</div>
-            <div className='flex items-center gap-2'>
-                {sessions?.map((session) => (
-                    <SessionCard key={session.id} {...session} />
-                ))}
+        <div className={'min-w-full min-h-full'}>
+            <div className='flex w-full justify-center'>
+                <div className={"w-2/3 items-center gap-5 flex flex-col"}>
+                    <div className='text-3xl font-bold w-full'>Sessions:</div>
+                    <SessionCard/>
+                    <SessionCard/>
+                    <SessionCard/>
+                    <SessionCard/>
+                    <SessionCard/>
+                    <SessionCard/>
+                    <SessionCard/>
+                </div>
             </div>
         </div>
     );

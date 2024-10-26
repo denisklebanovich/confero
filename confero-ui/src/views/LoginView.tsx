@@ -6,9 +6,11 @@ import {supabase} from "@/service/supabaseClient.ts";
 import Footer from "@/components/layout/Footer.tsx";
 import GoogleIcon from "@/assets/google.svg?react";
 import LinkedInIcon from "@/assets/linkedin.svg?react";
+import {useNavigate} from "react-router-dom";
 
 export default function LoginView() {
     const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
     const handleGoogleLogin = async () => {
         try {
@@ -47,10 +49,10 @@ export default function LoginView() {
     }
 
     return (
-        <div>
-            <div className="text-7xl font-bold text-center text-primary">confero</div>
-            <div className="h-0.5 bg-gray-300 w-1/2 mx-auto mt-2 mb-20"/>
-            <Card className="w-[350px] mx-auto mt-10">
+        <div className={"w-screen h-screen"}>
+            <div className="text-7xl font-bold text-center text-primary cursor-pointer" onClick={()=>navigate("/")}>Confero</div>
+            <div className="h-0.5 bg-gray-200 w-1/2 mx-auto mt-2 mb-20"/>
+            <Card className="w-[350px] mx-auto mt-32">
                 <CardHeader>
                     <CardTitle>Login</CardTitle>
                     <CardDescription>Choose a method to log in</CardDescription>

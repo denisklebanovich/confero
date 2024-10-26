@@ -1,9 +1,12 @@
 import {createBrowserRouter} from "react-router-dom";
 import Layout from "@/components/layout/Layout.tsx";
-import {Home} from "lucide-react";
 import SessionsView from "@/views/SessionsView.tsx";
 import ProposalView from "@/views/ProposalView.tsx";
 import LoginView from "@/views/LoginView.tsx";
+import ApplicationView from "@/views/ApplicationView.tsx";
+import SessionView from "@/views/SessionView.tsx";
+import AdminSessionView from "@/views/AdminSessionView.tsx";
+import TimetableSessionView from "@/views/TimetableSessionView.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -16,15 +19,27 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Home/>
-            },
-            {
-                path: 'sessions',
                 element: <SessionsView/>
             },
             {
                 path: 'proposal',
                 element: <ProposalView/>
+            },
+            {
+                path: 'applications',
+                element: <ApplicationView/>
+            },
+            {
+                path: 'session',
+                element: <SessionView/>
+            },
+            {
+                path: 'admin-sessions',
+                element: <AdminSessionView/>
+            },
+            {
+                path: 'timetable',
+                element: <TimetableSessionView/>
             }
         ]
     },

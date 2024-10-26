@@ -4,9 +4,9 @@ import Footer from "@/components/layout/Footer.tsx";
 
 const Layout = () => {
     return (
-        <div>
+        <div className={"min-w-screen min-h-screen"}>
             <Navbar/>
-            <div className="px-8 py-4">
+            <div className="flex-grow px-8 py-24 overflow-y-auto">
                 <Outlet/>
             </div>
             <Footer/>

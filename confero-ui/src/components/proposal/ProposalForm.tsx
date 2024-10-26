@@ -69,7 +69,6 @@ const ProposalForm = () => {
                                     <SelectItem value="SESSION">Session</SelectItem>
                                     <SelectItem value="WORKSHOP">Workshop</SelectItem>
                                     <SelectItem value="TUTORIAL">Tutorial</SelectItem>
-                                    <SelectItem value="OTHER">Other</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage/>
@@ -92,6 +91,7 @@ const ProposalForm = () => {
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
                     name="description"
