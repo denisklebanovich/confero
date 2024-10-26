@@ -166,6 +166,8 @@ paths:
           multipart/form-data:
             schema:
               type: object
+              required:
+                - file
               properties:
                 file:
                   type: string
@@ -280,7 +282,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateApplicationRequest'
+              $ref: '#/components/schemas/UpdateApplicationRequest'
       responses:
         '200':
           description: OK
@@ -666,10 +668,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    
 
 
   schemas:
+    SessionType:
+      type: string
+      enum: [ SESSION, WORKSHOP, TUTORIAL ]
+    ApplicationStatus:
+      type: string
+      enum: [ PENDING, DRAFT, REJECTED, ACCEPTED, CHANGE_REQUESTED ]
     ErrorResponse:
       type: object
       properties:
@@ -690,6 +697,8 @@ components:
           type: string
     CreateConferenceEditionRequest:
       type: object
+      required:
+        - applicationDeadlineTime
       properties:
         applicationDeadlineTime:
           type: string
@@ -714,12 +723,18 @@ components:
           type: boolean
     CreateApplicationRequest:
       type: object
+      required:
+        - title
+        - type
+        - tags
+        - description
+        - presenters
+        - saveAsDraft
       properties:
         title:
           type: string
         type:
-          type: string
-          enum: [ SESSION, WORKSHOP, TUTORIAL ]
+          $ref: '#/components/schemas/SessionType'
         tags:
           type: array
           items:
@@ -732,9 +747,32 @@ components:
             $ref: '#/components/schemas/PresenterDto'
         saveAsDraft:
           type: boolean
-
+        
+    UpdateApplicationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          $ref: '#/components/schemas/SessionType'
+        tags:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterDto'
+        saveAsDraft:
+          type: boolean
+    
     PresenterDto:
       type: object
+      required:
+        - orcid
+        - email
       properties:
         orcid:
           type: string
@@ -758,7 +796,7 @@ components:
           format: date-time
         status:
           type: string
-          enum: [ PENDING, DRAFT, REJECTED, ACCEPTED, CHANGE_REQUESTED ]
+          $ref: '#/components/schemas/ApplicationStatus'
     ApplicationResponse:
       type: object
       properties:
@@ -768,7 +806,7 @@ components:
           type: string
         type:
           type: string
-          enum: [ SESSION, WORKSHOP, TUTORIAL ]
+          $ref: '#/components/schemas/SessionType'
         tags:
           type: array
           items:
@@ -784,7 +822,7 @@ components:
           format: date-time
         status:
           type: string
-          enum: [ PENDING, DRAFT, REJECTED, ACCEPTED, CHANGE_REQUESTED ]
+          $ref: '#/components/schemas/ApplicationStatus'
         comments:
           type: array
           items:
@@ -802,6 +840,8 @@ components:
           format: date-time
     AdjustmentsRequest:
       type: object
+      required:
+        - comment
       properties:
         comment:
           type: string
@@ -858,6 +898,9 @@ components:
           type: string
     AttachmentRequest:
       type: object
+      required:
+        - file
+        - name
       properties:
         name:
           type: string
@@ -888,6 +931,10 @@ components:
           type: string
     TimeTableEntryRequest:
       type: object
+      required:
+        - startTime
+        - endTime
+        - presenterId
       properties:
         startTime:
           type: string
