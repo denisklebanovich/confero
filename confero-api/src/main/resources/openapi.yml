@@ -26,12 +26,18 @@ tags:
     description: All data related to managing the sessions
 
 paths:
-  /orcid:
+  /orcid/{orcid}:
     get:
       tags:
         - ORCID
       summary: Get ORCID data
       operationId: getOrcidData
+      parameters:
+        - name: orcid
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK

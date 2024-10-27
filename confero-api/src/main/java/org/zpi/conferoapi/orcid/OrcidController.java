@@ -1,19 +1,21 @@
 package org.zpi.conferoapi.orcid;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.openapitools.api.OrcidApi;
+import org.openapitools.model.OrcidInfoResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/orcid")
 @RequiredArgsConstructor
-public class OrcidController {
+public class OrcidController implements OrcidApi {
     private final OrcidService orcidService;
 
-    @GetMapping("/{id}")
-    public OrcidInfo getRecord(@PathVariable String id) {
-        return orcidService.getRecord(id);
+
+    @Override
+    public ResponseEntity<OrcidInfoResponse> getOrcidData(String orcid) {
+        return ResponseEntity.ok(orcidService.getRecord(orcid));
     }
 }

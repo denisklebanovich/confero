@@ -1,18 +1,10 @@
-import {apiInstance} from "@/service/api-instance.ts";
-import {useQuery} from "@tanstack/react-query";
 import SessionCard from "@/components/sessions/SessionCard.tsx";
+import {useApi} from "@/api/useApi.ts";
 
 const SessionsView = () => {
-    function useSessions() {
-        return useQuery({
-            queryKey: ['sessions'],
-            queryFn: () => {
-                return apiInstance.sessionController.getAllSessions();
-            },
-        });
-    }
-
-    const {data: sessions} = useSessions();
+    const {apiClient, useApiQuery} = useApi();
+    const {data: sessions, isLoading} = useApiQuery(['sessions'],
+        () => apiClient.session.getSessions());
 
     return (
         <div className={'min-w-full min-h-full'}>

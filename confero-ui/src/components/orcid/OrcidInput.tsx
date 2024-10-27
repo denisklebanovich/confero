@@ -3,31 +3,32 @@ import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button"
 import {Badge} from "@/components/ui/badge"
 import {X} from "lucide-react"
-import {apiInstance} from "@/service/api-instance.ts";
-import {OrcidInfo} from "@/generated";
+import {OrcidInfoResponse} from "@/generated";
+import {useApiClient} from "@/api/api-instance.ts";
 
 interface OrcidInputProps {
-    value: OrcidInfo[]
-    onChange: (value: OrcidInfo[]) => void
-}
-
-const validateORCID = async (orcid: string): Promise<{ valid: boolean; value?: OrcidInfo }> => {
-    try {
-        const presenter = await apiInstance.orcidController.getRecord(orcid);
-        const isValid = /^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/.test(orcid)
-        if (isValid) {
-            return {valid: true, value: presenter}
-        }
-        return {valid: false}
-    } catch (e) {
-        return {valid: false}
-    }
+    value: OrcidInfoResponse[]
+    onChange: (value: OrcidInfoResponse[]) => void
 }
 
 export default function OrcidInput({value, onChange}: OrcidInputProps) {
     const [currentORCID, setCurrentORCID] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const apiInstance = useApiClient()
+
+    const validateORCID = async (orcid: string): Promise<{ valid: boolean; value?: OrcidInfoResponse }> => {
+        try {
+            const presenter = await apiInstance.orcid.getOrcidData(orcid);
+            const isValid = /^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/.test(orcid)
+            if (isValid) {
+                return {valid: true, value: presenter}
+            }
+            return {valid: false}
+        } catch (e) {
+            return {valid: false}
+        }
+    }
 
     const handleORCIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setCurrentORCID(e.target.value)
