@@ -1,4 +1,4 @@
-import {useApiClient} from "@/api/api-instance.ts";
+import {useApiClient} from "@/api/useApiClient.ts";
 import {useMutation, UseMutationOptions, useQuery, UseQueryOptions} from "@tanstack/react-query";
 
 export function useApi() {

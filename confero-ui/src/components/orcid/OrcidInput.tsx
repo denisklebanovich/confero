@@ -4,7 +4,7 @@ import {Button} from "@/components/ui/button"
 import {Badge} from "@/components/ui/badge"
 import {X} from "lucide-react"
 import {OrcidInfoResponse} from "@/generated";
-import {useApiClient} from "@/api/api-instance.ts";
+import {useApiClient} from "@/api/useApiClient.ts";
 
 interface OrcidInputProps {
     value: OrcidInfoResponse[]
