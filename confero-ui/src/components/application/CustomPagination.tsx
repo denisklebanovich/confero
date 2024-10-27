@@ -49,7 +49,7 @@ const CustomPagination =({
 
     return (
         <div className={"w-full justify-center bg-white"}>
-            <Pagination className={"fixed bottom-12 pb-3 left-0 right-0 bg-white"}>
+            <Pagination className={"fixed bottom-12 pb-3 mb-4 left-0 right-0 bg-white"}>
                 <PaginationContent>
                     <PaginationItem>
                         <PaginationPrevious
