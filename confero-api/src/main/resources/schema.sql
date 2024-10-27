@@ -1,92 +1,103 @@
-CREATE SEQUENCE IF NOT EXISTS session_seq START WITH 1 INCREMENT BY 50;
-
-CREATE TABLE attachment
+CREATE TABLE IF NOT EXISTS users
 (
-    id         VARCHAR(255) NOT NULL,
-    name       VARCHAR(255),
-    url        VARCHAR(255),
-    session_id BIGINT,
-    CONSTRAINT pk_attachment PRIMARY KEY (id)
+    email    VARCHAR(255) PRIMARY KEY,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE keyword
+CREATE TABLE IF NOT EXISTS conference_edition
 (
-    value VARCHAR(255) NOT NULL,
-    CONSTRAINT pk_keyword PRIMARY KEY (value)
+    id                        BIGSERIAL PRIMARY KEY,
+    application_deadline_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_at                TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE presenter
+
+CREATE TABLE IF NOT EXISTS conference_invitee
 (
-    orcid   VARCHAR(255) NOT NULL,
-    name    VARCHAR(255),
-    surname VARCHAR(255),
-    CONSTRAINT pk_presenter PRIMARY KEY (orcid)
+    user_id    VARCHAR NOT NULL,
+    edition_id BIGINT  NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (email),
+    FOREIGN KEY (edition_id) REFERENCES conference_edition (id),
+    PRIMARY KEY (user_id, edition_id)
 );
 
-CREATE TABLE proposal
+
+CREATE TABLE IF NOT EXISTS session
 (
-    id      VARCHAR(255) NOT NULL,
-    title   VARCHAR(255),
-    content VARCHAR(255),
-    status  VARCHAR(255),
-    type    VARCHAR(255),
-    CONSTRAINT pk_proposal PRIMARY KEY (id)
+    id          BIGSERIAL PRIMARY KEY,
+    title       VARCHAR(255)                NOT NULL,
+    type        VARCHAR(255)                NOT NULL,
+    creator_id  VARCHAR                     NOT NULL,
+    tags        JSONB,
+    edition_id  BIGINT                      NOT NULL,
+    description VARCHAR(40000)              NOT NULL,
+    status      VARCHAR(255)                NOT NULL,
+    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT session_type_check CHECK (type IN ('SESSION', 'WORKSHOP', 'TUTORIAL')),
+    CONSTRAINT session_status_check CHECK (status IN ('PENDING', 'DRAFT', 'REJECTED', 'ACCEPTED', 'CHANGE_REQUESTED')),
+    FOREIGN KEY (creator_id) REFERENCES users (email),
+    FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
 
-CREATE TABLE proposal_keywords
+
+
+CREATE TABLE IF NOT EXISTS session
 (
-    proposal_id    VARCHAR(255) NOT NULL,
-    keywords_value VARCHAR(255) NOT NULL
+    id          BIGSERIAL PRIMARY KEY,
+    title       VARCHAR(255)                NOT NULL,
+    type        VARCHAR(255)                NOT NULL,
+    creator_id  VARCHAR                     NOT NULL,
+    tags        JSONB,
+    edition_id  BIGINT                      NOT NULL,
+    description TEXT                        NOT NULL,
+    status      VARCHAR(255)                NOT NULL,
+    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT session_type_check CHECK (type IN ('SESSION', 'WORKSHOP', 'TUTORIAL')),
+    CONSTRAINT session_status_check CHECK (status IN ('PENDING', 'DRAFT', 'REJECTED', 'ACCEPTED', 'CHANGE_REQUESTED')),
+    FOREIGN KEY (creator_id) REFERENCES users (email),
+    FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
 
-CREATE TABLE proposal_presenters
+
+CREATE TABLE IF NOT EXISTS application_comment
 (
-    proposal_id      VARCHAR(255) NOT NULL,
-    presenters_orcid VARCHAR(255) NOT NULL
+    id         BIGSERIAL PRIMARY KEY,
+    session_id BIGINT                      NOT NULL,
+    user_id    VARCHAR                     NOT NULL,
+    content    TEXT                        NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES session (id),
+    FOREIGN KEY (user_id) REFERENCES users (email)
 );
 
-CREATE TABLE session
+
+CREATE TABLE IF NOT EXISTS presenter
 (
-    id              BIGINT NOT NULL,
-    duration        INTEGER,
-    title           VARCHAR(255),
-    description     VARCHAR(255),
-    presenter_orcid VARCHAR(255),
-    start_time      TIMESTAMP WITHOUT TIME ZONE,
-    end_time        TIMESTAMP WITHOUT TIME ZONE,
-    stream_url      VARCHAR(255),
-    CONSTRAINT pk_session PRIMARY KEY (id)
+    id         BIGSERIAL PRIMARY KEY,
+    email      VARCHAR      NOT NULL,
+    session_id BIGINT       NOT NULL,
+    orcid      VARCHAR(255) NOT NULL,
+    name       VARCHAR(255) NOT NULL,
+    surname    VARCHAR(255) NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES session (id),
+    FOREIGN KEY (email) REFERENCES users (email)
 );
 
-CREATE TABLE session_attachments
+CREATE TABLE IF NOT EXISTS presentation
 (
-    session_id     BIGINT       NOT NULL,
-    attachments_id VARCHAR(255) NOT NULL
+    presenter_id BIGINT PRIMARY KEY,
+    start_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    end_time     TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    FOREIGN KEY (presenter_id) REFERENCES presenter (id)
 );
 
-ALTER TABLE session_attachments
-    ADD CONSTRAINT uc_session_attachments_attachments UNIQUE (attachments_id);
-
-ALTER TABLE attachment
-    ADD CONSTRAINT FK_ATTACHMENT_ON_SESSION FOREIGN KEY (session_id) REFERENCES session (id);
-
-ALTER TABLE session
-    ADD CONSTRAINT FK_SESSION_ON_PRESENTER_ORCID FOREIGN KEY (presenter_orcid) REFERENCES presenter (orcid);
-
-ALTER TABLE proposal_keywords
-    ADD CONSTRAINT fk_prokey_on_keyword FOREIGN KEY (keywords_value) REFERENCES keyword (value);
-
-ALTER TABLE proposal_keywords
-    ADD CONSTRAINT fk_prokey_on_proposal FOREIGN KEY (proposal_id) REFERENCES proposal (id);
-
-ALTER TABLE proposal_presenters
-    ADD CONSTRAINT fk_propre_on_presenter FOREIGN KEY (presenters_orcid) REFERENCES presenter (orcid);
-
-ALTER TABLE proposal_presenters
-    ADD CONSTRAINT fk_propre_on_proposal FOREIGN KEY (proposal_id) REFERENCES proposal (id);
-
-ALTER TABLE session_attachments
-    ADD CONSTRAINT fk_sesatt_on_attachment FOREIGN KEY (attachments_id) REFERENCES attachment (id);
-
-ALTER TABLE session_attachments
-    ADD CONSTRAINT fk_sesatt_on_session FOREIGN KEY (session_id) REFERENCES session (id);
+CREATE TABLE IF NOT EXISTS session_attachment
+(
+    id           BIGSERIAL PRIMARY KEY,
+    session_id   BIGINT       NOT NULL,
+    presenter_id BIGINT       NOT NULL,
+    title        VARCHAR(255) NOT NULL,
+    url          VARCHAR(255) NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES session (id),
+    FOREIGN KEY (presenter_id) REFERENCES presenter (id)
+);

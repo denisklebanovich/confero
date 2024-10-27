@@ -1,24 +1,32 @@
 /// <reference types="vite-plugin-svgr/client" />
-import {useState} from 'react'
-import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
-import {supabase} from "@/service/supabaseClient.ts";
-import Footer from "@/components/layout/Footer.tsx";
-import GoogleIcon from "@/assets/google.svg?react";
-import LinkedInIcon from "@/assets/linkedin.svg?react";
-import {useNavigate} from "react-router-dom";
+import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import Footer from "@/components/layout/Footer.tsx"
+import GoogleIcon from "@/assets/google.svg?react"
+import LinkedInIcon from "@/assets/linkedin.svg?react"
+import { useNavigate } from "react-router-dom"
+import {useAuth} from "@/auth/AuthProvider.tsx";
+import {supabase} from "@/auth/supabaseClient.ts";
 
 export default function LoginView() {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+    const { user } = useAuth()
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard')
+        }
+    }, [user, navigate])
 
     const handleGoogleLogin = async () => {
         try {
             setLoading(true)
-            const {error} = await supabase.auth.signInWithOAuth({
+            const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: '/'
                 },
             })
             if (error) throw error
@@ -33,10 +41,10 @@ export default function LoginView() {
     const handleLinkedInLogin = async () => {
         try {
             setLoading(true)
-            const {error} = await supabase.auth.signInWithOAuth({
+            const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'linkedin_oidc',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: '/'
                 },
             })
             if (error) throw error
