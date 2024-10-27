@@ -15,3 +15,13 @@ logging:
     feign:
       client:
         OrcidClient: DEBUG
+
+springdoc:
+  swagger-ui:
+    path: /swagger
+  api-docs:
+    enabled: false
+
+server:
+  servlet:
+    context-path: /api
