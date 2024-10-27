@@ -20,7 +20,7 @@ import java.util.ArrayList;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    @Value("${SUPABASE_JWT_SECRET}")
+    @Value("${supabase.jwt.secret}")
     private String jwtSecret;
 
     @Override

@@ -8,3 +8,5 @@ logging:
     org:
       springframework:
         security: DEBUG
+
+supabase.jwt.secret: secret
