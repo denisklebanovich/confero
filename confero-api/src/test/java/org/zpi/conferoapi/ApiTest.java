@@ -40,7 +40,7 @@ public class ApiTest extends IntegrationTestBase {
                 .given()
                 .contentType("application/json")
                 .body(applicationWithMissingField)
-                .post("application")
+                .post("/api/application")
                 .then()
                 .log().ifError()
                 .statusCode(400);
@@ -54,13 +54,12 @@ public class ApiTest extends IntegrationTestBase {
                 false
         );
 
-
         // when all required fields are present
         RestAssured
                 .given()
                 .contentType("application/json")
                 .body(validApplication)
-                .post("application")
+                .post("/api/application")
                 .then()
                 .log().ifError()
                 .statusCode(200);
@@ -69,7 +68,7 @@ public class ApiTest extends IntegrationTestBase {
         RestAssured
                 .given()
                 .contentType("application/json")
-                .post("application")
+                .post("/api/application")
                 .then()
                 .log().ifError()
                 .statusCode(400);

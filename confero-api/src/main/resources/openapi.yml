@@ -6,11 +6,10 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8080
-
+  - url: http://api/localhost:8080
 
 security:
-  - BearerAuth: []
+  - BearerAuth: [ ]
 
 tags:
   - name: ORCID
@@ -621,18 +620,18 @@ paths:
 
 components:
   securitySchemes:
-      BearerAuth:        
-        type: http
-        scheme: bearer
-        bearerFormat: JWT
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   parameters:
     SessionId:
-        name: id
-        in: path
-        required: true
-        schema:
-          type: string
-        description: Session ID
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Session ID
     ConferenceEditionId:
       name: id
       in: path
@@ -747,7 +746,7 @@ components:
             $ref: '#/components/schemas/PresenterDto'
         saveAsDraft:
           type: boolean
-        
+
     UpdateApplicationRequest:
       type: object
       properties:
@@ -795,7 +794,6 @@ components:
           type: string
           format: date-time
         status:
-          type: string
           $ref: '#/components/schemas/ApplicationStatus'
     ApplicationResponse:
       type: object
@@ -805,7 +803,6 @@ components:
         title:
           type: string
         type:
-          type: string
           $ref: '#/components/schemas/SessionType'
         tags:
           type: array
@@ -821,7 +818,6 @@ components:
           type: string
           format: date-time
         status:
-          type: string
           $ref: '#/components/schemas/ApplicationStatus'
         comments:
           type: array

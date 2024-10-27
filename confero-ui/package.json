@@ -4,11 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "npm run generate",
     "dev": "vite",
+    "prebuild": "npm run generate",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "prepreview": "npm run generate",
     "preview": "vite preview",
-    "generate": "openapi --input http://localhost:8080/v3/api-docs --output ./src/generated --name AppClient"
+    "generate": "openapi --input ../confero-api/src/main/resources/openapi.yml --output ./src/generated --name AppClient"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
