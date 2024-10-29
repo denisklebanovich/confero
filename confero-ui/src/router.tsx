@@ -9,6 +9,7 @@ import AdminSessionView from "@/views/AdminSessionView.tsx";
 import TimetableSessionView from "@/views/TimetableSessionView.tsx";
 import CommentView from "@/views/CommentView";
 import ProposalEditView from "./views/ProposalEditView";
+import ProposalAdminView from "./views/ProposalAdminView";
 
 export const router = createBrowserRouter([
     {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
             {
                 path: 'admin-sessions',
                 element: <AdminSessionView/>
+            },
+            {
+                path: 'admin-proposal',
+                element: <ProposalAdminView/>
             },
             {
                 path: 'timetable',

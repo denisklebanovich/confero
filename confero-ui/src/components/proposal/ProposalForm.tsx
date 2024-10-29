@@ -48,9 +48,13 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface ProposalFormProps {
   defaultValues?: Partial<FormValues>;
-};
+  isDisabled?: boolean;
+}
 
-const ProposalForm = ({ defaultValues }: ProposalFormProps) => {
+const ProposalForm = ({
+  defaultValues,
+  isDisabled = false,
+}: ProposalFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,7 +86,11 @@ const ProposalForm = ({ defaultValues }: ProposalFormProps) => {
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder="Enter the title" {...field} />
+                <Input
+                  placeholder="Enter the title"
+                  {...field}
+                  disabled={isDisabled}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,7 +102,11 @@ const ProposalForm = ({ defaultValues }: ProposalFormProps) => {
           render={({ field }) => (
             <FormItem className="w-1/4">
               <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                disabled={isDisabled}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -117,7 +129,11 @@ const ProposalForm = ({ defaultValues }: ProposalFormProps) => {
             <FormItem>
               <FormLabel>Organisers</FormLabel>
               <FormControl>
-                <OrcidInput value={field.value} onChange={field.onChange} />
+                <OrcidInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  isDisabled={isDisabled}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -131,7 +147,11 @@ const ProposalForm = ({ defaultValues }: ProposalFormProps) => {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter the description" {...field} />
+                <Textarea
+                  placeholder="Enter the description"
+                  {...field}
+                  disabled={isDisabled}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -147,15 +167,27 @@ const ProposalForm = ({ defaultValues }: ProposalFormProps) => {
                 </Badge>
               ))}
             </div>
-            <Button variant="secondary">Generate tags</Button>
+            {isDisabled ? null : (
+              <Button variant="secondary">Generate tags</Button>
+            )}
           </div>
         </FormItem>
         <div className="flex flex-row justify-between items-center mt-4">
-          <Button variant="secondary" onClick={() => navigate("/applications")}>Back</Button>
-          <div className="flex flex-row gap-4">
-            <Button variant="secondary">Save as draft</Button>
-            <Button>Submit</Button>
-          </div>
+          <Button variant="secondary" onClick={() => navigate("/applications")}>
+            Back
+          </Button>
+          {isDisabled ? (
+            <div className="flex flex-row gap-4">
+              <Button variant="secondary" onClick={() => navigate("/comment")}>Add a comment</Button>
+              <Button variant="destructive">Reject</Button>
+              <Button >Approve</Button>
+            </div>
+          ) : (
+            <div className="flex flex-row gap-4">
+              <Button variant="secondary">Save as draft</Button>
+              <Button>Submit</Button>
+            </div>
+          )}
         </div>
       </form>
     </Form>

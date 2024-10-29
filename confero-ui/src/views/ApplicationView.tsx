@@ -112,7 +112,7 @@ const ApplicationView = () => {
                 </div>
                 <div className={"grid grid-cols-2 mt-5 gap-y-4 gap-x-4 w-2/3 overflow-auto max-h-[55vh] px-2"}>
                     <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
-                    <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
+                    <ApplicationCard onClick={() => navigate("/admin-proposal")}/>
                     <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
                     <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
                     <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
