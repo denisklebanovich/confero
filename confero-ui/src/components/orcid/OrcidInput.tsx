@@ -73,6 +73,11 @@ export default function OrcidInput({value, onChange}: OrcidInputProps) {
                     onChange={handleORCIDChange}
                     className="flex-grow"
                 />
+                <Input
+                    type="email"
+                    placeholder="Enter email"
+                    className="flex-grow"
+                />
                 <Button onClick={handleORCIDSubmit} disabled={isLoading}>
                     {isLoading ? 'Validating...' : 'Add'}
                 </Button>
