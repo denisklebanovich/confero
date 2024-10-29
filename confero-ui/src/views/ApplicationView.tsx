@@ -1,12 +1,13 @@
 import CustomPagination from "@/components/application/CustomPagination.tsx";
 import ApplicationCard from "@/components/application/ApplicationCard.tsx";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {useForm} from "react-hook-form";
 
 const ApplicationView = () => {
+    const navigate = useNavigate();
     const form = useForm({
         defaultValues: {
             year: 'All',
@@ -110,13 +111,12 @@ const ApplicationView = () => {
                     </div>
                 </div>
                 <div className={"grid grid-cols-2 mt-5 gap-y-4 gap-x-4 w-2/3 overflow-auto max-h-[55vh] px-2"}>
-                    <ApplicationCard/>
-                    <ApplicationCard/>
-                    <ApplicationCard/>
-                    <ApplicationCard/>
-                    <ApplicationCard/>
-                    <ApplicationCard/>
-                    <ApplicationCard/>
+                    <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
+                    <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
+                    <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
+                    <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
+                    <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
+                    <ApplicationCard onClick={() => navigate("/proposal-edit")}/>
                 </div>
                 <div className={"w-1/4"}>
 

@@ -88,10 +88,10 @@ export default function OrcidInput({value, onChange}: OrcidInputProps) {
             <div className="grid grid-cols-2 gap-2">
                 {value.map(entry => (
                     <Badge key={entry.orcid} variant="secondary"
-                           className="flex items-center justify-between p-2  pl-4 w-full">
-                        <span>{entry.name} {entry.surname}</span>
-                        <Button variant="ghost" size="sm" onClick={() => removeORCID(entry.orcid)}>
-                            <X className="h-4 w-4"/>
+                           className="flex items-center h-8 justify-between p-2 pl-4 w-full">
+                        <span>{entry.name} {entry.surname}, example@gmail.com</span>
+                        <Button className="h-2 w-2" variant="ghost" size="sm" onClick={() => removeORCID(entry.orcid)}>
+                            <X />
                             <span className="sr-only">Remove</span>
                         </Button>
                     </Badge>

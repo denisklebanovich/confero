@@ -44,8 +44,14 @@ const formSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-const ProposalForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+type FormValues = z.infer<typeof formSchema>;
+
+interface ProposalFormProps {
+  defaultValues?: Partial<FormValues>;
+};
+
+const ProposalForm = ({ defaultValues }: ProposalFormProps) => {
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -53,6 +59,7 @@ const ProposalForm = () => {
       organisers: [],
       description: "",
       tags: ["Ai", "Machine Learning", "Deep Learning"],
+      ...defaultValues,
     },
   });
 

@@ -2,9 +2,13 @@ import { Calendar } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-export default function ApplicationCard() {
+interface ApplicationCardProps {
+    onClick?: () => void; 
+}
+
+export default function ApplicationCard({ onClick }: ApplicationCardProps) {
     return (
-        <Card className="max-w-md cursor-pointer">
+        <Card onClick={onClick} className="max-w-md cursor-pointer">
             <CardHeader>
                 <CardTitle className="text-xl font-semibold">Computer Vision and Intelligent systems</CardTitle>
             </CardHeader>

@@ -1,23 +1,25 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent } from "@/components/ui/card";
 
-const ApplicationComment = () => {
-  return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold">Comment</CardTitle>
-          <p className="text-gray-500">Provide information on what to be changed in the application</p>
-        </CardHeader>
-        <CardContent>
-          <Textarea 
-            placeholder="Change hte objective. The type of the event is wrong."
-            className="min-h-48"
-          />
-        </CardContent>
-      </Card>
-    </div>
-  )
+interface ApplicationCommentProps {
+  user: string;
+  comment: string;
 }
+
+const ApplicationComment = ({ user, comment }: ApplicationCommentProps) => {
+  return (
+    <Card className="w-64 shadow-lg">
+      <CardContent className="pt-6">
+        <div className="flex items-start space-x-4">
+          <div className="flex-1">
+            <h3 className="font-semibold">{user}</h3>
+            <p className="text-sm text-gray-500">
+              {comment}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default ApplicationComment;
