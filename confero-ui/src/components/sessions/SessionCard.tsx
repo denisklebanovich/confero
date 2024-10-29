@@ -1,23 +1,30 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {SessionDto} from "@/generated";
 import {CalendarIcon} from "lucide-react";
 import {useNavigate} from "react-router-dom";
+import {SessionPreviewResponse} from "@/generated";
 
-const SessionCard = (session: SessionDto) => {
+const extractTime = (date: string) => {
+    const d = new Date(date);
+    return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+}
+
+const SessionCard = (session: SessionPreviewResponse) => {
     const navigate = useNavigate();
+
+
     return (
     <Card className="w-full cursor-pointer" onClick={() => navigate("/session")}>
         <CardHeader>
-            <CardTitle className="text-xl font-bold">Computer Vision and Intelligent systems</CardTitle>
+            <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
         </CardHeader>
         <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-                Topics: ImageProcessing, ObjectDetection, FacialRecognition, 3DReconstruction, FeatureExtraction
+                Topics: {session.tags?.map((topic) => topic).join(", ")}
             </p>
             <div className="flex items-center text-sm text-muted-foreground">
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 <time>
-                    13:00 - 17:30
+                    {extractTime(session.startTime!!)} - {extractTime(session.endTime!!)}
                 </time>
             </div>
         </CardContent>

@@ -54,8 +54,9 @@ erDiagram
         TIMESTAMP end_time "Not Null"
     }
 
-    PRESENTER_ATTACHMENT {
+    SESSION_ATTACHMENT {
         BIGSERIAL id PK "Primary Key"
+        BIGINT session_id FK "References SESSION (id)"
         BIGINT presenter_id FK "References PRESENTER (id)"
         VARCHAR title "Not Null"
         VARCHAR url "Not Null"
@@ -66,8 +67,9 @@ erDiagram
     USERS ||--o{ PRESENTER: "is associated with"
     SESSION ||--o{ PROPOSAL_COMMENT: "has comments"
     SESSION ||--o{ PRESENTER: "has presenters"
+    SESSION ||--o{ SESSION_ATTACHMENT: "has attachments"
     PRESENTER ||--o| PRESENTATION: "gives"
-    PRESENTER ||--o{ PRESENTER_ATTACHMENT: "has attachments"
+    PRESENTER ||--o{ SESSION_ATTACHMENT: "has attachments"
     USERS ||--o{ CONFERENCE_INVITEE: "is invited"
     CONFERENCE_EDITION ||--o{ CONFERENCE_INVITEE: "includes invitees"
     CONFERENCE_EDITION ||--o{ SESSION: "hosts"

@@ -1,6 +1,7 @@
 package org.zpi.conferoapi.orcid;
 
 import lombok.RequiredArgsConstructor;
+import org.openapitools.model.OrcidInfoResponse;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -8,12 +9,10 @@ import org.springframework.stereotype.Service;
 public class OrcidService {
     private final OrcidClient orcidClient;
 
-    public OrcidInfo getRecord(String id) {
+    public OrcidInfoResponse getRecord(String id) {
         var orcidXMLResponse = orcidClient.getRecord(id);
-        return new OrcidInfo(
-                id,
-                orcidXMLResponse.getName(),
-                orcidXMLResponse.getSurname()
-        );
+        return new OrcidInfoResponse().orcid(id)
+                .name(orcidXMLResponse.getName())
+                .surname(orcidXMLResponse.getSurname());
     }
 }

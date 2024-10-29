@@ -12,4 +12,6 @@ public class ConferoApiApplication {
         SpringApplication.run(ConferoApiApplication.class, args);
     }
 
+
+
 }

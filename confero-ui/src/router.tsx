@@ -7,6 +7,7 @@ import ApplicationView from "@/views/ApplicationView.tsx";
 import SessionView from "@/views/SessionView.tsx";
 import AdminSessionView from "@/views/AdminSessionView.tsx";
 import TimetableSessionView from "@/views/TimetableSessionView.tsx";
+import {AuthProvider} from "@/auth/AuthProvider.tsx";
 import CommentView from "@/views/CommentView";
 import ProposalEditView from "./views/ProposalEditView";
 import ProposalAdminView from "./views/ProposalAdminView";
@@ -16,7 +17,9 @@ export const router = createBrowserRouter([
         path: '/',
         element: (
             <>
-                <Layout/>
+                <AuthProvider>
+                    <Layout/>
+                </AuthProvider>
             </>
         ),
         children: [
@@ -60,6 +63,10 @@ export const router = createBrowserRouter([
     },
     {
         path: '/login',
-        element: <LoginView/>
+        element: <>
+            <AuthProvider>
+                <LoginView/>
+            </AuthProvider>
+        </>
     }
 ])

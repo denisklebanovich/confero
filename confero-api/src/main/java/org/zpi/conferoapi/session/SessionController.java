@@ -1,20 +1,27 @@
 package org.zpi.conferoapi.session;
 
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.openapitools.api.SessionApi;
+import org.openapitools.model.CreateApplicationRequest;
+import org.openapitools.model.SessionPreviewResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/sessions")
 @RequiredArgsConstructor
-public class SessionController {
+@RestController
+public class SessionController implements SessionApi {
     private final SessionService sessionService;
 
-    @GetMapping
-    public List<SessionDto> getAllSessions() {
-        return sessionService.getAllSessions();
+    @Override
+    public ResponseEntity<List<SessionPreviewResponse>> getSessions() {
+        return ResponseEntity.ok(sessionService.getSessions());
+    }
+
+    @Override
+    public ResponseEntity<SessionPreviewResponse> createSession(CreateApplicationRequest createApplicationRequest) {
+        return ResponseEntity.ok(sessionService.createSession(createApplicationRequest));
     }
 }

@@ -47,7 +47,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    implementation "io.jsonwebtoken:jjwt:${jjwtVersion}"
+    implementation 'com.auth0:java-jwt:4.4.0'
     implementation "org.openapitools:jackson-databind-nullable:${jacksonDatabindNullableVersion}"
 
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"

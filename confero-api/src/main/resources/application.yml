@@ -25,3 +25,6 @@ springdoc:
 server:
   servlet:
     context-path: /api
+
+
+supabase.jwt.secret: ${SUPABASE_JWT_SECRET}

@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
+import { useAuth } from "@/auth/AuthProvider.tsx";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -9,6 +10,7 @@ import {
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, signOut } = useAuth();
   return (
     <div className="navbar bg-white fixed top-0 w-full">
       <div className="container my-1 flex items-center justify-between">
@@ -50,9 +52,13 @@ const Navbar = () => {
           </NavigationMenu>
         ) : null}
 
-        <Button>
-          <Link to="/login">Login</Link>
-        </Button>
+        {user ? (
+          <Button onClick={signOut}>Logout</Button>
+        ) : (
+          <Button>
+            <Link to="/login">Login</Link>
+          </Button>
+        )}
       </div>
     </div>
   );
