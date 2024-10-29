@@ -20,8 +20,7 @@ import java.util.Map;
 @Table(name = "session")
 public class Session {
     @Id
-    @ColumnDefault("nextval('session_id_seq'::regclass)")
-    @Column(name = "id", nullable = false)
+    @GeneratedValue
     private Long id;
 
     @Size(max = 255)

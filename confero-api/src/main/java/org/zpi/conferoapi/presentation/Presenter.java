@@ -15,8 +15,7 @@ import org.zpi.conferoapi.session.Session;
 @Table(name = "presenter")
 public class Presenter {
     @Id
-    @ColumnDefault("nextval('presenter_id_seq'::regclass)")
-    @Column(name = "id", nullable = false)
+    @GeneratedValue
     private Long id;
 
     @NotNull
