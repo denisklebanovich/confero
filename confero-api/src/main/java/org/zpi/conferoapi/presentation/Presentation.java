@@ -29,4 +29,11 @@ public class Presentation {
     @Column(name = "end_time", nullable = false)
     private Instant endTime;
 
+    @NotNull
+    @Column(name = "title")
+    private String title;
+
+    @NotNull
+    @Column(name = "description")
+    private String description;
 }

@@ -3,7 +3,10 @@ package org.zpi.conferoapi.presentation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.zpi.conferoapi.user.User;
@@ -13,6 +16,9 @@ import org.zpi.conferoapi.session.Session;
 @Setter
 @Entity
 @Table(name = "presenter")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Presenter {
     @Id
     @GeneratedValue
@@ -21,7 +27,7 @@ public class Presenter {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "email", nullable = false)
-    private User email;
+    private User user;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -43,4 +49,7 @@ public class Presenter {
     @Column(name = "surname", nullable = false)
     private String surname;
 
+    @NotNull
+    @Column(name = "is_main", nullable = false)
+    private Boolean isMain;
 }
