@@ -3,11 +3,13 @@ package org.zpi.conferoapi;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.CreateApplicationRequest;
-import org.openapitools.model.PresenterDto;
+import org.openapitools.model.PresentationRequest;
+import org.openapitools.model.PresenterRequest;
 import org.openapitools.model.SessionType;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -21,17 +23,16 @@ public class ApiTest extends IntegrationTestBase {
 
     @Test
     void sanity_check() {
-        PresenterDto presenter = new PresenterDto(
-                "John",
-                "Doe"
-        );
+        var presenter = new PresenterRequest("Some orcid", "Some email");
+        var presentation = new PresentationRequest("Some title", Collections.singletonList(presenter));
+
 
         CreateApplicationRequest applicationWithMissingField = new CreateApplicationRequest(
                 null,
                 SessionType.WORKSHOP,
                 Arrays.asList("Spring", "Boot", "Workshop"),
                 "An in-depth workshop on Spring Boot features",
-                Collections.singletonList(presenter),
+                Collections.singletonList(presentation),
                 false
         );
 
@@ -50,7 +51,7 @@ public class ApiTest extends IntegrationTestBase {
                 SessionType.WORKSHOP,
                 Arrays.asList("Spring", "Boot", "Workshop"),
                 "An in-depth workshop on Spring Boot features",
-                Collections.singletonList(presenter),
+                Collections.singletonList(presentation),
                 false
         );
 

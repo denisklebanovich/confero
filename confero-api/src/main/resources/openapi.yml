@@ -24,8 +24,60 @@ tags:
     description: All data related to managing the applications to the special sessions
   - name: Session
     description: All data related to managing the sessions
+  - name: Organizer
+    description: All data related to organizers
+  - name: Presentation
+    description: All data related to presentations
+  - name: Profile
+    description: All data related to user profile
 
 paths:
+  /profile:
+    get:
+      tags:
+        - Profile
+        - User
+      summary: Get user profile
+      description: |-
+        Get user profile.
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+
+    put:
+      tags:
+        - Profile
+        - User
+      summary: Update user profile
+      description: |-
+        Update user profile.
+      operationId: updateUserProfile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
   /orcid/{orcid}:
     get:
       tags:
@@ -118,7 +170,7 @@ paths:
                 $ref: '#/components/schemas/ConferenceEditionSummaryResponse'
 
 
-  /conference-edition/{id}:
+  /conference-edition/{conferenceEditionId}:
     put:
       tags:
         - Conference Edition
@@ -152,7 +204,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /conference-edition/{id}/invitees:
+  /conference-edition/{conferenceEditionId}/invitees:
     post:
       tags:
         - Conference Edition
@@ -236,7 +288,10 @@ paths:
       tags:
         - Application
         - User
-      summary: Get all applications for the user.
+        - Admin
+      summary: Get all applications.
+      description: |-
+        Get all applications. It will return all applications created by the user. Admin will see all applications.
       operationId: getApplications
       responses:
         '200':
@@ -248,7 +303,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/ApplicationPreviewResponse'
 
-  /application/{id}:
+  /application/{applicationId}:
     get:
       tags:
         - Application
@@ -334,43 +389,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-
-  /application/{id}/review:
-    get:
-      tags:
-        - Application
-        - Admin
-      summary: Get all applications sent for review.
-
-      description:
-        |-
-        Admin-only endpoint to get all applications sent for review. This will not return "draft" and "resolved" applications.
-
-      operationId: getApplicationsForReview
-      parameters:
-        - $ref: '#/components/parameters/ApplicationId'
-
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ApplicationPreviewResponse'
-
-
-  /application/{id}/review/ask-for-adjustments:
+  /application/{applicationId}/review:
     post:
       tags:
         - Application
         - Admin
-      summary: Ask for adjustments
+      summary: Review an application
       description: |-
-        Admin-only endpoint to ask for adjustments in the application.
-        It will be possible only if the application is not "resolved".
-      operationId: askForAdjustments
+        Admin-only endpoint to review an application.
+        It will be possible only if the application is not "resolved". "ASK_FOR_ADJUSTMENTS" review type requires additional field "comment".
+      operationId: reviewApplication
       parameters:
         - $ref: '#/components/parameters/ApplicationId'
       requestBody:
@@ -378,7 +406,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdjustmentsRequest'
+              $ref: '#/components/schemas/ReviewRequest'
       responses:
         '200':
           description: OK
@@ -398,68 +426,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /application/{id}/review/accept:
-    post:
-      tags:
-        - Application
-        - Admin
-      summary: Accept an application
-      description: |-
-        Admin-only endpoint to accept an application.
-        It will be possible only if the application is not "resolved".
-      operationId: acceptApplication
-      parameters:
-        - $ref: '#/components/parameters/ApplicationId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApplicationPreviewResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /application/{id}/review/reject:
-    post:
-      tags:
-        - Application
-        - Admin
-      summary: Reject an application
-      description: |-
-        Admin-only endpoint to reject an application.
-        It will be possible only if the application is not "resolved".
-      operationId: rejectApplication
-      parameters:
-        - $ref: '#/components/parameters/ApplicationId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApplicationPreviewResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+
   /session:
     get:
       tags:
@@ -490,6 +457,7 @@ paths:
         description: |-
             Create test session.
         operationId: createSession
+        deprecated: true
         requestBody:
             required: true
             content:
@@ -509,8 +477,79 @@ paths:
                 application/json:
                   schema:
                     $ref: '#/components/schemas/ErrorResponse'
+  /session/event:
+    get:
+      tags:
+        - Session
+        - User
+      summary: Get session events
+      operationId: getSessionEvents
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SesssionEventResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  
+  /session/agenda:
+    get:
+      tags:
+        - Session
+        - User
+      summary: Get user's conference agenda
+      description: |-
+        Retrieve all sessions that a user has added to their agenda. Organizers will also see sessions they are involved in, even if they have not yet configured their agenda.
+      operationId: getPersonalAgenda
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceAgenda'
+    put:
+      tags:
+        - Session
+        - User
+      summary: Modify user's conference agenda
+      description: |-
+        Modify user's conference agenda.
+      operationId: modifyPersonalAgenda
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConferenceAgenda'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceAgenda'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      
+      
 
-  /session/{id}:
+  /session/{sessionId}:
     get:
       tags:
         - Session
@@ -532,79 +571,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /session/{id}/timetable:
-    get:
-      tags:
-        - Session
-        - User
-        - Admin
-      summary: Get session timetable
-      parameters:
-        - $ref: '#/components/parameters/SessionId'
-      operationId: getSessionTimetable
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SessionTimetableResponse'
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+  /session/{sessionId}/presentation/{presentationId}:
     put:
       tags:
         - Session
-        - Admin
-      summary: Update session timetable
+        - User
+        - Presentation
+      summary: Update presentation
+      operationId: updatePresentation
       description: |-
-        Update session timetable.
-      operationId: updateSessionTimetable
+        Update presentation. It will be possible only for orginizers of the session.
       parameters:
         - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/PresentationId'
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/TimeTableEntryRequest'
+              $ref: '#/components/schemas/UpdateSessionPresentationRequest'
+
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SessionTimetableResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+                
 
-
-  /session/{id}/attachment:
+  /session/{sessionId}/presentation/{presentationId}/attachment:
     post:
       tags:
         - Session
         - User
-      summary: Add attachment to the session
+        - Presentation
+      summary: Add presentation attachement.
       description: |-
-        Add attachment to the session. It will be possible only for orginizers of the session.
-      operationId: addAttachment
+        Add attachement to the presentation. It will be possible only for presentation participants.
+      operationId: addPresentationAttachment
       parameters:
         - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/PresentationId'
       requestBody:
         required: true
         content:
@@ -630,18 +641,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /session/{id}/attachment/{attachmentId}:
+  /session/{sessionId}/presentation/{presentationId}/attachment/{attachmentId}:
     delete:
       tags:
         - Session
         - User
-      summary: Delete attachment
+        - Presentation
+      summary: Delete presentation attachment
       description: |-
-        Delete attachment. It will be possible only for owner of the attachment.
-      operationId: deleteAttachment
+        Delete attachment from the presentation. It will be possible only for presentation participants.
+      operationId: deletePresentationAttachment
       parameters:
         - $ref: '#/components/parameters/SessionId'
         - $ref: '#/components/parameters/AttachmentId'
+        - $ref: '#/components/parameters/PresentationId'
       responses:
         '204':
           description: No content
@@ -651,6 +664,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /organizer:
+    get:
+      tags:
+        - Organizer
+      summary: Find organizers
+      description: |-
+        Get all organizers by first name, last name or orcid. It will return organizers from all conference editions.
+      operationId: findOrganizers
+      parameters:
+        - name: firstName
+          in: query
+          schema:
+            type: string
+        - name: lastName
+          in: query
+          schema:
+            type: string
+        - name: orcid
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizerResponse'
+  /organizer/{orginizerId}/participation:
+    get:
+      tags:
+        - Organizer
+      summary: Get organizer participations
+      operationId: getOrganizerParticipations
+      description: |-
+        Get all participations of the organizer within current conference edition.
+      parameters:
+        - $ref: '#/components/parameters/OrginizerId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionPreviewResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 
 components:
   securitySchemes:
@@ -660,14 +729,21 @@ components:
       bearerFormat: JWT
   parameters:
     SessionId:
-      name: id
+      name: sessionId
       in: path
       required: true
       schema:
         type: string
       description: Session ID
+    PresentationId:
+      name: presentationId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Presentation ID
     ConferenceEditionId:
-      name: id
+      name: conferenceEditionId
       in: path
       required: true
       schema:
@@ -681,12 +757,19 @@ components:
         type: string
       description: Attachment ID
     ApplicationId:
-      name: id
+      name: applicationId
       in: path
       required: true
       schema:
         type: string
       description: Application ID
+    OrginizerId:
+      name: organizerId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Organizer ID
   
   responses:
     NotFound:
@@ -710,6 +793,22 @@ components:
     ApplicationStatus:
       type: string
       enum: [ PENDING, DRAFT, REJECTED, ACCEPTED, CHANGE_REQUESTED ]
+    ReviewType:
+      type: string
+      enum: [ ACCEPT, REJECT, ASK_FOR_ADJUSTMENTS ]
+    SessionEventType:
+      type: string
+      enum: [ FILE_UPLOAD]
+    ReviewRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          $ref: '#/components/schemas/ReviewType'
+        comment:
+          type: string
+
     ErrorResponse:
       type: object
       properties:
@@ -761,7 +860,7 @@ components:
         - type
         - tags
         - description
-        - presenters
+        - presentations
         - saveAsDraft
       properties:
         title:
@@ -774,10 +873,10 @@ components:
             type: string
         description:
           type: string
-        presenters:
+        presentations:
           type: array
           items:
-            $ref: '#/components/schemas/PresenterDto'
+            $ref: '#/components/schemas/PresentationRequest'
         saveAsDraft:
           type: boolean
 
@@ -794,14 +893,14 @@ components:
             type: string
         description:
           type: string
-        presenters:
+        presentations:
           type: array
           items:
-            $ref: '#/components/schemas/PresenterDto'
+            $ref: '#/components/schemas/PresentationRequest'
         saveAsDraft:
           type: boolean
     
-    PresenterDto:
+    PresenterRequest:
       type: object
       required:
         - orcid
@@ -811,6 +910,85 @@ components:
           type: string
         email:
           type: string
+        is_speaker:
+          type: boolean
+
+    PresenterResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        orcid:
+          type: string
+        is_speaker:
+          type: boolean
+    
+    PresentationRequest:
+      type: object
+      required:
+        - title
+        - presenters
+      properties:
+        title:
+          type: string
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterRequest'
+            
+    ApplicationPresentationResponse:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterResponse'
+
+    PresentationSessionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterResponse'
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+    UpdateSessionPresentationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+
     ApplicationPreviewResponse:
       type: object
       properties:
@@ -823,7 +1001,7 @@ components:
         presenters:
           type: array
           items:
-            $ref: '#/components/schemas/PresenterDto'
+            $ref: '#/components/schemas/PresenterResponse'
         lastUpdated:
           type: string
           format: date-time
@@ -844,10 +1022,10 @@ components:
             type: string
         description:
           type: string
-        presenters:
+        presentations:
           type: array
           items:
-            $ref: '#/components/schemas/PresenterDto'
+            $ref: '#/components/schemas/ApplicationPresentationResponse'
         lastUpdated:
           type: string
           format: date-time
@@ -857,7 +1035,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CommentResponse'
-
     CommentResponse:
       type: object
       properties:
@@ -868,13 +1045,6 @@ components:
         createdAt:
           type: string
           format: date-time
-    AdjustmentsRequest:
-      type: object
-      required:
-        - comment
-      properties:
-        comment:
-          type: string
     SessionPreviewResponse:
       type: object
       properties:
@@ -896,7 +1066,7 @@ components:
         presenters:
           type: array
           items:
-            $ref: '#/components/schemas/PresenterDto'
+            $ref: '#/components/schemas/PresenterResponse'
     SessionResponse:
       type: object
       properties:
@@ -906,18 +1076,14 @@ components:
           type: string
         description:
           type: string
-        presenters:
+        presentations:
           type: array
           items:
-            $ref: '#/components/schemas/PresenterDto'
+            $ref: '#/components/schemas/PresentationSessionResponse'
         tags:
           type: array
           items:
             type: string
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/AttachmentResponse'
     AttachmentResponse:
       type: object
       properties:
@@ -938,40 +1104,63 @@ components:
         file:
           type: string
           format: binary
-    SessionTimetableResponse:
+    OrganizerResponse:
       type: object
       properties:
-        timetable:
-          type: array
-          items:
-            $ref: '#/components/schemas/TimetableEntryResponse'
-    TimetableEntryResponse:
-      type: object
-      properties:
-        startTime:
+        id:
           type: string
-          format: date-time
-        endTime:
+        firstName:
           type: string
-          format: date-time
-        presenterFirstName:
+        lastName:
           type: string
-        presenterLastName:
+        orcid:
           type: string
-        presenterId:
-          type: string
-    TimeTableEntryRequest:
+    ConferenceAgenda:
       type: object
       required:
-        - startTime
-        - endTime
-        - presenterId
+        - sessionIds
       properties:
-        startTime:
+        sessionIds:
+          type: array
+          items:
+            type: string
+    ProfileResponse:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        orcid:
+          type: string
+        avatarUrl:
+          type: string
+    UpdateProfileRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        avatarFile:
+          type: string
+          format: binary
+          description: "Avatar image file to be uploaded"
+
+    SesssionEventResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/SessionEventType'
+        url:
+          type: string
+        userId:
+          type: string
+        timestamp:
           type: string
           format: date-time
-        endTime:
-          type: string
-          format: date-time
-        presenterId:
+        sessionId:
           type: string
