@@ -42,34 +42,38 @@ erDiagram
     PRESENTER {
         BIGSERIAL id PK "Primary Key"
         VARCHAR email FK "References USERS (email)"
-        BIGINT session_id FK "References SESSION (id)"
+        BIGINT presentation_id FK "References PRESENTATION (id)"
         VARCHAR orcid "Not Null"
         VARCHAR name "Not Null"
         VARCHAR surname "Not Null"
+        BOOLEAN is_main "Not Null, Default FALSE"
     }
 
     PRESENTATION {
         BIGINT presenter_id PK "Primary Key, Foreign Key to PRESENTER (id)"
-        TIMESTAMP start_time "Not Null"
-        TIMESTAMP end_time "Not Null"
+        VARCHAR title "Not Null"
+        VARCHAR description "Max Length 12000"
+        TIMESTAMP start_time 
+        TIMESTAMP end_time 
+        BIGINT session_id FK "References SESSION (id)"
     }
 
-    SESSION_ATTACHMENT {
+    ATTACHMENT {
         BIGSERIAL id PK "Primary Key"
         BIGINT session_id FK "References SESSION (id)"
-        BIGINT presenter_id FK "References PRESENTER (id)"
+        BIGINT presentation_id FK "References PRESENTATION (id)"
         VARCHAR title "Not Null"
         VARCHAR url "Not Null"
+        TIMESTAMP created_at "Not Null"
     }
 
     USERS ||--o{ SESSION: "creates"
     USERS ||--o{ PROPOSAL_COMMENT: "comments on"
     USERS ||--o{ PRESENTER: "is associated with"
     SESSION ||--o{ PROPOSAL_COMMENT: "has comments"
-    SESSION ||--o{ PRESENTER: "has presenters"
-    SESSION ||--o{ SESSION_ATTACHMENT: "has attachments"
-    PRESENTER ||--o| PRESENTATION: "gives"
-    PRESENTER ||--o{ SESSION_ATTACHMENT: "has attachments"
+    SESSION ||--o{ PRESENTATION: "has presentations"
+    PRESENTATION ||--o{ ATTACHMENT: "has attachments"
+    PRESENTATION ||--o| PRESENTER: "organized by"
     USERS ||--o{ CONFERENCE_INVITEE: "is invited"
     CONFERENCE_EDITION ||--o{ CONFERENCE_INVITEE: "includes invitees"
     CONFERENCE_EDITION ||--o{ SESSION: "hosts"
