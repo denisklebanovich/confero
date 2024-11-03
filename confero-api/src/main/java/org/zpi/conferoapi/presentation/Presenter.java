@@ -18,7 +18,6 @@ public class Presenter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "email", nullable = false)
@@ -47,4 +46,9 @@ public class Presenter {
     @NotNull
     @Column(name = "is_main", nullable = false)
     private Boolean isMain = false;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

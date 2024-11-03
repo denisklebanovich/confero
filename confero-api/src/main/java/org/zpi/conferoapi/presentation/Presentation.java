@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.zpi.conferoapi.session.Session;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -37,4 +39,7 @@ public class Presentation {
 
     @Column(name = "end_time", nullable = false)
     private Instant endTime;
+
+    @OneToMany(mappedBy = "presentation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Presenter> presenters = new ArrayList<>();
 }

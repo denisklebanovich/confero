@@ -88,12 +88,13 @@ CREATE TABLE IF NOT EXISTS presenter
 (
     id              BIGSERIAL PRIMARY KEY,
     email           VARCHAR      NOT NULL,
+    user_id         BIGINT,
     orcid           VARCHAR(255) NOT NULL,
     name            VARCHAR(255) NOT NULL,
     surname         VARCHAR(255) NOT NULL,
     presentation_id BIGINT       NOT NULL,
     is_main         BOOLEAN      NOT NULL DEFAULT FALSE,
-    CONSTRAINT fk_presenter_user FOREIGN KEY (email) REFERENCES users (id),
+    CONSTRAINT fk_presenter_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id)
 );
 
