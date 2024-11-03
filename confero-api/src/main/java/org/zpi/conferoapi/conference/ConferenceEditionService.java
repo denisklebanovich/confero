@@ -13,8 +13,11 @@ import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 import org.zpi.conferoapi.util.CsvReader;
 
+import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -33,28 +36,7 @@ public class ConferenceEditionService {
             throw new ServiceException(ErrorReason.ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS);
         }
 
-        var invitees = new ArrayList<User>();
-
-        if (createConferenceEditionRequest.getInvitationList() != null) {
-            log.info("Invitation list is provided: {}", createConferenceEditionRequest.getInvitationList().getName());
-            var emails = CsvReader.readEmailList(createConferenceEditionRequest.getInvitationList());
-            log.info("Read {} emails from the invitation list", emails);
-
-            emails.forEach(email -> {
-                var user = userRepository.findByEmail(email);
-                if (user.isEmpty()) {
-                    log.info("User with email {} does not exist, creating new user", email);
-                    var saved = userRepository.save(User.builder()
-                            .email(email)
-                            .isAdmin(false)
-                            .build());
-                    invitees.add(saved);
-                } else {
-                    log.info("User with email {} already exists", email);
-                    invitees.add(user.get());
-                }
-            });
-        }
+        List<User> invitees = getInviteesFromInvitationList(createConferenceEditionRequest.getInvitationList());
 
         return conferenceEditionRepository.save(ConferenceEdition.builder()
                 .applicationDeadlineTime(createConferenceEditionRequest.getApplicationDeadlineTime())
@@ -64,11 +46,65 @@ public class ConferenceEditionService {
     }
 
 
+    public ConferenceEdition updateConferenceEdition(UpdateConferenceEdition updateConferenceEdition) {
+        var conferenceEdition = conferenceEditionRepository.findById(updateConferenceEdition.getId())
+                .orElseThrow(() -> new ServiceException(ErrorReason.NOT_FOUND));
+
+        updateConferenceEdition.getApplicationDeadlineTime().ifPresent(conferenceEdition::setApplicationDeadlineTime);
+
+        updateConferenceEdition.getInvitationList().ifPresent(file -> {
+            List<User> invitees = getInviteesFromInvitationList(Optional.of(file));
+            conferenceEdition.setInvitees(invitees);
+        });
+
+        return conferenceEditionRepository.save(conferenceEdition);
+    }
+
+
+    public List<ConferenceEdition> getAllConferenceEditions() {
+        return conferenceEditionRepository.findAll();
+    }
+
+    private List<User> getInviteesFromInvitationList(Optional<MultipartFile> invitationList) {
+        return invitationList.map(file -> {
+            try {
+                var emails = CsvReader.readEmailList(file);
+                log.info("Read {} emails from the invitation list", emails.size());
+
+                return emails.stream()
+                        .map(email -> userRepository.findByEmail(email)
+                                .orElseGet(() -> {
+                                    log.info("User with email {} does not exist, creating new user", email);
+                                    return userRepository.save(User.builder()
+                                            .email(email)
+                                            .isAdmin(false)
+                                            .build());
+                                }))
+                        .collect(Collectors.toList());
+            } catch (IOException e) {
+                throw new ServiceException(ErrorReason.INVALID_FILE_FORMAT);
+            }
+        }).orElseGet(List::of);
+    }
+
     @Value
     @Builder
     public static class CreateConferenceEdition {
 
         Instant applicationDeadlineTime;
-        MultipartFile invitationList;
+
+        Optional<MultipartFile> invitationList;
+    }
+
+
+    @Value
+    @Builder
+    public static class UpdateConferenceEdition {
+
+        Optional<Instant> applicationDeadlineTime;
+
+        Optional<MultipartFile> invitationList;
+
+        Long id;
     }
 }

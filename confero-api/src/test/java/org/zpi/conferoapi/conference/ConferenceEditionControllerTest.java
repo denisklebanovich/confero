@@ -5,15 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.model.ConferenceEditionResponse;
 import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ErrorResponse;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.zpi.conferoapi.ConferoApiApplication;
 import org.zpi.conferoapi.IntegrationTestBase;
-import org.zpi.conferoapi.IntegrationTestConfiguration;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -93,5 +86,37 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         assertNotNull(createdConferenceEdition.getId());
         assertEquals(applicationDeadlineTime, createdConferenceEdition.getApplicationDeadlineTime());
         assertEquals(2, createdConferenceEdition.getNumberOfInvitations());
+    }
+
+
+    @Test
+    void invalid_file_format() throws IOException {
+        createConferenceEditionWithInvalidFileFormat("This, is, not a valid CSV file");
+        createConferenceEditionWithInvalidFileFormat("This is not a valid CSV file");
+    }
+
+    void createConferenceEditionWithInvalidFileFormat(String content) throws IOException {
+        // Prepare an invalid file (non-CSV format)
+        File invalidFile = File.createTempFile("invalidInvitationList", ".txt");
+        try (FileWriter writer = new FileWriter(invalidFile)) {
+            writer.write(content);
+        }
+
+        var applicationDeadlineTime = Instant.now().plus(1, DAYS);
+
+        var errorResponse = RestAssured
+                .given()
+                .contentType("multipart/form-data")
+                .multiPart("invitationList", invalidFile)
+                .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
+                .post("/api/conference-edition")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.BAD_REQUEST.value())  // Assuming invalid format results in a 400 error
+                .extract()
+                .response();
+
+        var error = errorResponse.as(ErrorResponse.class);
+        assertEquals(ErrorReason.INVALID_FILE_FORMAT, error.getReason());
     }
 }

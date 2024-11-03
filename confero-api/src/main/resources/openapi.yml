@@ -188,9 +188,14 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CreateConferenceEditionRequest'
+              $ref: '#/components/schemas/UpdateConferenceEditionRequest'
+            encoding:
+              invitationList:
+                contentType: text/csv
+              applicationDeadlineTime:
+                contentType: text/plain
       responses:
         '200':
           description: OK
@@ -692,42 +697,48 @@ components:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
       description: Session ID
     PresentationId:
       name: presentationId
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
       description: Presentation ID
     ConferenceEditionId:
       name: conferenceEditionId
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
       description: Conference edition ID
     AttachmentId:
       name: attachmentId
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
       description: Attachment ID
     ApplicationId:
       name: applicationId
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
       description: Application ID
     OrginizerId:
       name: organizerId
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
       description: Organizer ID
   
   responses:
@@ -759,6 +770,8 @@ components:
       type: string
       enum:
         - ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS
+        - NOT_FOUND
+        - INVALID_FILE_FORMAT
 
     SessionEventType:
       type: string
@@ -800,6 +813,18 @@ components:
           type: string
           format: binary
           description: "CSV file containing the list of invitations."
+    UpdateConferenceEditionRequest:
+      type: object
+      properties:
+        applicationDeadlineTime:
+          type: string
+          format: date-time
+          description: "The application deadline in ISO 8601 format (e.g., 2024-11-03T12:00:00Z)."
+        invitationList:
+          type: string
+          format: binary
+          description: "CSV file containing the list of invitations."
+    
     ConferenceEditionResponse:
       type: object
       properties:
