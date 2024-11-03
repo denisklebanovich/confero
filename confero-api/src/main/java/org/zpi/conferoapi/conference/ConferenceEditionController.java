@@ -8,13 +8,10 @@ import org.openapitools.api.ConferenceEditionApi;
 import org.openapitools.model.ConferenceEditionResponse;
 import org.openapitools.model.ConferenceEditionSummaryResponse;
 import org.openapitools.model.CreateConferenceEditionRequest;
-import org.openapitools.model.ErrorReason;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.zpi.conferoapi.exception.ServiceException;
 
-import java.time.Instant;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -25,32 +22,21 @@ import static org.springframework.http.HttpStatus.CREATED;
 @Slf4j
 public class ConferenceEditionController implements ConferenceEditionApi {
 
-    ConferenceEditionRepository conferenceEditionRepository;
+    ConferenceEditionService conferenceEditionService;
 
     @Override
     public ResponseEntity<ConferenceEditionResponse> createConferenceEdition(CreateConferenceEditionRequest createConferenceEditionRequest) {
         log.info("Got request from user to create conference edition: {}", createConferenceEditionRequest);
 
-        var activeEdition = conferenceEditionRepository.findActiveEditionConference();
+        var created = conferenceEditionService.createConferenceEdition(createConferenceEditionRequest);
 
-        if (activeEdition.isPresent()) {
-            throw new ServiceException(ErrorReason.ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS);
-        }
-
-        var conferenceEdition = ConferenceEdition.builder()
-                .applicationDeadlineTime(createConferenceEditionRequest.getApplicationDeadlineTime())
-                .createdAt(Instant.now())
-                .build();
-
-        var saved = conferenceEditionRepository.save(conferenceEdition);
-
-        log.info("Created conference edition: {}", saved);
+        log.info("Created conference edition: {}", created);
         return new ResponseEntity<>(
                 new ConferenceEditionResponse()
-                        .id(saved.getId())
-                        .applicationDeadlineTime(saved.getApplicationDeadlineTime())
+                        .id(created.getId())
+                        .applicationDeadlineTime(created.getApplicationDeadlineTime())
                         .numberOfInvitations(0)
-                        .createdAt(saved.getCreatedAt()),
+                        .createdAt(created.getCreatedAt()),
                 CREATED);
     }
 
