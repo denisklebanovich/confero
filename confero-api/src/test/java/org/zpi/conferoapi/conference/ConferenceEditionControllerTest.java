@@ -34,12 +34,12 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
 
         var response = RestAssured
                 .given()
-                .contentType("application/json")
-                .body(conferenceEdition)
+                .contentType("multipart/form-data")
+                .multiPart("applicationDeadlineTime", conferenceEdition.getApplicationDeadlineTime().toString())
                 .post("/api/conference-edition")
                 .then()
                 .log().ifError()
-                .statusCode(201)
+                .statusCode(HttpStatus.CREATED.value())
                 .extract()
                 .response();
 
@@ -48,15 +48,14 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         assertEquals(conferenceEdition.getApplicationDeadlineTime(), createdConferenceEdition.getApplicationDeadlineTime());
 
 
-
         var conferenceEdition_2 = new CreateConferenceEditionRequest()
                 .applicationDeadlineTime(Instant.now().plus(2, DAYS));
 
 
         var errorResponse = RestAssured
                 .given()
-                .contentType("application/json")
-                .body(conferenceEdition_2)
+                .contentType("multipart/form-data")
+                .multiPart("applicationDeadlineTime", conferenceEdition_2.getApplicationDeadlineTime().toString())
                 .post("/api/conference-edition")
                 .then()
                 .log().ifError()

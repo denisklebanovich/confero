@@ -19,8 +19,12 @@ public class ConferenceEditionServiceAdapter implements ConferenceEditionService
     ConferenceEditionRepository conferenceEditionRepository;
 
     @Override
-    public ConferenceEdition createConferenceEdition(CreateConferenceEditionRequest createConferenceEditionRequest) {
+    public ConferenceEdition createConferenceEdition(CreateConferenceEdition createConferenceEditionRequest) {
         var activeEdition = conferenceEditionRepository.findActiveEditionConference();
+
+        if(createConferenceEditionRequest.invitationList != null) {
+            log.info("Invitation list received: {}", createConferenceEditionRequest.invitationList.getName());
+        }
 
         if (activeEdition.isPresent()) {
             throw new ServiceException(ErrorReason.ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS);
