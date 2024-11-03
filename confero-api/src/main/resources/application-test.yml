@@ -8,3 +8,10 @@ logging:
         security: DEBUG
 
 supabase.jwt.secret: secret
+
+orcid:
+  client-id: client-id
+  client-secret: client-secret
+  redirect-uri: redirect-uri
+  auth-url: https://orcid.org/oauth/authorize
+  token-url: https://orcid.org/oauth/token

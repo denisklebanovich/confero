@@ -8,17 +8,22 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.zpi.conferoapi.user.User;
+import org.zpi.conferoapi.user.UserRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
+    private final UserRepository userRepository;
 
     @Value("${supabase.jwt.secret}")
     private String jwtSecret;
@@ -26,6 +31,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        String orcidAuthHeader = request.getHeader("Orcid-Access-Token");
+        if (orcidAuthHeader != null) {
+            String orcidAccessToken = orcidAuthHeader;
+            String orcid = userRepository.findByAccessToken(orcidAccessToken)
+                    .map(User::getOrcid)
+                    .orElseGet(() -> {
+                        SecurityContextHolder.clearContext();
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return null;
+                    });
+
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    orcid, null, new ArrayList<>()
+            );
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            filterChain.doFilter(request, response);
+        }
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
@@ -41,10 +63,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(jwt.getClaims());
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                filterChain.doFilter(request, response);
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
             }
         }
         filterChain.doFilter(request, response);

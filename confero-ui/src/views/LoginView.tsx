@@ -1,29 +1,50 @@
 /// <reference types="vite-plugin-svgr/client" />
-import { useState, useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {useEffect, useState} from 'react'
+import {Button} from "@/components/ui/button"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import Footer from "@/components/layout/Footer.tsx"
 import GoogleIcon from "@/assets/google.svg?react"
 import LinkedInIcon from "@/assets/linkedin.svg?react"
-import { useNavigate } from "react-router-dom"
+import OrcidIcon from "@/assets/orcid.svg?react"
+import {useNavigate} from "react-router-dom"
 import {useAuth} from "@/auth/AuthProvider.tsx";
 import {supabase} from "@/auth/supabaseClient.ts";
+
+
+const ORCID_AUTH_URL = '/api/auth/orcid/login'
 
 export default function LoginView() {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
-    const { user } = useAuth()
+    const {user} = useAuth()
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const accessToken = params.get('orcid_access_token');
+        if (accessToken) {
+            localStorage.setItem('orcid_access_token', accessToken);
+            navigate('/');
+        }
         if (user) {
             navigate('/')
         }
     }, [user, navigate])
 
+    const handleOrcidLogin = async () => {
+        try {
+            window.location.href = ORCID_AUTH_URL
+        } catch (error) {
+            console.error('Error logging in with ORCID:', error)
+            alert('Error logging in with ORCID. Please try again.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const handleGoogleLogin = async () => {
         try {
             setLoading(true)
-            const { error } = await supabase.auth.signInWithOAuth({
+            const {error} = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: '/'
@@ -41,7 +62,7 @@ export default function LoginView() {
     const handleLinkedInLogin = async () => {
         try {
             setLoading(true)
-            const { error } = await supabase.auth.signInWithOAuth({
+            const {error} = await supabase.auth.signInWithOAuth({
                 provider: 'linkedin_oidc',
                 options: {
                     redirectTo: '/'
@@ -58,7 +79,9 @@ export default function LoginView() {
 
     return (
         <div className={"w-screen h-screen"}>
-            <div className="text-7xl font-bold text-center text-primary cursor-pointer" onClick={()=>navigate("/")}>Confero</div>
+            <div className="text-7xl font-bold text-center text-primary cursor-pointer"
+                 onClick={() => navigate("/")}>Confero
+            </div>
             <div className="h-0.5 bg-gray-200 w-1/2 mx-auto mt-2 mb-20"/>
             <Card className="w-[350px] mx-auto mt-32">
                 <CardHeader>
@@ -66,6 +89,13 @@ export default function LoginView() {
                     <CardDescription>Choose a method to log in</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    <Button
+                        variant='secondary'
+                        className="w-full"
+                        onClick={handleOrcidLogin}
+                    >
+                        <OrcidIcon/> Login with ORCID
+                    </Button>
                     <Button
                         variant='secondary'
                         className="w-full"

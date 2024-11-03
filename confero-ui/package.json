@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "predev": "npm run generate",
-    "dev": "vite",
+    "dev": "vite --host",
     "prebuild": "npm run generate",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

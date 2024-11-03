@@ -10,7 +10,7 @@ import {
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { authorized, signOut } = useAuth();
   return (
     <div className="navbar bg-white fixed top-0 w-full">
       <div className="container my-1 flex items-center justify-between">
@@ -52,7 +52,7 @@ const Navbar = () => {
           </NavigationMenu>
         ) : null}
 
-        {user ? (
+        {authorized ? (
           <Button onClick={signOut}>Logout</Button>
         ) : (
           <Button>

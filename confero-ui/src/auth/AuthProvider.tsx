@@ -5,8 +5,17 @@ import {supabase} from "@/auth/supabaseClient.ts";
 
 interface AuthContextType {
     user: User | null
-    session: Session | null
+    session: Session | null,
+    orcidAccessToken: string | null,
+    authorized: boolean
     signOut: () => Promise<void>
+}
+
+function getCookie(name: string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null;
+    return null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -14,7 +23,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({children}: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
     const [session, setSession] = useState<Session | null>(null)
+    const [orcidAccessToken, setOrcidAccessToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const [authorized, setAuthorized] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -26,6 +37,9 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
             }
             setSession(session)
             setUser(session?.user ?? null)
+            const token = localStorage.getItem('orcid_access_token') ?? getCookie('orcid_access_token')
+            setOrcidAccessToken(token);
+            setAuthorized(!!session?.user || !!token)
             setLoading(false)
         }
 
@@ -45,12 +59,15 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
     const signOut = async () => {
         const {error} = await supabase.auth.signOut()
         if (error) throw error
+        setOrcidAccessToken(null);
         navigate('/login')
     }
 
     const value = {
         user,
         session,
+        orcidAccessToken,
+        authorized,
         signOut
     }
 
