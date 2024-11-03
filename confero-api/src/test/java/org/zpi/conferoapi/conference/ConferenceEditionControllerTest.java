@@ -7,7 +7,6 @@ import org.openapitools.model.ConferenceEditionSummaryResponse;
 import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.DirtiesContext;
 import org.zpi.conferoapi.IntegrationTestBase;
 
 import java.io.File;
@@ -20,7 +19,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+
 class ConferenceEditionControllerTest extends IntegrationTestBase {
 
     @Test

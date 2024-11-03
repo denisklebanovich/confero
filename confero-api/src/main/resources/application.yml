@@ -2,10 +2,15 @@ spring:
   application:
     name: confero-api
 
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     url: jdbc:postgresql://localhost:5432/confero
     username: ${DB_USER:postgres}
     password: ${DB_PASS:admin}
+    hikari:
+      max-lifetime: 120000
+      idle-timeout: 10000
+      maximum-pool-size: 5
   jpa:
     hibernate:
       ddl-auto: create-drop

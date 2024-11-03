@@ -25,6 +25,7 @@ import org.zpi.conferoapi.user.UserRepository;
         "spring.datasource.url=jdbc:tc:postgresql:17-alpine:///confero"
 })
 @Testcontainers
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class IntegrationTestBase {
 
     @LocalServerPort
