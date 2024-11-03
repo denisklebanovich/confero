@@ -1,5 +1,6 @@
 package org.zpi.conferoapi;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -9,6 +10,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.user.UserRepository;
 
 @DataJpaTest
@@ -25,6 +27,16 @@ public abstract class DataJpaTestBase {
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected ConferenceEditionRepository conferenceEditionRepository;
+
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+        conferenceEditionRepository.deleteAll();
+    }
 
 
     @DynamicPropertySource

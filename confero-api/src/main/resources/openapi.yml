@@ -796,6 +796,11 @@ components:
     ReviewType:
       type: string
       enum: [ ACCEPT, REJECT, ASK_FOR_ADJUSTMENTS ]
+    ErrorReason:
+      type: string
+      enum:
+        - ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS
+
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -812,12 +817,8 @@ components:
     ErrorResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: "CONFERO-001"
-        message:
-          type: string
-          example: "Invalid data provided"
+        reason:
+          $ref: '#/components/schemas/ErrorReason'
     OrcidInfoResponse:
       type: object
       properties:
@@ -839,7 +840,9 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+          description: Conference edition ID
         applicationDeadlineTime:
           type: string
           format: date-time
