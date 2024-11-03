@@ -27,20 +27,13 @@ public class OrcidAuthController {
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<Void> orcidCallback(@RequestParam String code, HttpServletResponse response) {
+    public ResponseEntity<Void> orcidCallback(@RequestParam String code) {
         try {
             Map<String, Object> tokenResponse = orcidAuthService.getAccessToken(code);
             String accessToken = (String) tokenResponse.get("access_token");
 
-            ResponseCookie cookie = ResponseCookie.from("orcid_access_token", accessToken)
-                    .httpOnly(true)
-                    .path("/")
-                    .sameSite("None")
-                    .build();
-
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create("http://localhost:5173/login?success=true"))
-                    .header("Set-Cookie", cookie.toString())
+                    .location(URI.create(String.format("http://localhost:5173/login?orcid_access_token=%s", accessToken)))
                     .build();
         } catch (Exception e) {
             return ResponseEntity.status(403).build();

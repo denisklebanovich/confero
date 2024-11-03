@@ -36,7 +36,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
             setSession(session)
             setUser(session?.user ?? null)
 
-            const token = getCookie('orcid_access_token');
+            const token = localStorage.getItem('orcid_access_token') ?? getCookie('orcid_access_token')
             setOrcidAccessToken(token);
 
             setLoading(false)

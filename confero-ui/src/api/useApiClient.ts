@@ -12,10 +12,8 @@ export function useApiClient() {
     }
 
     return new AppClient({
-        HEADERS: {
-            "Authorization": `Bearer ${session?.access_token}`,
-            "Orcid-Access-Token": orcidAccessToken ?? "",
-        },
+        HEADERS: headers,
+        CREDENTIALS: "include",
         BASE: "/api",
     });
 }

@@ -19,6 +19,12 @@ export default function LoginView() {
     const {user} = useAuth()
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const accessToken = params.get('orcid_access_token');
+        if (accessToken) {
+            localStorage.setItem('orcid_access_token', accessToken);
+            navigate('/');
+        }
         if (user) {
             navigate('/')
         }
