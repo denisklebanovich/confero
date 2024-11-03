@@ -32,6 +32,7 @@ const Room = () => {
         if (payload.isOpen || !payload.unreadCount) {
             return;
         }
+        // @ts-ignore
         apiRef.current.executeCommand("toggleChat");
         updateLog((items) => [
             ...items,
@@ -41,6 +42,7 @@ const Room = () => {
 
     const resolveKnockingParticipants = (condition) => {
         knockingParticipants.forEach((participant) => {
+            // @ts-ignore
             apiRef.current.executeCommand(
                 "answerKnockingParticipant",
                 participant?.id,
@@ -61,22 +63,30 @@ const Room = () => {
     };
 
     const handleReadyToClose = () => {
-        /* eslint-disable-next-line no-alert */
+         
         alert("Ready to close...");
     };
 
     const handleApiReady = (apiObj) => {
+        // @ts-ignore
         apiRef.current = apiObj;
+        // @ts-ignore
         apiRef.current.on("knockingParticipant", handleKnockingParticipant);
+        // @ts-ignore
         apiRef.current.on("audioMuteStatusChanged", (payload) =>
             handleAudioStatusChange(payload, "audio")
         );
+        // @ts-ignore
         apiRef.current.on("videoMuteStatusChanged", (payload) =>
             handleAudioStatusChange(payload, "video")
         );
+        // @ts-ignore
         apiRef.current.on("raiseHandUpdated", printEventOutput);
+        // @ts-ignore
         apiRef.current.on("titleViewChanged", printEventOutput);
+        // @ts-ignore
         apiRef.current.on("chatUpdated", handleChatUpdates);
+        // @ts-ignore
         apiRef.current.on("knockingParticipant", handleKnockingParticipant);
     };
 
@@ -119,7 +129,7 @@ const Room = () => {
                     subject: "lalalala",
                     hideConferenceSubject: false,
                 }}
-                userInfo={{ displayName: "Attendee Name" }}
+                userInfo={{ displayName: "Attendee Name", email: "" }}
                 lang="en"
                 onApiReady={(externalApi) => handleApiReady(externalApi)}
                 onReadyToClose={handleReadyToClose}

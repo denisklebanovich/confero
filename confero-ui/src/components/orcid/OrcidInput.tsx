@@ -49,7 +49,7 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
       }
       const result = await validateORCID(currentORCID);
       if (result.valid) {
-        onChange([...value, result.value!!]);
+        onChange([...value, result.value!]);
         setCurrentORCID("");
       } else {
         setError("Invalid ORCID. Please check and try again.");

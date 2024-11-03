@@ -39,7 +39,7 @@ const SessionsView = () => {
       type: SessionType.SESSION,
       tags: [],
       description: "New Session",
-      presenters: [],
+      presentations: [],
       saveAsDraft: false,
     });
   };
