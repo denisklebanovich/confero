@@ -27,11 +27,11 @@ server:
     context-path: /api
 
 
-supabase.jwt.secret: ${SUPABASE_JWT_SECRET}
+supabase.jwt.secret: ${SUPABASE_JWT_SECRET:secret}
 
 orcid:
   client-id: APP-O78NWU9RUK7WPFEH
-  client-secret: ${ORCID_CLIENT_SECRET}
+  client-secret: ${ORCID_CLIENT_SECRET:secret}
   redirect-uri: https://b252-77-254-238-252.ngrok-free.app/api/auth/orcid/callback
   auth-url: https://orcid.org/oauth/authorize
   token-url: https://orcid.org/oauth/token
