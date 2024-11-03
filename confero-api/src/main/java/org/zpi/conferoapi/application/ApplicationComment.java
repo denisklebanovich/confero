@@ -15,7 +15,7 @@ import java.time.Instant;
 @Table(name = "application_comment")
 public class ApplicationComment {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

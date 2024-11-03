@@ -1,5 +1,6 @@
 package org.zpi.conferoapi.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -17,7 +18,7 @@ public class User {
     private String email;
 
     @NotNull
-    @ColumnDefault("false")
+    @Column(name = "is_admin", nullable = false)
     private Boolean isAdmin = false;
 
 }

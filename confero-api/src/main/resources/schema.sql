@@ -89,6 +89,6 @@ CREATE TABLE IF NOT EXISTS attachment
     presentation_id BIGINT                      NOT NULL,
     title           VARCHAR(255)                NOT NULL,
     url             VARCHAR(255)                NOT NULL,
-    created_at      TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_at      TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_session_attachment_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id)
 );

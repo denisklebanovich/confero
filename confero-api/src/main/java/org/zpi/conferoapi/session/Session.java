@@ -1,24 +1,31 @@
 package org.zpi.conferoapi.session;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.user.User;
 
 import java.time.Instant;
-import java.util.Map;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "session")
 public class Session {
+
     @Id
     @GeneratedValue
     private Long id;
@@ -40,7 +47,7 @@ public class Session {
 
     @Column(name = "tags")
     @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, Object> tags;
+    private List<String> tags;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
