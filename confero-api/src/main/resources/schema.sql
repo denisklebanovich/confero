@@ -14,7 +14,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS unique_user_email
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_orcid
     ON users (orcid);
 
-CREATE UNIQUE INDEX IF NOT EXISTS unique_user_orcid
+CREATE UNIQUE INDEX IF NOT EXISTS unique_user_access_token
     ON users (access_token);
 
 CREATE TABLE IF NOT EXISTS conference_edition
