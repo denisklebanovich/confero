@@ -13,6 +13,9 @@ import org.zpi.conferoapi.ConferoApiApplication;
 import org.zpi.conferoapi.IntegrationTestBase;
 import org.zpi.conferoapi.IntegrationTestConfiguration;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -27,15 +30,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConferenceEditionControllerTest extends IntegrationTestBase {
 
     @Test
-    void createConferenceEdition() {
+    void createConferenceEditionWithoutInviteesListProvided() {
 
-        var conferenceEdition = new CreateConferenceEditionRequest()
-                .applicationDeadlineTime(Instant.now().plus(1, DAYS));
+        var applicationDeadlineTime = Instant.now().plus(1, DAYS);
 
         var response = RestAssured
                 .given()
                 .contentType("multipart/form-data")
-                .multiPart("applicationDeadlineTime", conferenceEdition.getApplicationDeadlineTime().toString())
+                .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
                 .post("/api/conference-edition")
                 .then()
                 .log().ifError()
@@ -45,17 +47,13 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
 
         var createdConferenceEdition = response.as(ConferenceEditionResponse.class);
         assertNotNull(createdConferenceEdition.getId());
-        assertEquals(conferenceEdition.getApplicationDeadlineTime(), createdConferenceEdition.getApplicationDeadlineTime());
-
-
-        var conferenceEdition_2 = new CreateConferenceEditionRequest()
-                .applicationDeadlineTime(Instant.now().plus(2, DAYS));
-
+        assertEquals(applicationDeadlineTime, createdConferenceEdition.getApplicationDeadlineTime());
+        assertEquals(0, createdConferenceEdition.getNumberOfInvitations());
 
         var errorResponse = RestAssured
                 .given()
                 .contentType("multipart/form-data")
-                .multiPart("applicationDeadlineTime", conferenceEdition_2.getApplicationDeadlineTime().toString())
+                .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
                 .post("/api/conference-edition")
                 .then()
                 .log().ifError()
@@ -66,4 +64,37 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         var error = errorResponse.as(ErrorResponse.class);
         assertEquals(ErrorReason.ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS, error.getReason());
     }
+
+
+    @Test
+    void createConferenceEditionWithInviteesListProvided() throws IOException {
+        String csvContent = "artsi@example.com\ndenis@example.com";
+
+        // Write the CSV content to a temporary file
+        File tempFile = File.createTempFile("invitationList", ".csv");
+        try (FileWriter writer = new FileWriter(tempFile)) {
+            writer.write(csvContent);
+        }
+
+
+        var applicationDeadlineTime = Instant.now().plus(1, DAYS);
+
+        var response = RestAssured
+                .given()
+                .contentType("multipart/form-data")
+                .multiPart("invitationList", tempFile) // Attach the CSV file here
+                .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
+                .post("/api/conference-edition")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
+                .response();
+
+        var createdConferenceEdition = response.as(ConferenceEditionResponse.class);
+        assertNotNull(createdConferenceEdition.getId());
+        assertEquals(applicationDeadlineTime, createdConferenceEdition.getApplicationDeadlineTime());
+        assertEquals(2, createdConferenceEdition.getNumberOfInvitations());
+    }
+
 }

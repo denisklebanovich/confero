@@ -45,7 +45,7 @@ public class ConferenceEditionController implements ConferenceEditionApi {
                 new ConferenceEditionResponse()
                         .id(created.getId())
                         .applicationDeadlineTime(created.getApplicationDeadlineTime())
-                        .numberOfInvitations(0)
+                        .numberOfInvitations(created.getInvitees().size())
                         .createdAt(created.getCreatedAt()),
                 CREATED);
     }
