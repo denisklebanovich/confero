@@ -6,7 +6,8 @@ import org.zpi.conferoapi.DataJpaTestBase;
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 class ConferenceEditionRepositoryTest extends DataJpaTestBase {
 

@@ -1,6 +1,7 @@
 package org.zpi.conferoapi.conference;
 
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 @AllArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 @Slf4j
+@Transactional
 public class ConferenceEditionController implements ConferenceEditionApi {
 
     ConferenceEditionService conferenceEditionService;

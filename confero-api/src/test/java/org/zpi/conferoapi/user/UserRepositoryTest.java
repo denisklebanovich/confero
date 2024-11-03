@@ -3,7 +3,7 @@ package org.zpi.conferoapi.user;
 import org.junit.jupiter.api.Test;
 import org.zpi.conferoapi.DataJpaTestBase;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserRepositoryTest extends DataJpaTestBase {
 

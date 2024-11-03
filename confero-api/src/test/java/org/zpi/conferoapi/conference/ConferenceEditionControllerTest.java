@@ -3,12 +3,14 @@ package org.zpi.conferoapi.conference;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.ConferenceEditionResponse;
-import org.openapitools.model.CreateConferenceEditionRequest;
 import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ErrorResponse;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.ConferoApiApplication;
 import org.zpi.conferoapi.IntegrationTestBase;
 import org.zpi.conferoapi.IntegrationTestConfiguration;
@@ -19,19 +21,15 @@ import java.io.IOException;
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
-@ActiveProfiles("test")
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = {IntegrationTestConfiguration.class, ConferoApiApplication.class}
-)
 class ConferenceEditionControllerTest extends IntegrationTestBase {
+
 
     @Test
     void createConferenceEditionWithoutInviteesListProvided() {
-
         var applicationDeadlineTime = Instant.now().plus(1, DAYS);
 
         var response = RestAssured
@@ -96,5 +94,4 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         assertEquals(applicationDeadlineTime, createdConferenceEdition.getApplicationDeadlineTime());
         assertEquals(2, createdConferenceEdition.getNumberOfInvitations());
     }
-
 }
