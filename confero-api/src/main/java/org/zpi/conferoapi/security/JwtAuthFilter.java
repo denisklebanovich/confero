@@ -31,6 +31,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        String orcidAuthHeader = request.getHeader("Orcid-Access-Token");
+        if (orcidAuthHeader != null) {
+            String orcidAccessToken = orcidAuthHeader;
+            String orcid = userRepository.findByAccessToken(orcidAccessToken)
+                    .map(User::getOrcid)
+                    .orElseGet(() -> {
+                        SecurityContextHolder.clearContext();
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return null;
+                    });
+
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    orcid, null, new ArrayList<>()
+            );
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            filterChain.doFilter(request, response);
+        }
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
@@ -51,22 +68,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-        }
-        String orcidAuthHeader = request.getHeader("Orcid-Access-Token");
-        if (orcidAuthHeader != null) {
-            String orcidAccessToken = orcidAuthHeader;
-            String orcid = userRepository.findByAccessToken(orcidAccessToken)
-                    .map(User::getOrcid)
-                    .orElseGet(() -> {
-                        SecurityContextHolder.clearContext();
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        return null;
-                    });
-
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    orcid, null, new ArrayList<>()
-            );
-            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
         filterChain.doFilter(request, response);
     }

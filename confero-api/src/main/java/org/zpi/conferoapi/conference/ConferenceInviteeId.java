@@ -14,10 +14,9 @@ import java.util.Objects;
 @Setter
 @Embeddable
 public class ConferenceInviteeId implements Serializable {
-    private static final long serialVersionUID = -3182548699794561261L;
     @NotNull
     @Column(name = "user_id", nullable = false, length = Integer.MAX_VALUE)
-    private String userId;
+    private Long userId;
 
     @NotNull
     @Column(name = "edition_id", nullable = false)

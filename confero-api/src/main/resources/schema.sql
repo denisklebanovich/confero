@@ -1,7 +1,11 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    email    VARCHAR(255) PRIMARY KEY,
-    is_admin BOOLEAN NOT NULL DEFAULT FALSE
+    id           BIGSERIAL PRIMARY KEY,
+    orcid        VARCHAR(255),
+    access_token VARCHAR(255),
+    name         VARCHAR(255),
+    email        VARCHAR(255),
+    is_admin     BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS conference_edition
@@ -14,11 +18,11 @@ CREATE TABLE IF NOT EXISTS conference_edition
 
 CREATE TABLE IF NOT EXISTS conference_invitee
 (
-    user_id    VARCHAR NOT NULL,
-    edition_id BIGINT  NOT NULL,
+    user_id    BIGINT NOT NULL,
+    edition_id BIGINT NOT NULL,
     PRIMARY KEY (user_id, edition_id),
 
-    CONSTRAINT fk_conference_invitee_user FOREIGN KEY (user_id) REFERENCES users (email),
+    CONSTRAINT fk_conference_invitee_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_conference_invitee_edition FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
 
@@ -28,7 +32,7 @@ CREATE TABLE IF NOT EXISTS session
     id          BIGSERIAL PRIMARY KEY,
     title       VARCHAR(255)                NOT NULL,
     type        VARCHAR(255)                NOT NULL,
-    creator_id  VARCHAR                     NOT NULL,
+    creator_id  BIGINT                      NOT NULL,
     tags        JSONB,
     edition_id  BIGINT                      NOT NULL,
     description VARCHAR(40000)              NOT NULL,
@@ -36,7 +40,7 @@ CREATE TABLE IF NOT EXISTS session
     created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CONSTRAINT session_type_check CHECK (type IN ('SESSION', 'WORKSHOP', 'TUTORIAL')),
     CONSTRAINT session_status_check CHECK (status IN ('PENDING', 'DRAFT', 'REJECTED', 'ACCEPTED', 'CHANGE_REQUESTED')),
-    CONSTRAINT fk_session_creator FOREIGN KEY (creator_id) REFERENCES users (email),
+    CONSTRAINT fk_session_creator FOREIGN KEY (creator_id) REFERENCES users (id),
     CONSTRAINT fk_session_edition FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
 
@@ -45,11 +49,11 @@ CREATE TABLE IF NOT EXISTS application_comment
 (
     id         BIGSERIAL PRIMARY KEY,
     session_id BIGINT                      NOT NULL,
-    user_id    VARCHAR                     NOT NULL,
+    user_id    BIGINT                      NOT NULL,
     content    TEXT                        NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CONSTRAINT fk_application_comment_session FOREIGN KEY (session_id) REFERENCES session (id),
-    CONSTRAINT fk_application_comment_user FOREIGN KEY (user_id) REFERENCES users (email)
+    CONSTRAINT fk_application_comment_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 
@@ -78,7 +82,7 @@ CREATE TABLE IF NOT EXISTS presenter
     surname         VARCHAR(255) NOT NULL,
     presentation_id BIGINT       NOT NULL,
     is_main         BOOLEAN      NOT NULL DEFAULT FALSE,
-    CONSTRAINT fk_presenter_user FOREIGN KEY (email) REFERENCES users (email),
+    CONSTRAINT fk_presenter_user FOREIGN KEY (email) REFERENCES users (id),
     CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id)
 );
 
