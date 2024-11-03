@@ -8,6 +8,15 @@ CREATE TABLE IF NOT EXISTS users
     is_admin     BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS unique_user_email
+    ON users (email);
+
+CREATE UNIQUE INDEX IF NOT EXISTS unique_user_orcid
+    ON users (orcid);
+
+CREATE UNIQUE INDEX IF NOT EXISTS unique_user_orcid
+    ON users (access_token);
+
 CREATE TABLE IF NOT EXISTS conference_edition
 (
     id                        BIGSERIAL PRIMARY KEY,
