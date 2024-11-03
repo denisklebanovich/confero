@@ -1,11 +1,23 @@
 spring:
   application:
     name: confero-api
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    hikari:
+      max-lifetime: 120000
+      idle-timeout: 10000
+      maximum-pool-size: 5
+
 logging:
   level:
     org:
       springframework:
         security: DEBUG
+
+logging.level.com.zaxxer.hikari:
+  DEBUG
+logging.level.org.hibernate:
+  DEBUG
 
 supabase.jwt.secret: secret
 

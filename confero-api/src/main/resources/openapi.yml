@@ -117,9 +117,15 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/CreateConferenceEditionRequest'
+            encoding:
+              invitationList:
+                contentType: text/csv
+              applicationDeadlineTime:
+                contentType: text/plain
+
       responses:
         '201':
           description: Created
@@ -185,53 +191,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateConferenceEditionRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConferenceEditionResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /conference-edition/{conferenceEditionId}/invitees:
-    post:
-      tags:
-        - Conference Edition
-        - Admin
-      summary: Invite users to the conference edition
-      operationId: inviteUsers
-      description: |-
-        Admin-only endpoint to invite users to the conference edition.
-        Admin provides csv file with emails of users to invite. It will override previous invitations.
-        It will be possible only if the application deadline has not passed.
-      parameters:
-        - $ref: '#/components/parameters/ConferenceEditionId'
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - file
-              properties:
-                file:
-                  type: string
-                  format: binary
-            encoding:
-              file:
-                contentType: text/csv
       responses:
         '200':
           description: OK
@@ -796,6 +755,11 @@ components:
     ReviewType:
       type: string
       enum: [ ACCEPT, REJECT, ASK_FOR_ADJUSTMENTS ]
+    ErrorReason:
+      type: string
+      enum:
+        - ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS
+
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -812,12 +776,8 @@ components:
     ErrorResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: "CONFERO-001"
-        message:
-          type: string
-          example: "Invalid data provided"
+        reason:
+          $ref: '#/components/schemas/ErrorReason'
     OrcidInfoResponse:
       type: object
       properties:
@@ -835,11 +795,18 @@ components:
         applicationDeadlineTime:
           type: string
           format: date-time
+          description: "The application deadline in ISO 8601 format (e.g., 2024-11-03T12:00:00Z)."
+        invitationList:
+          type: string
+          format: binary
+          description: "CSV file containing the list of invitations."
     ConferenceEditionResponse:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+          description: Conference edition ID
         applicationDeadlineTime:
           type: string
           format: date-time

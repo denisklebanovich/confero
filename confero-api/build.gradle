@@ -33,6 +33,7 @@ ext {
     jjwtVersion = "0.9.1"
     jacksonDatabindNullableVersion = "0.2.6"
     testcontainersVersion = "1.19.8"
+    commonsCsvVersion = "1.12.0"
 }
 
 dependencies {
@@ -40,6 +41,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-testcontainers'
 
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign:${feignVersion}"
@@ -49,6 +51,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'com.auth0:java-jwt:4.4.0'
     implementation "org.openapitools:jackson-databind-nullable:${jacksonDatabindNullableVersion}"
+    implementation "org.apache.commons:commons-csv:${commonsCsvVersion}"
+
 
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation "org.projectlombok:lombok:${lombokVersion}"

@@ -6,17 +6,12 @@ import org.openapitools.model.CreateApplicationRequest;
 import org.openapitools.model.PresentationRequest;
 import org.openapitools.model.PresenterRequest;
 import org.openapitools.model.SessionType;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-@ActiveProfiles("test")
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = {IntegrationTestConfiguration.class, ConferoApiApplication.class}
-)
+
+
 public class ApiTest extends IntegrationTestBase {
 
 
