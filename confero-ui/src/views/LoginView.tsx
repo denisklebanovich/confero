@@ -11,7 +11,7 @@ import {useAuth} from "@/auth/AuthProvider.tsx";
 import {supabase} from "@/auth/supabaseClient.ts";
 
 
-const ORCID_AUTH_URL = 'https://b252-77-254-238-252.ngrok-free.app/api/auth/orcid/login'
+const ORCID_AUTH_URL = '/api/auth/orcid/login'
 
 export default function LoginView() {
     const [loading, setLoading] = useState(false)

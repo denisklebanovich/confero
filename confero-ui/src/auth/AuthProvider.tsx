@@ -7,6 +7,7 @@ interface AuthContextType {
     user: User | null
     session: Session | null,
     orcidAccessToken: string | null,
+    authorized: boolean
     signOut: () => Promise<void>
 }
 
@@ -24,6 +25,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null)
     const [orcidAccessToken, setOrcidAccessToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const [authorized, setAuthorized] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -35,10 +37,9 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
             }
             setSession(session)
             setUser(session?.user ?? null)
-
             const token = localStorage.getItem('orcid_access_token') ?? getCookie('orcid_access_token')
             setOrcidAccessToken(token);
-
+            setAuthorized(!!session?.user || !!token)
             setLoading(false)
         }
 
@@ -66,6 +67,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
         user,
         session,
         orcidAccessToken,
+        authorized,
         signOut
     }
 
