@@ -15,8 +15,9 @@ import org.zpi.conferoapi.session.Session;
 @Table(name = "presenter")
 public class Presenter {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -25,8 +26,8 @@ public class Presenter {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "session_id", nullable = false)
-    private Session session;
+    @JoinColumn(name = "presentation_id", nullable = false)
+    private Presentation presentation;
 
     @Size(max = 255)
     @NotNull
@@ -43,4 +44,7 @@ public class Presenter {
     @Column(name = "surname", nullable = false)
     private String surname;
 
+    @NotNull
+    @Column(name = "is_main", nullable = false)
+    private Boolean isMain = false;
 }

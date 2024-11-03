@@ -14,14 +14,14 @@ import java.time.Instant;
 @Table(name = "conference_edition")
 public class ConferenceEdition {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
+    @Column(name = "application_deadline_time", nullable = false)
     private Instant applicationDeadlineTime;
 
     @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant createdAt;
-
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt = Instant.now();
 }
