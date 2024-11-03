@@ -13,6 +13,8 @@ public class ServiceException extends RuntimeException {
     public HttpStatus httpStatus() {
         return switch (reason) {
             case ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS -> HttpStatus.CONFLICT;
+            case NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case INVALID_FILE_FORMAT -> HttpStatus.BAD_REQUEST;
         };
     }
 }

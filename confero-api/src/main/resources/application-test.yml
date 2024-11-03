@@ -14,11 +14,6 @@ logging:
       springframework:
         security: DEBUG
 
-logging.level.com.zaxxer.hikari:
-  DEBUG
-logging.level.org.hibernate:
-  DEBUG
-
 supabase.jwt.secret: secret
 
 orcid:
