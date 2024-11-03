@@ -1,8 +1,6 @@
 spring:
   application:
     name: confero-api
-
-
 logging:
   level:
     org:
