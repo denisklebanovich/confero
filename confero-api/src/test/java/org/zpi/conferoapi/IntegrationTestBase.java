@@ -21,7 +21,6 @@ import org.zpi.conferoapi.user.UserRepository;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {IntegrationTestConfiguration.class, ConferoApiApplication.class}
 )
-@DirtiesContext
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:tc:postgresql:17-alpine:///confero"
 })

@@ -80,11 +80,29 @@ public class ConferenceEditionController implements ConferenceEditionApi {
 
     @Override
     public ResponseEntity<List<ConferenceEditionResponse>> getAllConferenceEditions() {
-        return ConferenceEditionApi.super.getAllConferenceEditions();
+
+        log.info("Got request from user to get all conference editions");
+
+        var editions = conferenceEditionService.getAllConferenceEditions().stream().map(edition -> new ConferenceEditionResponse()
+                .id(edition.getId())
+                .applicationDeadlineTime(edition.getApplicationDeadlineTime())
+                .numberOfInvitations(edition.getInvitees().size())
+                .createdAt(edition.getCreatedAt())
+        ).toList();
+
+        log.info("Returning {} conference editions ", editions.size());
+        return ResponseEntity.ok(editions);
     }
 
     @Override
     public ResponseEntity<ConferenceEditionSummaryResponse> getConferenceEditionSummary() {
-        return ConferenceEditionApi.super.getConferenceEditionSummary();
+        log.info("Got request from user to get conference edition summary");
+        var activeEdition = conferenceEditionService.isConferenceEditionActive();
+
+        var summary = new ConferenceEditionSummaryResponse()
+                .acceptingNewApplications(activeEdition);
+
+        log.info("Returning conference edition summary: {}", summary);
+        return ResponseEntity.ok(summary);
     }
 }

@@ -15,6 +15,7 @@ import org.zpi.conferoapi.util.CsvReader;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,16 +46,32 @@ public class ConferenceEditionService {
                 .build());
     }
 
+    public boolean isConferenceEditionActive() {
+        return conferenceEditionRepository.findActiveEditionConference().isPresent();
+    }
+
 
     public ConferenceEdition updateConferenceEdition(UpdateConferenceEdition updateConferenceEdition) {
         var conferenceEdition = conferenceEditionRepository.findById(updateConferenceEdition.getId())
                 .orElseThrow(() -> new ServiceException(ErrorReason.NOT_FOUND));
 
-        updateConferenceEdition.getApplicationDeadlineTime().ifPresent(conferenceEdition::setApplicationDeadlineTime);
+        updateConferenceEdition.getApplicationDeadlineTime()
+                .ifPresent(conferenceEdition::setApplicationDeadlineTime);
 
         updateConferenceEdition.getInvitationList().ifPresent(file -> {
-            List<User> invitees = getInviteesFromInvitationList(Optional.of(file));
-            conferenceEdition.setInvitees(invitees);
+            List<User> newInvitees = getInviteesFromInvitationList(Optional.of(file));
+            List<User> currentInvitees = new ArrayList<>(conferenceEdition.getInvitees());
+
+            for (User newUser : newInvitees) {
+                User existingUser = userRepository.findByEmail(newUser.getEmail())
+                        .orElse(userRepository.save(newUser));
+                if (!currentInvitees.contains(existingUser)) {
+                    currentInvitees.add(existingUser);
+                }
+            }
+
+            currentInvitees.removeIf(existingUser -> !newInvitees.contains(existingUser));
+            conferenceEdition.setInvitees(currentInvitees);
         });
 
         return conferenceEditionRepository.save(conferenceEdition);
