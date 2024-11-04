@@ -32,7 +32,14 @@ server:
     context-path: /api
 
 
-supabase.jwt.secret: ${SUPABASE_JWT_SECRET:secret}
+supabase:
+  jwt:
+    secret: ${SUPABASE_JWT_SECRET:secret}
+  s3:
+    endpoint: https://yerxopcahxybrxkyxayf.supabase.co/storage/v1/s3
+    access-key: ${S3_ACCESS_KEY:a5b648d8c709452fb03520ffc596b710}
+    secret-key: ${S3_SECRET_KEY:secret-key}
+    bucket: confero
 
 orcid:
   client-id: APP-O78NWU9RUK7WPFEH

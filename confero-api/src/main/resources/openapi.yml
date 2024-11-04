@@ -49,20 +49,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProfileResponse'
 
+  /profile/email:
     put:
       tags:
         - Profile
         - User
-      summary: Update user profile
+      summary: Update user email
       description: |-
-        Update user profile.
-      operationId: updateUserProfile
+        Update user email.
+      operationId: updateUserEmail
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              $ref: '#/components/schemas/UpdateProfileRequest'
+              $ref: '#/components/schemas/UpdateEmailRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /profile/avatar:
+    put:
+      tags:
+        - Profile
+        - User
+      summary: Update profile avatar
+      description: |-
+        Update profile avatar.
+      operationId: updateAvatar
+      requestBody:
+        required: true
+        content:
+            multipart/form-data:
+                schema:
+                  $ref: '#/components/schemas/UpdateAvatarRequest'
       responses:
         '200':
           description: OK
@@ -770,8 +801,13 @@ components:
       type: string
       enum:
         - ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS
+        - USER_NOT_FOUND
+        - APPLICATION_NOT_FOUND
+        - SESSION_NOT_FOUND
         - NOT_FOUND
         - INVALID_FILE_FORMAT
+        - S3_UPLOAD_ERROR
+        - EMAIL_CANNOT_BE_UPDATED
 
     SessionEventType:
       type: string
@@ -824,7 +860,7 @@ components:
           type: string
           format: binary
           description: "CSV file containing the list of invitations."
-    
+
     ConferenceEditionResponse:
       type: object
       properties:
@@ -1129,12 +1165,15 @@ components:
           type: string
         avatarUrl:
           type: string
-    UpdateProfileRequest:
+    UpdateEmailRequest:
       type: object
       properties:
         email:
           type: string
           format: email
+    UpdateAvatarRequest:
+      type: object
+      properties:
         avatarFile:
           type: string
           format: binary

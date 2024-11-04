@@ -1,18 +1,19 @@
 package org.zpi.conferoapi.auth;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
+import org.zpi.conferoapi.user.User;
 
 import java.net.URI;
-import java.util.Map;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/auth/orcid")
@@ -29,11 +30,13 @@ public class OrcidAuthController {
     @GetMapping("/callback")
     public ResponseEntity<Void> orcidCallback(@RequestParam String code) {
         try {
-            Map<String, Object> tokenResponse = orcidAuthService.getAccessToken(code);
-            String accessToken = (String) tokenResponse.get("access_token");
+            User user = orcidAuthService.authorizeUser(code);
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getId(),
+                    null, Collections.emptyList()));
 
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create(String.format("http://localhost:5173/login?orcid_access_token=%s", accessToken)))
+                    .location(URI.create(String.format("http://localhost:5173/login?orcid_access_token=%s",
+                            user.getAccessToken())))
                     .build();
         } catch (Exception e) {
             return ResponseEntity.status(403).build();
