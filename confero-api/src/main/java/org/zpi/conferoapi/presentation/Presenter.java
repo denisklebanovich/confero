@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.session.Session;
@@ -19,6 +20,7 @@ import org.zpi.conferoapi.session.Session;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Presenter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +33,7 @@ public class Presenter {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "presentation_id", nullable = false)
+    @ToString.Exclude
     private Presentation presentation;
 
     @Size(max = 255)
@@ -55,5 +58,6 @@ public class Presenter {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
     private User user;
 }

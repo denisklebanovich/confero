@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.openapitools.model.ApplicationStatus;
@@ -36,6 +37,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class Session {
 
     @Id
@@ -47,7 +49,6 @@ public class Session {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Size(max = 255)
     @NotNull
     @Column(name = "type", nullable = false)
     private SessionType type;
@@ -55,6 +56,7 @@ public class Session {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
+    @ToString.Exclude
     private User creator;
 
     @Column(name = "tags")
@@ -64,6 +66,7 @@ public class Session {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "edition_id", nullable = false)
+    @ToString.Exclude
     private ConferenceEdition edition;
 
     @Size(max = 40000)
@@ -71,7 +74,6 @@ public class Session {
     @Column(name = "description", nullable = false, length = 40000)
     private String description;
 
-    @Size(max = 255)
     @NotNull
     @Column(name = "status", nullable = false)
     private ApplicationStatus status;
@@ -81,6 +83,6 @@ public class Session {
     private Instant createdAt;
 
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Presentation> presentations = new ArrayList<>();
 }

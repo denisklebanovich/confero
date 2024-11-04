@@ -89,9 +89,10 @@ public class ApplicationService {
                         .user(existingUser)
                         .build();
                 presenterRepository.save(newPresenter);
+                savedPresentation.getPresenters().add(newPresenter);
             });
+            savedSession.getPresentations().add(savedPresentation);
         });
-
         return sessionRepository.findById(savedSession.getId()).get();
     }
 

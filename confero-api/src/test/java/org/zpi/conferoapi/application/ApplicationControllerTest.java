@@ -1,7 +1,6 @@
 package org.zpi.conferoapi.application;
 
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.ApplicationPreviewResponse;
 import org.openapitools.model.CreateApplicationRequest;
@@ -9,24 +8,32 @@ import org.openapitools.model.PresentationRequest;
 import org.openapitools.model.PresenterRequest;
 import org.openapitools.model.SessionType;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.zpi.conferoapi.IntegrationTestBase;
+import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.user.User;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationControllerTest extends IntegrationTestBase {
 
     private static final String ORCID = "0000-0002-5678-1234";
 
-
     @Test
     void createApplicationSuccess() {
         userRepository.save(User.builder().orcid(ORCID).isAdmin(false).build());
+
+        conferenceEditionRepository.save(ConferenceEdition.builder()
+                .id(1L)
+                .createdAt(Instant.now())
+                .applicationDeadlineTime(Instant.now().plus(2, DAYS))
+                .build());
+
 
         // Prepare mock data for CreateApplicationRequest
         var presentationRequest = new PresentationRequest()

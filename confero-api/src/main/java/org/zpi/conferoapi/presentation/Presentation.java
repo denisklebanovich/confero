@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.zpi.conferoapi.session.Session;
 
 import java.time.Instant;
@@ -21,6 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class Presentation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,12 +40,13 @@ public class Presentation {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "session_id", nullable = false)
+    @ToString.Exclude
     private Session session;
 
-    @Column(name = "start_time", nullable = false)
+    @Column(name = "start_time")
     private Instant startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private Instant endTime;
 
     @OneToMany(mappedBy = "presentation", cascade = CascadeType.ALL, orphanRemoval = true)
