@@ -1,11 +1,13 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id           BIGSERIAL PRIMARY KEY,
-    orcid        VARCHAR(255),
-    access_token VARCHAR(255),
-    name         VARCHAR(255),
-    email        VARCHAR(255),
-    is_admin     BOOLEAN NOT NULL DEFAULT FALSE
+    id             BIGSERIAL PRIMARY KEY,
+    orcid          VARCHAR(255),
+    access_token   VARCHAR(255),
+    name           VARCHAR(255),
+    avatar_url     TEXT,
+    email          VARCHAR(255),
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_admin       BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_email

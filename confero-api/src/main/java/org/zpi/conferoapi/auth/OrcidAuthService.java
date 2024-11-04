@@ -44,7 +44,7 @@ public class OrcidAuthService {
                 .toUriString();
     }
 
-    public Map<String, Object> getAccessToken(String code) {
+    public User authorizeUser(String code) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -68,6 +68,6 @@ public class OrcidAuthService {
             return userRepository.save(newUser);
         });
 
-        return response.getBody();
+        return user;
     }
 }
