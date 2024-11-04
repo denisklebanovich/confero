@@ -84,6 +84,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
         var presenterResponse = createdApplication.getPresenters().get(0);
         assertTrue(presenterResponse.getIsSpeaker());
-        assertEquals("0000-0001-2345-6789", presenterResponse.getOrcid());
+        assertEquals(ORCID, presenterResponse.getOrcid());
+        assertEquals("John", presenterResponse.getFirstName());
+        assertEquals("Doe", presenterResponse.getLastName());
     }
 }
