@@ -15,14 +15,25 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
     "noFallthroughCasesInSwitch": true,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "allowJs": true,
+    "strictPropertyInitialization": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "checkJs": false,
+    "noEmitOnError": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
 }

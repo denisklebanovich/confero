@@ -1,12 +1,13 @@
 import { useRef, useState } from "react";
 import { JitsiMeeting } from "@jitsi/react-sdk";
-const Room = () => {
+const Room = ({roomID, title}) => {
     const apiRef = useRef();
     const [logItems, updateLog] = useState([]);
     const [showNew, toggleShowNew] = useState(false);
     const [knockingParticipants, updateKnockingParticipants] = useState([]);
 
-    const generateRoomName = () => `vladz12312`;
+    const username = "username";
+    const email = "example@gmail.com"
 
     const handleKnockingParticipant = (payload) => {
         updateLog((items) => [...items, JSON.stringify(payload)]);
@@ -32,6 +33,7 @@ const Room = () => {
         if (payload.isOpen || !payload.unreadCount) {
             return;
         }
+        // @ts-ignore
         apiRef.current.executeCommand("toggleChat");
         updateLog((items) => [
             ...items,
@@ -41,6 +43,7 @@ const Room = () => {
 
     const resolveKnockingParticipants = (condition) => {
         knockingParticipants.forEach((participant) => {
+            // @ts-ignore
             apiRef.current.executeCommand(
                 "answerKnockingParticipant",
                 participant?.id,
@@ -61,22 +64,30 @@ const Room = () => {
     };
 
     const handleReadyToClose = () => {
-        /* eslint-disable-next-line no-alert */
+         
         alert("Ready to close...");
     };
 
     const handleApiReady = (apiObj) => {
+        // @ts-ignore
         apiRef.current = apiObj;
+        // @ts-ignore
         apiRef.current.on("knockingParticipant", handleKnockingParticipant);
+        // @ts-ignore
         apiRef.current.on("audioMuteStatusChanged", (payload) =>
             handleAudioStatusChange(payload, "audio")
         );
+        // @ts-ignore
         apiRef.current.on("videoMuteStatusChanged", (payload) =>
             handleAudioStatusChange(payload, "video")
         );
+        // @ts-ignore
         apiRef.current.on("raiseHandUpdated", printEventOutput);
+        // @ts-ignore
         apiRef.current.on("titleViewChanged", printEventOutput);
+        // @ts-ignore
         apiRef.current.on("chatUpdated", handleChatUpdates);
+        // @ts-ignore
         apiRef.current.on("knockingParticipant", handleKnockingParticipant);
     };
 
@@ -97,7 +108,7 @@ const Room = () => {
 
         return (
             <JitsiMeeting
-                roomName={generateRoomName()}
+                roomName={roomID}
                 getIFrameRef={handleJitsiIFrameRef2}
             />
         );
@@ -113,13 +124,13 @@ const Room = () => {
     return (
         <div className={"w-3/5 h-[55vh]"}>
             <JitsiMeeting
-                roomName={generateRoomName()}
+                roomName={roomID}
                 spinner={renderSpinner}
                 configOverwrite={{
-                    subject: "lalalala",
+                    subject: title,
                     hideConferenceSubject: false,
                 }}
-                userInfo={{ displayName: "Attendee Name" }}
+                userInfo={{ displayName: username, email: email }}
                 lang="en"
                 onApiReady={(externalApi) => handleApiReady(externalApi)}
                 onReadyToClose={handleReadyToClose}

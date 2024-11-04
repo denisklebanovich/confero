@@ -1,5 +1,6 @@
 import {AppClient} from "@/generated";
 import {useAuth} from "@/auth/AuthProvider.tsx";
+import {useMemo} from "react";
 
 export function useApiClient() {
     const {session, orcidAccessToken} = useAuth()
@@ -11,9 +12,9 @@ export function useApiClient() {
         headers["Orcid-Access-Token"] = orcidAccessToken
     }
 
-    return new AppClient({
+    return useMemo(() => new AppClient({
         HEADERS: headers,
         CREDENTIALS: "include",
         BASE: "/api",
-    });
+    }), [headers]);
 }

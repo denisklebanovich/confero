@@ -24,7 +24,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
             <div className="flex items-center text-sm text-muted-foreground">
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 <time>
-                    {extractTime(session.startTime!!)} - {extractTime(session.endTime!!)}
+                    {extractTime(session.startTime!)} - {extractTime(session.endTime!)}
                 </time>
             </div>
         </CardContent>
