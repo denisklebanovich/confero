@@ -23,6 +23,7 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
             const presenter = await apiInstance.orcid.getOrcidData(orcid);
             const isValid = /^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/.test(orcid)
             if (isValid) {
+
                 return {valid: true, value: presenter}
             }
             return {valid: false}

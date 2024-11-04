@@ -29,6 +29,7 @@ const comments = [
 
 const ProposalEditView = () => {
 
+
   return (
     <div className="relative flex items-start">
       <div className="flex flex-col w-full items-center">
@@ -36,7 +37,7 @@ const ProposalEditView = () => {
         <ProposalForm defaultValues={defaultValues} />
       </div>
 
-      <div className="absolute top-0 right-0 h-full flex flex-col items-end p-4 space-y-4 z-50">
+      <div className="absolute top-0 right-0 h-full flex flex-col items-end p-4 space-y-4 z-40">
         {comments.map((comment, index) => (
           <ApplicationComment key={index} {...comment} />
         ))}

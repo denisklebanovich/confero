@@ -23,6 +23,7 @@ import OrcidInput from "@/components/orcid/OrcidInput";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import {useEffect} from "react";
 
 const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
   message:
@@ -51,6 +52,7 @@ interface ProposalFormProps {
   isDisabled?: boolean;
 }
 
+
 const ProposalForm = ({
   defaultValues,
   isDisabled = false,
@@ -68,15 +70,48 @@ const ProposalForm = ({
   });
 
   const navigate = useNavigate();
+    const { control, watch, setValue } = form;
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+    const titleValue = watch("title");
+    const typeValue = watch("type");
+    const organisersValue = watch("organisers");
+    const descriptionValue = watch("description");
+    const tagsValue = watch("tags");
 
-  return (
+    useEffect(() => {
+        console.log(titleValue, typeValue, organisersValue, descriptionValue, tagsValue)
+    }, [titleValue, typeValue, organisersValue, descriptionValue, tagsValue]);
+
+    function sendOnDraft(e) {
+        e.preventDefault();
+        console.log("Draft saved")
+    }
+
+    function onSubmit(e) {
+        e.preventDefault();
+        console.log("Submit")
+    }
+
+    function onApprove(e) {
+        e.preventDefault();
+        console.log("Approved")
+    }
+
+    function onReject(e) {
+        e.preventDefault();
+        console.log("Rejected")
+    }
+
+    function updateTags(e){
+        e.preventDefault();
+        console.log("Tags updated")
+        setValue("tags", ["Computer Vision", "Artificial Intelligence", "Machine Learning"])
+    }
+
+
+    return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-2 w-1/2"
       >
         <FormField
@@ -161,14 +196,14 @@ const ProposalForm = ({
           <FormLabel>Tags</FormLabel>
           <div className="flex w-full items-center justify-between space-x-2">
             <div className="flex flex-wrap gap-2">
-              {form.getValues("tags")?.map((tag, index) => (
+              {tagsValue.map((tag, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
                   {tag}
                 </Badge>
               ))}
             </div>
             {isDisabled ? null : (
-              <Button variant="secondary">Generate tags</Button>
+              <Button onClick={(e) => updateTags(e)} variant="secondary">Generate tags</Button>
             )}
           </div>
         </FormItem>
@@ -179,13 +214,13 @@ const ProposalForm = ({
           {isDisabled ? (
             <div className="flex flex-row gap-4">
               <Button variant="secondary" onClick={() => navigate("/comment")}>Add a comment</Button>
-              <Button variant="destructive">Reject</Button>
-              <Button >Approve</Button>
+              <Button variant="destructive" onClick={(e)=>onReject(e)} >Reject</Button>
+              <Button onClick={(e)=>onApprove(e)} >Approve</Button>
             </div>
           ) : (
             <div className="flex flex-row gap-4">
-              <Button variant="secondary">Save as draft</Button>
-              <Button>Submit</Button>
+              <Button variant="secondary" onClick={(e)=>sendOnDraft(e)}>Save as draft</Button>
+              <Button onClick={(e)=>onSubmit(e)}>Submit</Button>
             </div>
           )}
         </div>

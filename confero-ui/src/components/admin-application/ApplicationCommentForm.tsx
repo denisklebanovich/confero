@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 
-const ApplicationCommentForm = () => {
+const ApplicationCommentForm = ({value, onChange}) => {
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <Card className="w-full">
@@ -13,6 +13,8 @@ const ApplicationCommentForm = () => {
           <Textarea 
             placeholder="Change hte objective. The type of the event is wrong."
             className="min-h-48"
+            value={value}
+            onChange={onChange}
           />
         </CardContent>
       </Card>

@@ -10,7 +10,7 @@ import {useEffect, useState} from "react";
 const ApplicationView = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(4);
+    const [totalPages, setTotalPages] = useState(10);
 
     const applications = [
         {"title":"Computer Vision and Intelligent systems",
@@ -160,8 +160,6 @@ const ApplicationView = () => {
 
                 </div>
             </div>
-
-
             <CustomPagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange}/>
         </div>
     );

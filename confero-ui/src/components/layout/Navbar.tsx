@@ -12,7 +12,7 @@ const Navbar = () => {
   const location = useLocation();
   const { authorized, signOut } = useAuth();
   return (
-    <div className="navbar bg-white fixed top-0 w-full">
+    <div className="navbar bg-white fixed top-0 w-full z-50">
       <div className="container my-1 flex items-center justify-between">
         <a
           href="#"
