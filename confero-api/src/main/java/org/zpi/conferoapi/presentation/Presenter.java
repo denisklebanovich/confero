@@ -51,6 +51,10 @@ public class Presenter {
     @Column(name = "surname", nullable = false)
     private String surname;
 
+    private String title;
+
+    private String organization;
+
     @NotNull
     @Column(name = "is_main", nullable = false)
     private Boolean isMain = false;

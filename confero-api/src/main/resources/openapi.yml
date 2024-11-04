@@ -837,6 +837,10 @@ components:
           type: string
         surname:
           type: string
+        title:
+          type: string
+        organization:
+          type: string
     CreateConferenceEditionRequest:
       type: object
       required:

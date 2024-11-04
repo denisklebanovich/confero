@@ -8,10 +8,12 @@ import org.openapitools.model.CreateApplicationRequest;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
+import org.zpi.conferoapi.orcid.OrcidService;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.presentation.PresentationRepository;
 import org.zpi.conferoapi.presentation.Presenter;
 import org.zpi.conferoapi.presentation.PresenterRepository;
+import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.session.Session;
 import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.User;
@@ -28,26 +30,26 @@ import static org.openapitools.model.ErrorReason.NO_ACTIVE_CONFERENCE_EDITION;
 public class ApplicationService {
 
     ConferenceEditionRepository conferenceEditionRepository;
-
     UserRepository userRepository;
-
     PresenterRepository presenterRepository;
-
     SessionRepository sessionRepository;
-
     PresentationRepository presentationRepository;
+    OrcidService orcidService;
+    SecurityUtils securityUtils;
 
-    public Session createApplication(CreateApplicationRequest request, User user) {
+
+    public Session createApplication(CreateApplicationRequest request) {
+        var currentUser = securityUtils.getCurrentUser();
         var activeConferenceEdition = conferenceEditionRepository.findActiveEditionConference();
 
         if (activeConferenceEdition.isEmpty()) {
             throw new ServiceException(NO_ACTIVE_CONFERENCE_EDITION);
         }
 
-        var newSession = Session.builder()
+        var session = Session.builder()
                 .title(request.getTitle())
                 .type(request.getType())
-                .creator(user)
+                .creator(currentUser)
                 .tags(request.getTags())
                 .edition(activeConferenceEdition.get())
                 .description(request.getDescription())
@@ -56,13 +58,13 @@ public class ApplicationService {
                 .presentations(new ArrayList<>())
                 .build();
 
-        var savedSession = sessionRepository.save(newSession);
+        sessionRepository.save(session);
 
         request.getPresentations().forEach(presentationRequest -> {
 
             var newPresentation = Presentation.builder()
                     .title(presentationRequest.getTitle())
-                    .session(savedSession)
+                    .session(session)
                     .presenters(new ArrayList<>())
                     .build();
 
@@ -70,30 +72,35 @@ public class ApplicationService {
 
 
             presentationRequest.getPresenters().forEach(presenter -> {
-                var existingUser = userRepository.findByEmail(presenter.getEmail()).orElseGet(() ->
-                        userRepository.save(
-                                User.builder()
-                                        .isAdmin(false)
-                                        .email(presenter.getEmail())
-                                        .build()
-                        )
-                );
+                var existingUser = userRepository.findByEmailOrOrcid(presenter.getEmail(), presenter.getOrcid())
+                        .orElseGet(() ->
+                                userRepository.save(
+                                        User.builder()
+                                                .isAdmin(false)
+                                                .email(presenter.getEmail())
+                                                .build()
+                                )
+                        );
+
+                var presenterInfo = orcidService.getRecord(presenter.getOrcid());
 
                 Presenter newPresenter = Presenter.builder()
                         .email(presenter.getEmail())
-                        .presentation(savedPresentation) // Set the associated presentation
+                        .presentation(savedPresentation)
                         .orcid(presenter.getOrcid())
-                        .name("TODO")
-                        .surname("TODO")
+                        .name(presenterInfo.getName())
+                        .surname(presenterInfo.getSurname())
+                        .title(presenterInfo.getTitle())
+                        .organization(presenterInfo.getOrganization())
                         .isMain(presenter.getIsSpeaker())
                         .user(existingUser)
                         .build();
                 presenterRepository.save(newPresenter);
                 savedPresentation.getPresenters().add(newPresenter);
             });
-            savedSession.getPresentations().add(savedPresentation);
+            session.getPresentations().add(savedPresentation);
         });
-        return sessionRepository.findById(savedSession.getId()).get();
+        return session;
     }
 
 }

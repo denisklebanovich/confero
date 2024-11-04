@@ -2,14 +2,12 @@ package org.zpi.conferoapi.application;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
-import org.openapitools.model.ApplicationPreviewResponse;
-import org.openapitools.model.CreateApplicationRequest;
-import org.openapitools.model.PresentationRequest;
-import org.openapitools.model.PresenterRequest;
-import org.openapitools.model.SessionType;
+import org.openapitools.model.*;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.zpi.conferoapi.IntegrationTestBase;
 import org.zpi.conferoapi.conference.ConferenceEdition;
+import org.zpi.conferoapi.orcid.OrcidService;
 import org.zpi.conferoapi.user.User;
 
 import java.time.Instant;
@@ -19,20 +17,30 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class ApplicationControllerTest extends IntegrationTestBase {
 
     private static final String ORCID = "0000-0002-5678-1234";
+    private static final String EMAIL = "example@gmail.com";
+
+    @MockBean
+    OrcidService orcidService;
 
     @Test
     void createApplicationSuccess() {
-        userRepository.save(User.builder().orcid(ORCID).isAdmin(false).build());
+        userRepository.save(User.builder()
+                .email(EMAIL).isAdmin(false).build());
 
         conferenceEditionRepository.save(ConferenceEdition.builder()
                 .id(1L)
                 .createdAt(Instant.now())
                 .applicationDeadlineTime(Instant.now().plus(2, DAYS))
                 .build());
+
+        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+
+
 
 
         // Prepare mock data for CreateApplicationRequest
@@ -41,7 +49,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .addPresentersItem(new PresenterRequest()
                         .email("presenter1@example.com")
                         .isSpeaker(true)
-                        .orcid("0000-0001-2345-6789"));
+                        .orcid(ORCID));
 
         var createApplicationRequest = new CreateApplicationRequest()
                 .title("AI in Modern Science")
@@ -55,7 +63,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
         var response = RestAssured
                 .given()
                 .contentType("application/json")
-                .header("Authorization", "Bearer token")
+                .header("Authorization", EMAIL)
                 .body(createApplicationRequest)
                 .post("/api/application")
                 .then()

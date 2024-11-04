@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
+import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
@@ -32,19 +33,14 @@ import java.util.stream.Collectors;
 class ApplicationController implements ApplicationApi {
 
     ApplicationService applicationService;
-
     UserRepository userRepository;
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> createApplication(CreateApplicationRequest createApplicationRequest) {
         log.info("User requested to create an application with the following data: {}", createApplicationRequest);
-        Optional<User> user = findAuthenticatedUser();
         System.out.println("All users: " + userRepository.findAll());
-        if (user.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
 
-        var session = applicationService.createApplication(createApplicationRequest, user.get());
+        var session = applicationService.createApplication(createApplicationRequest);
 
         log.info("Application created successfully: {}", session);
 
@@ -89,14 +85,5 @@ class ApplicationController implements ApplicationApi {
     @Override
     public ResponseEntity<ApplicationPreviewResponse> updateApplication(Long applicationId, UpdateApplicationRequest updateApplicationRequest) {
         return ApplicationApi.super.updateApplication(applicationId, updateApplicationRequest);
-    }
-
-    private Optional<User> findAuthenticatedUser() {
-        log.info("Finding authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
-        return Optional.ofNullable((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-                .flatMap(authData -> userRepository.findByOrcid(authData)
-                        .or(() -> userRepository.findByEmail(authData)));
-
     }
 }
