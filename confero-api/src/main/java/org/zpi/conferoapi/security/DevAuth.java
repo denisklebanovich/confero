@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 @Component
 @RequiredArgsConstructor
-@Profile("dev")
+@Profile("!prod")
 public class DevAuth extends OncePerRequestFilter {
     private final UserRepository userRepository;
 

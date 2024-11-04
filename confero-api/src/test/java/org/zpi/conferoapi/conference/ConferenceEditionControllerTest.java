@@ -30,6 +30,7 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
                 .given()
                 .contentType("multipart/form-data")
                 .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
+                .header("Authorization", "user@gmail.com")
                 .post("/api/conference-edition")
                 .then()
                 .log().ifError()
@@ -199,7 +200,6 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         assertEquals(2, conferenceEditions.length);
         System.out.println("debug");
     }
-
 
 
     @Test
