@@ -3,7 +3,10 @@ package org.zpi.conferoapi.presentation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.zpi.conferoapi.session.Session;
 
@@ -15,6 +18,9 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "presentation")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Presentation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

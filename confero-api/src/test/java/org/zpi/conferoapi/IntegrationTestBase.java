@@ -13,6 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.zpi.conferoapi.application.ApplicationService;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.user.UserRepository;
 
@@ -40,7 +41,6 @@ public abstract class IntegrationTestBase {
 
     @Autowired
     protected ConferenceEditionRepository conferenceEditionRepository;
-
 
     @BeforeEach
     void setUp() {

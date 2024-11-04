@@ -39,6 +39,7 @@ class ApplicationController implements ApplicationApi {
     public ResponseEntity<ApplicationPreviewResponse> createApplication(CreateApplicationRequest createApplicationRequest) {
         log.info("User requested to create an application with the following data: {}", createApplicationRequest);
         Optional<User> user = findAuthenticatedUser();
+        System.out.println("All users: " + userRepository.findAll());
         if (user.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -89,6 +90,8 @@ class ApplicationController implements ApplicationApi {
     }
 
     private Optional<User> findAuthenticatedUser() {
+        log.info("Finding authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
         return Optional.ofNullable((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .flatMap(authData -> userRepository.findByOrcid(authData)
                         .or(() -> userRepository.findByEmail(authData)));
