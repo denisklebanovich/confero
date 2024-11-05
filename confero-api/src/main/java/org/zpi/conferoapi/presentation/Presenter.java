@@ -55,8 +55,6 @@ public class Presenter {
 
     private String organization;
 
-    @NotNull
-    @Column(name = "is_speaker", nullable = false)
     private Boolean isSpeaker = false;
 
     @NotNull

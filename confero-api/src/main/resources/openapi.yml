@@ -944,7 +944,7 @@ components:
           type: string
         email:
           type: string
-        is_speaker:
+        isSpeaker:
           type: boolean
 
     PresenterResponse:
@@ -959,7 +959,7 @@ components:
           type: string
         orcid:
           type: string
-        is_speaker:
+        isSpeaker:
           type: boolean
     
     PresentationRequest:
