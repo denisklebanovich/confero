@@ -10,7 +10,9 @@ import java.util.Optional;
 @Repository
 public interface ConferenceEditionRepository extends JpaRepository<ConferenceEdition, Long> {
 
-    @Query("SELECT ce FROM ConferenceEdition ce WHERE ce.applicationDeadlineTime > CURRENT_TIMESTAMP")
+    @Query(value = """
+            SELECT * FROM conference_edition ce WHERE ce.application_deadline_time > CURRENT_TIMESTAMP LIMIT 1"""
+            , nativeQuery = true)
     Optional<ConferenceEdition> findActiveEditionConference();
 
     @NotNull Optional<ConferenceEdition> findById(@NotNull Long id);

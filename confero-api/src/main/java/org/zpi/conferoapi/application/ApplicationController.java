@@ -30,6 +30,10 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> createApplication(CreateApplicationRequest createApplicationRequest) {
+        if (securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.ADMIN_CANNOT_CREATE_APPLICATION);
+        }
+
         log.info("User requested to create an application with the following data: {}", createApplicationRequest);
 
         var session = applicationService.createApplication(createApplicationRequest);
@@ -56,6 +60,9 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<Void> deleteApplication(Long applicationId) {
+        if (securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.ADMIN_CANNOT_DELETE_APPLICATION);
+        }
         applicationService.deleteApplication(applicationId);
         return ResponseEntity.ok().build();
     }
@@ -80,6 +87,9 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> updateApplication(Long applicationId, UpdateApplicationRequest updateApplicationRequest) {
+        if (securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.ADMIN_CANNOT_UPDATE_APPLICATION);
+        }
         return ResponseEntity.ok(applicationService.updateApplication(applicationId, updateApplicationRequest));
     }
 }

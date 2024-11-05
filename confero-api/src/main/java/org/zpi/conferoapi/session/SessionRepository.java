@@ -8,4 +8,12 @@ import java.util.Optional;
 
 public interface SessionRepository extends JpaRepository<Session, Long> {
     Optional<Session> findByIdAndCreatorIdAndStatusIsIn(Long id, Long creatorId, List<ApplicationStatus> statuses);
+
+    Optional<Session> findByIdAndStatusIsIn(Long id, List<ApplicationStatus> statuses);
+
+    Optional<Session> findByIdAndCreatorId(Long id, Long creatorId);
+
+    List<Session> findAllByCreatorIdAndStatusNot(Long creatorId, ApplicationStatus status);
+
+    List<Session> findAllByStatusNot(ApplicationStatus status);
 }

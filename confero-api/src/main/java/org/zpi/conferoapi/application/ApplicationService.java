@@ -4,6 +4,7 @@ package org.zpi.conferoapi.application;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.openapitools.model.*;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
@@ -41,13 +42,34 @@ public class ApplicationService {
     ApplicationCommentRepository applicationCommentRepository;
 
     public ApplicationResponse getApplication(Long applicationId) {
-        var session = sessionRepository.findById(applicationId)
+        var session = (securityUtils.isCurrentUserAdmin()
+                ? sessionRepository.findById(applicationId)
+                : sessionRepository.findByIdAndCreatorId(applicationId, securityUtils.getCurrentUser().getId()))
                 .orElseThrow(() -> new ServiceException(ErrorReason.APPLICATION_NOT_FOUND));
-        return applicationMapper.sessionToApplicationResponse(session);
+
+        var activeConference = conferenceEditionRepository.findActiveEditionConference();
+
+        return applicationMapper.sessionToApplicationResponse(session)
+                .fromActiveConferenceEdition(
+                        activeConference
+                                .map(activeEdition -> activeEdition.getId().equals(session.getEdition().getId()))
+                                .orElse(false)
+                );
     }
 
     public List<ApplicationPreviewResponse> getApplications() {
-        return sessionRepository.findAll().stream().map(applicationMapper::toPreviewDto)
+        var activeConferenceEdition = conferenceEditionRepository.findActiveEditionConference();
+
+        var applications = securityUtils.isCurrentUserAdmin()
+                ? sessionRepository.findAllByStatusNot(ACCEPTED)
+                : sessionRepository.findAllByCreatorIdAndStatusNot(securityUtils.getCurrentUser().getId(), ACCEPTED);
+
+        return applications.stream()
+                .map(application -> applicationMapper.toPreviewDto(application).fromActiveConferenceEdition(
+                        activeConferenceEdition
+                                .map(activeEdition -> activeEdition.getId().equals(application.getEdition().getId()))
+                                .orElse(false)
+                ))
                 .toList();
     }
 
@@ -63,9 +85,8 @@ public class ApplicationService {
 
     public ApplicationPreviewResponse reviewApplication(Long applicationId, ReviewRequest request) {
         var currentUser = securityUtils.getCurrentUser();
-        var application = sessionRepository.findByIdAndCreatorIdAndStatusIsIn(
+        var application = sessionRepository.findByIdAndStatusIsIn(
                 applicationId,
-                currentUser.getId(),
                 List.of(PENDING)
         ).orElseThrow(() -> new ServiceException(ErrorReason.APPLICATION_NOT_FOUND));
 
@@ -92,7 +113,7 @@ public class ApplicationService {
         var application = sessionRepository.findByIdAndCreatorIdAndStatusIsIn(
                 applicationId,
                 currentUser.getId(),
-                List.of(DRAFT, PENDING)
+                List.of(DRAFT, PENDING, CHANGE_REQUESTED)
         ).orElseThrow(() -> new ServiceException(ErrorReason.APPLICATION_NOT_FOUND));
         application = applicationMapper.partialUpdate(request, application);
 
