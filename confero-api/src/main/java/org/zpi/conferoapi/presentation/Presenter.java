@@ -56,8 +56,8 @@ public class Presenter {
     private String organization;
 
     @NotNull
-    @Column(name = "is_main", nullable = false)
-    private Boolean isMain = false;
+    @Column(name = "is_speaker", nullable = false)
+    private Boolean isSpeaker = false;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

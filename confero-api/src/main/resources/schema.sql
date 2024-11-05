@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS presenter
     title           VARCHAR(255),
     organization    VARCHAR(255),
     presentation_id BIGINT       NOT NULL,
-    is_main         BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_speaker         BOOLEAN      NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_presenter_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id) ON DELETE CASCADE
 );

@@ -74,6 +74,9 @@ public class MockDataInitializer implements CommandLineRunner {
                 .description("A deep dive into AI's impact on science")
                 .presentations(List.of(presentationRequest))
                 .saveAsDraft(false);
+
+        //log json request
+        System.out.println(createApplicationRequest.toString());
         applicationService.createApplication(createApplicationRequest);
 
     }

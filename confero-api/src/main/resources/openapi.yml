@@ -809,7 +809,8 @@ components:
         - S3_UPLOAD_ERROR
         - EMAIL_CANNOT_BE_UPDATED
         - NO_ACTIVE_CONFERENCE_EDITION
-
+        - UNAUTHORIZED
+        - INVALID_ORCID
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]

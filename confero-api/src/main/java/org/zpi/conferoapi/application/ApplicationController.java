@@ -45,7 +45,7 @@ class ApplicationController implements ApplicationApi {
                                         .name(presenter.getName())
                                         .surname(presenter.getSurname())
                                         .orcid(presenter.getOrcid())
-                                        .isSpeaker(presenter.getIsMain() == Boolean.TRUE)
+                                        .isSpeaker(presenter.getIsSpeaker() == Boolean.TRUE)
                                 )
                                 .collect(Collectors.toList()))
                 , HttpStatus.CREATED);
@@ -53,7 +53,8 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<Void> deleteApplication(Long applicationId) {
-        return ApplicationApi.super.deleteApplication(applicationId);
+        applicationService.deleteApplication(applicationId);
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -63,16 +64,16 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<List<ApplicationPreviewResponse>> getApplications() {
-        return ApplicationApi.super.getApplications();
+        return ResponseEntity.ok(applicationService.getApplications());
     }
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> reviewApplication(Long applicationId, ReviewRequest reviewRequest) {
-        return ApplicationApi.super.reviewApplication(applicationId, reviewRequest);
+        return ResponseEntity.ok(applicationService.reviewApplication(applicationId, reviewRequest));
     }
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> updateApplication(Long applicationId, UpdateApplicationRequest updateApplicationRequest) {
-        return ApplicationApi.super.updateApplication(applicationId, updateApplicationRequest);
+        return ResponseEntity.ok(applicationService.updateApplication(applicationId, updateApplicationRequest));
     }
 }
