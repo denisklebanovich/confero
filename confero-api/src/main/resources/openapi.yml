@@ -668,11 +668,11 @@ paths:
         Get all organizers by first name, last name or orcid. It will return organizers from all conference editions.
       operationId: findOrganizers
       parameters:
-        - name: firstName
+        - name: name
           in: query
           schema:
             type: string
-        - name: lastName
+        - name: surname
           in: query
           schema:
             type: string
@@ -952,9 +952,9 @@ components:
         id:
           type: integer
           format: int64
-        firstName:
+        name:
           type: string
-        lastName:
+        surname:
           type: string
         orcid:
           type: string
@@ -1144,9 +1144,9 @@ components:
       properties:
         id:
           type: string
-        firstName:
+        name:
           type: string
-        lastName:
+        surname:
           type: string
         orcid:
           type: string

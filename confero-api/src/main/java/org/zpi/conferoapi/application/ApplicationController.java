@@ -5,23 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.api.ApplicationApi;
-import org.openapitools.model.ApplicationPreviewResponse;
-import org.openapitools.model.ApplicationResponse;
-import org.openapitools.model.CreateApplicationRequest;
-import org.openapitools.model.PresenterResponse;
-import org.openapitools.model.ReviewRequest;
-import org.openapitools.model.UpdateApplicationRequest;
+import org.openapitools.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
-import org.zpi.conferoapi.security.SecurityUtils;
-import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -52,10 +42,10 @@ class ApplicationController implements ApplicationApi {
                         .presenters(session.getPresentations().stream().flatMap(presentation -> presentation.getPresenters().stream())
                                 .map(presenter -> new PresenterResponse()
                                         .id(presenter.getId())
-                                        .firstName(presenter.getName())
-                                        .lastName(presenter.getSurname())
+                                        .name(presenter.getName())
+                                        .surname(presenter.getSurname())
                                         .orcid(presenter.getOrcid())
-                                        .isSpeaker(presenter.getIsMain())
+                                        .isSpeaker(presenter.getIsMain() == Boolean.TRUE)
                                 )
                                 .collect(Collectors.toList()))
                 , HttpStatus.CREATED);
@@ -68,7 +58,7 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<ApplicationResponse> getApplication(Long applicationId) {
-        return ApplicationApi.super.getApplication(applicationId);
+        return ResponseEntity.ok(applicationService.getApplication(applicationId));
     }
 
     @Override

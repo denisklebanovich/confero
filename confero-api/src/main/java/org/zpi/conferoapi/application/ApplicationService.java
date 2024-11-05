@@ -3,8 +3,10 @@ package org.zpi.conferoapi.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.openapitools.model.ApplicationResponse;
 import org.openapitools.model.ApplicationStatus;
 import org.openapitools.model.CreateApplicationRequest;
+import org.openapitools.model.ErrorReason;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
@@ -36,7 +38,13 @@ public class ApplicationService {
     PresentationRepository presentationRepository;
     OrcidService orcidService;
     SecurityUtils securityUtils;
+    ApplicationMapper applicationMapper;
 
+    public ApplicationResponse getApplication(Long applicationId) {
+        var session = sessionRepository.findById(applicationId)
+                .orElseThrow(() -> new ServiceException(ErrorReason.APPLICATION_NOT_FOUND));
+        return applicationMapper.sessionToApplicationResponse(session);
+    }
 
     public Session createApplication(CreateApplicationRequest request) {
         var currentUser = securityUtils.getCurrentUser();
