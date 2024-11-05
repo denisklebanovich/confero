@@ -21,6 +21,7 @@ public class SessionController implements SessionApi {
     }
 
     @Override
+    @Deprecated
     public ResponseEntity<SessionPreviewResponse> createSession(CreateApplicationRequest createApplicationRequest) {
         return ResponseEntity.ok(sessionService.createSession(createApplicationRequest));
     }

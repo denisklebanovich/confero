@@ -808,6 +808,7 @@ components:
         - INVALID_FILE_FORMAT
         - S3_UPLOAD_ERROR
         - EMAIL_CANNOT_BE_UPDATED
+        - NO_ACTIVE_CONFERENCE_EDITION
 
     SessionEventType:
       type: string
@@ -835,6 +836,10 @@ components:
         name:
           type: string
         surname:
+          type: string
+        title:
+          type: string
+        organization:
           type: string
     CreateConferenceEditionRequest:
       type: object
@@ -945,7 +950,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         firstName:
           type: string
         lastName:
@@ -1021,11 +1027,12 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         title:
           type: string
         type:
-          type: string
+          $ref: '#/components/schemas/SessionType'
         presenters:
           type: array
           items:

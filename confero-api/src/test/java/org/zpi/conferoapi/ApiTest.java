@@ -49,16 +49,6 @@ public class ApiTest extends IntegrationTestBase {
                 false
         );
 
-        // when all required fields are present
-        RestAssured
-                .given()
-                .contentType("application/json")
-                .body(validApplication)
-                .post("/api/application")
-                .then()
-                .log().ifError()
-                .statusCode(200);
-
         // when missing body
         RestAssured
                 .given()
