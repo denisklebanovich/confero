@@ -14,12 +14,16 @@ import org.zpi.conferoapi.user.UserRepository;
 public class SecurityUtils {
     private final UserRepository userRepository;
 
-    public static Long getCurrentUserId() {
+    private static Long getCurrentUserId() {
         return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     public User getCurrentUser() {
         return userRepository.findById(getCurrentUserId())
                 .orElseThrow(() -> new ServiceException(ErrorReason.USER_NOT_FOUND));
+    }
+
+    public boolean isCurrentUserAdmin() {
+        return getCurrentUser().getIsAdmin();
     }
 }

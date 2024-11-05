@@ -9,6 +9,8 @@ import org.openapitools.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.zpi.conferoapi.exception.ServiceException;
+import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.user.UserRepository;
 
 import java.util.List;
@@ -23,7 +25,8 @@ import java.util.stream.Collectors;
 class ApplicationController implements ApplicationApi {
 
     ApplicationService applicationService;
-    UserRepository userRepository;
+
+    private final SecurityUtils securityUtils;
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> createApplication(CreateApplicationRequest createApplicationRequest) {
@@ -69,6 +72,9 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> reviewApplication(Long applicationId, ReviewRequest reviewRequest) {
+        if (!securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.UNAUTHORIZED);
+        }
         return ResponseEntity.ok(applicationService.reviewApplication(applicationId, reviewRequest));
     }
 

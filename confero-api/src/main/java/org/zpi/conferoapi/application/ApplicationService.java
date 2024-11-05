@@ -63,9 +63,6 @@ public class ApplicationService {
 
     public ApplicationPreviewResponse reviewApplication(Long applicationId, ReviewRequest request) {
         var currentUser = securityUtils.getCurrentUser();
-        if (!currentUser.getIsAdmin()) {
-            throw new ServiceException(ErrorReason.UNAUTHORIZED);
-        }
         var application = sessionRepository.findByIdAndCreatorIdAndStatusIsIn(
                 applicationId,
                 currentUser.getId(),
