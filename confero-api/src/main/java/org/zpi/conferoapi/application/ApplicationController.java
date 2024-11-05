@@ -38,7 +38,6 @@ class ApplicationController implements ApplicationApi {
     @Override
     public ResponseEntity<ApplicationPreviewResponse> createApplication(CreateApplicationRequest createApplicationRequest) {
         log.info("User requested to create an application with the following data: {}", createApplicationRequest);
-        System.out.println("All users: " + userRepository.findAll());
 
         var session = applicationService.createApplication(createApplicationRequest);
 

@@ -14,9 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 class ApplicationControllerTest extends IntegrationTestBase {
@@ -39,8 +37,6 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .build());
 
         when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
-
-
 
 
         // Prepare mock data for CreateApplicationRequest
@@ -87,5 +83,46 @@ class ApplicationControllerTest extends IntegrationTestBase {
         assertEquals(ORCID, presenterResponse.getOrcid());
         assertEquals("John", presenterResponse.getFirstName());
         assertEquals("Doe", presenterResponse.getLastName());
+    }
+
+    @Test
+    void createApplicationShouldFailCausedByNoActiveConferenceEdition() {
+        userRepository.save(User.builder()
+                .email(EMAIL).isAdmin(false).build());
+
+        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+
+        // Prepare mock data for CreateApplicationRequest
+        var presentationRequest = new PresentationRequest()
+                .title("Introduction to AI")
+                .addPresentersItem(new PresenterRequest()
+                        .email("presenter1@example.com")
+                        .isSpeaker(true)
+                        .orcid(ORCID));
+
+        var createApplicationRequest = new CreateApplicationRequest()
+                .title("AI in Modern Science")
+                .type(SessionType.WORKSHOP)
+                .tags(List.of("AI", "Technology"))
+                .description("A deep dive into AI's impact on science")
+                .presentations(List.of(presentationRequest))
+                .saveAsDraft(false);
+
+        // Execute the POST request to create an application
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .body(createApplicationRequest)
+                .post("/api/application")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .extract()
+                .response();
+
+        // Deserialize response into ErrorResponse
+        var errorResponse = response.as(ErrorResponse.class);
+       assertEquals(errorResponse.getReason(),ErrorReason.NO_ACTIVE_CONFERENCE_EDITION);
     }
 }
