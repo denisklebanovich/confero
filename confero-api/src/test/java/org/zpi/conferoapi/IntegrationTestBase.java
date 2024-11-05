@@ -15,6 +15,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.application.ApplicationService;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.presentation.PresenterRepository;
 import org.zpi.conferoapi.user.UserRepository;
 
 @ActiveProfiles("test")
@@ -42,10 +43,14 @@ public abstract class IntegrationTestBase {
     @Autowired
     protected ConferenceEditionRepository conferenceEditionRepository;
 
+    @Autowired
+    protected PresenterRepository presenterRepository;
+
     @BeforeEach
     void setUp() {
         RestAssured.baseURI = "http://localhost:" + port;
         userRepository.deleteAll();
         conferenceEditionRepository.deleteAll();
+        presenterRepository.deleteAll();
     }
 }

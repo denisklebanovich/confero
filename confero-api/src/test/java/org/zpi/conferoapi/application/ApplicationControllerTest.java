@@ -21,6 +21,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
     private static final String ORCID = "0000-0002-5678-1234";
 
+    private static final String ORCID_2 = "0000-0002-5678-1235";
+
     private static final String EMAIL = "example@gmail.com";
 
     @MockBean
@@ -188,6 +190,48 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .then()
                 .log().ifError()
                 .statusCode(HttpStatus.OK.value());
+    }
+
+
+    @Test
+    void presentation_can_have_multiple_main_speakers() {
+        userRepository.save(User.builder()
+                .email(EMAIL).isAdmin(false).build());
+
+        conferenceEditionRepository.save(ConferenceEdition.builder()
+                .id(1L)
+                .createdAt(Instant.now())
+                .applicationDeadlineTime(Instant.now().plus(2, DAYS))
+                .build());
+
+        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+        when(orcidService.getRecord(ORCID_2)).thenReturn(new OrcidInfoResponse().name("Jane").surname("Doe"));
+
+
+        var presentationRequest = presentationRequest()
+                .addPresentersItem(presenterRequest().email("another@mail.com").orcid(ORCID_2));
+
+
+        var createApplicationRequest = createApplicationRequest()
+                .presentations(List.of(presentationRequest));
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .body(createApplicationRequest)
+                .post("/api/application")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
+                .response()
+                .as(ApplicationPreviewResponse.class);
+
+
+        response.getPresenters().forEach(presenter -> {
+            assertTrue(presenter.getIsSpeaker());
+        });
     }
 
 
