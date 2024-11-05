@@ -811,6 +811,7 @@ components:
         - NO_ACTIVE_CONFERENCE_EDITION
         - UNAUTHORIZED
         - INVALID_ORCID
+        - UNEXPECTED_ERROR
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]

@@ -99,6 +99,7 @@ public class ApplicationService {
         ).orElseThrow(() -> new ServiceException(ErrorReason.APPLICATION_NOT_FOUND));
         application = applicationMapper.partialUpdate(request, application);
 
+        presentationRepository.deleteAllBySession(application);
         sessionRepository.save(application);
 
         return applicationMapper.toPreviewDto(application);

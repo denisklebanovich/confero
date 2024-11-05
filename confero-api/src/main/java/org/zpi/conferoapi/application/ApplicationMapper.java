@@ -21,6 +21,7 @@ public interface ApplicationMapper {
     ApplicationPreviewResponse toPreviewDto(Session session);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "presentations", ignore = true)
     Session partialUpdate(UpdateApplicationRequest request, @MappingTarget Session session);
 
     static List<String> tagsToString(Map<String, Object> tags) {

@@ -17,6 +17,7 @@ public class ServiceException extends RuntimeException {
             case INVALID_FILE_FORMAT, NO_ACTIVE_CONFERENCE_EDITION, INVALID_ORCID -> HttpStatus.BAD_REQUEST;
             case S3_UPLOAD_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
             case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+            case UNEXPECTED_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 }
