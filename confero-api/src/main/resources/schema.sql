@@ -76,13 +76,8 @@ CREATE TABLE IF NOT EXISTS presentation
     session_id  BIGINT  NOT NULL,
     start_time  TIMESTAMP WITHOUT TIME ZONE,
     end_time    TIMESTAMP WITHOUT TIME ZONE,
-    CONSTRAINT fk_presentation_session FOREIGN KEY (session_id) REFERENCES session (id)
+    CONSTRAINT fk_presentation_session FOREIGN KEY (session_id) REFERENCES session (id) ON DELETE CASCADE
 );
-
--- partial unique index to ensure only one main presenter per presentation
-CREATE UNIQUE INDEX IF NOT EXISTS unique_main_presenter_per_presentation
-    ON presenter (presentation_id)
-    WHERE is_main = TRUE;
 
 CREATE TABLE IF NOT EXISTS presenter
 (
@@ -97,7 +92,7 @@ CREATE TABLE IF NOT EXISTS presenter
     presentation_id BIGINT       NOT NULL,
     is_main         BOOLEAN      NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_presenter_user FOREIGN KEY (user_id) REFERENCES users (id),
-    CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id)
+    CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id) ON DELETE CASCADE
 );
 
 

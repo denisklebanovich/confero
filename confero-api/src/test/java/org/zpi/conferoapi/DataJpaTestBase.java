@@ -12,6 +12,9 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.presentation.PresentationRepository;
+import org.zpi.conferoapi.presentation.PresenterRepository;
+import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.UserRepository;
 
 @DataJpaTest
@@ -34,11 +37,21 @@ public abstract class DataJpaTestBase {
     @Autowired
     protected ConferenceEditionRepository conferenceEditionRepository;
 
+    @Autowired
+    protected SessionRepository sessionRepository;
+
+    @Autowired
+    protected PresentationRepository presentationRepository;
+
+    @Autowired
+    protected PresenterRepository presenterRepository;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
         conferenceEditionRepository.deleteAll();
+        sessionRepository.deleteAll();
+        presentationRepository.deleteAll();
+        presenterRepository.deleteAll();
     }
-
 }
