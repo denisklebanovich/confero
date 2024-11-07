@@ -3,6 +3,9 @@ package org.zpi.conferoapi.user;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.zpi.conferoapi.email.UserEmail;
+
+import java.util.List;
 
 
 @Getter
@@ -21,7 +24,9 @@ public class User {
     private String orcid;
     private String accessToken;
     private String avatarUrl;
-    private boolean emailVerified = false;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<UserEmail> emails;
 
     @NotNull
     @Column(name = "is_admin", nullable = false)

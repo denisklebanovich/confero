@@ -19,11 +19,6 @@ import static org.mockito.Mockito.when;
 
 class ApplicationControllerTest extends IntegrationTestBase {
 
-    private static final String ORCID = "0000-0002-5678-1234";
-
-    private static final String ORCID_2 = "0000-0002-5678-1235";
-
-    private static final String EMAIL = "example@gmail.com";
 
     @MockBean
     OrcidService orcidService;

@@ -13,11 +13,12 @@ import org.springframework.stereotype.Component;
 import org.zpi.conferoapi.application.ApplicationService;
 import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.email.UserEmail;
+import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -27,6 +28,7 @@ public class MockDataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final ConferenceEditionRepository conferenceEditionRepository;
     private final ApplicationService applicationService;
+    private final UserEmailRepository userEmailRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -42,10 +44,10 @@ public class MockDataInitializer implements CommandLineRunner {
                 .builder()
                 .email("denis.klebanovich@gmail.com")
                 .orcid("0009-0005-9044-6202")
-                .emailVerified(true)
                 .isAdmin(true)
                 .build();
         userRepository.save(user);
+        userEmailRepository.save(new UserEmail(user.getEmail(), true, user, null));
         return user;
     }
 
@@ -75,9 +77,6 @@ public class MockDataInitializer implements CommandLineRunner {
                 .presentations(List.of(presentationRequest))
                 .saveAsDraft(false);
 
-        //log json request
-        System.out.println(createApplicationRequest.toString());
         applicationService.createApplication(createApplicationRequest);
-
     }
 }

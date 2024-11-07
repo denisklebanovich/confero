@@ -10,6 +10,15 @@ CREATE TABLE IF NOT EXISTS users
     is_admin       BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+CREATE TABLE IF NOT EXISTS user_emails
+(
+    email   VARCHAR(255) PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    verification_token VARCHAR(255),
+    CONSTRAINT fk_user_emails_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_email
     ON users (email);
 
