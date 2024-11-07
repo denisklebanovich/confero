@@ -1,10 +1,17 @@
 package org.zpi.conferoapi.application;
 
 
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.openapitools.model.*;
-import org.springframework.security.core.parameters.P;
+import org.openapitools.model.ApplicationPreviewResponse;
+import org.openapitools.model.ApplicationResponse;
+import org.openapitools.model.ApplicationStatus;
+import org.openapitools.model.CreateApplicationRequest;
+import org.openapitools.model.ErrorReason;
+import org.openapitools.model.OrcidInfoResponse;
+import org.openapitools.model.ReviewRequest;
+import org.openapitools.model.UpdateApplicationRequest;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
@@ -22,8 +29,13 @@ import org.zpi.conferoapi.user.UserRepository;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.openapitools.model.ApplicationStatus.*;
+import static org.openapitools.model.ApplicationStatus.ACCEPTED;
+import static org.openapitools.model.ApplicationStatus.CHANGE_REQUESTED;
+import static org.openapitools.model.ApplicationStatus.DRAFT;
+import static org.openapitools.model.ApplicationStatus.PENDING;
+import static org.openapitools.model.ApplicationStatus.REJECTED;
 import static org.openapitools.model.ErrorReason.NO_ACTIVE_CONFERENCE_EDITION;
 
 @Service
@@ -32,13 +44,21 @@ import static org.openapitools.model.ErrorReason.NO_ACTIVE_CONFERENCE_EDITION;
 public class ApplicationService {
 
     ConferenceEditionRepository conferenceEditionRepository;
+
     UserRepository userRepository;
+
     PresenterRepository presenterRepository;
+
     SessionRepository sessionRepository;
+
     PresentationRepository presentationRepository;
+
     OrcidService orcidService;
+
     SecurityUtils securityUtils;
+
     ApplicationMapper applicationMapper;
+
     ApplicationCommentRepository applicationCommentRepository;
 
     public ApplicationResponse getApplication(Long applicationId) {
@@ -110,14 +130,66 @@ public class ApplicationService {
 
     public ApplicationPreviewResponse updateApplication(Long applicationId, UpdateApplicationRequest request) {
         var currentUser = securityUtils.getCurrentUser();
-        var application = sessionRepository.findByIdAndCreatorIdAndStatusIsIn(
+        final var application = sessionRepository.findByIdAndCreatorIdAndStatusIsIn(
                 applicationId,
                 currentUser.getId(),
                 List.of(DRAFT, PENDING, CHANGE_REQUESTED)
         ).orElseThrow(() -> new ServiceException(ErrorReason.APPLICATION_NOT_FOUND));
-        application = applicationMapper.partialUpdate(request, application);
 
-        presentationRepository.deleteAllBySession(application);
+        Optional.of(request.getTitle()).ifPresent(application::setTitle);
+        Optional.of(request.getType()).ifPresent(application::setType);
+        Optional.of(request.getTags()).ifPresent(application::setTags);
+        Optional.of(request.getDescription()).ifPresent(application::setDescription);
+        Optional.of(request.getPresentations()).ifPresent(presentations -> {
+            presentations.forEach(presentationRequest -> {
+                var newPresentation = Presentation.builder()
+                        .title(presentationRequest.getTitle())
+                        .session(application)
+                        .presenters(new ArrayList<>())
+                        .build();
+
+                var savedPresentation = presentationRepository.save(newPresentation);
+                presentationRequest.getPresenters().forEach(presenterRequest -> {
+                    var existingUser = userRepository.findByEmailOrOrcid(presenterRequest.getEmail(), presenterRequest.getOrcid())
+                            .orElseGet(() ->
+                                    userRepository.save(
+                                            User.builder()
+                                                    .isAdmin(false)
+                                                    .email(presenterRequest.getEmail())
+                                                    .orcid(presenterRequest.getOrcid())
+                                                    .build()
+                                    )
+                            );
+
+                    OrcidInfoResponse presenterInfo = Try.of(() -> orcidService.getRecord(presenterRequest.getOrcid()))
+                            .getOrElseThrow(() -> new ServiceException(ErrorReason.INVALID_ORCID));
+                    Presenter newPresenter = Presenter.builder()
+                            .email(presenterRequest.getEmail())
+                            .presentation(savedPresentation)
+                            .orcid(presenterRequest.getOrcid())
+                            .name(presenterInfo.getName())
+                            .surname(presenterInfo.getSurname())
+                            .title(presenterInfo.getTitle())
+                            .organization(presenterInfo.getOrganization())
+                            .isSpeaker(presenterRequest.getIsSpeaker())
+                            .user(existingUser)
+                            .build();
+                    presenterRepository.save(newPresenter);
+                    savedPresentation.getPresenters().add(newPresenter);
+                });
+                application.getPresentations().add(savedPresentation);
+            });
+        });
+
+        Optional.of(request.getSaveAsDraft()).ifPresent(saveAsDraft -> {
+            if (!saveAsDraft) {
+                application.setStatus(PENDING);
+            }
+        });
+
+        if (application.getStatus() == CHANGE_REQUESTED) {
+            application.setStatus(PENDING);
+        }
         sessionRepository.save(application);
 
         return applicationMapper.toPreviewDto(application);
@@ -155,7 +227,6 @@ public class ApplicationService {
 
             var savedPresentation = presentationRepository.save(newPresentation);
 
-
             presentationRequest.getPresenters().forEach(presenter -> {
                 var existingUser = userRepository.findByEmailOrOrcid(presenter.getEmail(), presenter.getOrcid())
                         .orElseGet(() ->
@@ -163,6 +234,7 @@ public class ApplicationService {
                                         User.builder()
                                                 .isAdmin(false)
                                                 .email(presenter.getEmail())
+                                                .orcid(presenter.getOrcid())
                                                 .build()
                                 )
                         );

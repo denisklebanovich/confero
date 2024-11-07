@@ -61,6 +61,7 @@ dependencies {
 
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation "org.projectlombok:lombok:${lombokVersion}"
+    implementation 'io.vavr:vavr:0.9.0'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
