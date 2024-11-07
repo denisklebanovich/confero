@@ -16,9 +16,9 @@ spring:
       ddl-auto: create-drop
 
   mail:
-    host: smtp.mail.yahoo.com
+    host: smtp.gmail.com
     port: 465
-    username: confero.contact@yahoo.com
+    username: confero.contact@gmail.com
     password: ${MAIL_PASS:secret}
     properties:
       mail:

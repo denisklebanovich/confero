@@ -1,9 +1,12 @@
 package org.zpi.conferoapi.email;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,11 +28,12 @@ public class EmailServiceImpl {
             </html>""";
 
 
-    public void sendVerificationEmail(String recipientEmail, String link) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(recipientEmail);
-        mailMessage.setSubject(SUBJECT);
-        mailMessage.setText(String.format(MESSAGE_CONTENT, link));
+    public void sendVerificationEmail(String recipientEmail, String link) throws MessagingException {
+        MimeMessage mailMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mailMessage);
+        helper.setTo(recipientEmail);
+        helper.setSubject(SUBJECT);
+        helper.setText(String.format(MESSAGE_CONTENT, link), true);
         javaMailSender.send(mailMessage);
     }
 

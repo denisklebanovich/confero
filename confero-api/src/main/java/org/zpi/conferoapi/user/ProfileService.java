@@ -47,7 +47,11 @@ public class ProfileService {
         }
         String verificationToken = UUID.randomUUID().toString();
         UserEmail userEmail = new UserEmail(updateEmailRequest.getEmail(), false, user, verificationToken);
-        emailService.sendVerificationEmail(updateEmailRequest.getEmail(), generateEmailVerificationLink(updateEmailRequest.getEmail()));
+        try {
+            emailService.sendVerificationEmail(updateEmailRequest.getEmail(), generateEmailVerificationLink(verificationToken));
+        } catch (Exception e) {
+            throw new ServiceException(ErrorReason.EMAIL_SENDING_ERROR);
+        }
         userEmailRepository.save(userEmail);
         return userMapper.toDto(userRepository.save(user));
     }
@@ -60,6 +64,6 @@ public class ProfileService {
     }
 
     private String generateEmailVerificationLink(String token) {
-        return "http://localhost:8080/api/profile/email/verify?token=" + token;
+        return "<a href=http://localhost:8080/api/profile/email/verify?token=" + token + ">Verify your email</a>";
     }
 }

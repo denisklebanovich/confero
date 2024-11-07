@@ -840,6 +840,7 @@ components:
         - ADMIN_CANNOT_DELETE_APPLICATION
         - ADMIN_CANNOT_UPDATE_APPLICATION
         - EMAIL_ALREADY_EXISTS
+        - EMAIL_SENDING_ERROR
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
