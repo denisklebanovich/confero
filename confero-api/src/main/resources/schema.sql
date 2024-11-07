@@ -12,9 +12,8 @@ CREATE TABLE IF NOT EXISTS users
 
 CREATE TABLE IF NOT EXISTS user_emails
 (
-    id      BIGSERIAL PRIMARY KEY,
+    email   VARCHAR(255) PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    email   VARCHAR(255) NOT NULL,
     confirmed BOOLEAN NOT NULL DEFAULT FALSE,
     verification_token VARCHAR(255),
     CONSTRAINT fk_user_emails_user FOREIGN KEY (user_id) REFERENCES users (id)
