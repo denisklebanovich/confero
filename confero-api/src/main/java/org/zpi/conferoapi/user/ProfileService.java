@@ -7,16 +7,23 @@ import org.openapitools.model.UpdateEmailRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.zpi.conferoapi.configuration.S3Service;
+import org.zpi.conferoapi.email.EmailServiceImpl;
+import org.zpi.conferoapi.email.UserEmail;
+import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.security.SecurityUtils;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
     private final UserRepository userRepository;
+    private final UserEmailRepository userEmailRepository;
     private final S3Service s3Service;
     private final SecurityUtils securityUtils;
     private final UserMapper userMapper;
+    private final EmailServiceImpl emailService;
 
     public ProfileResponse getUserProfile() {
         return userMapper.toDto(securityUtils.getCurrentUser());
@@ -34,11 +41,25 @@ public class ProfileService {
 
     public ProfileResponse updateUserEmail(UpdateEmailRequest updateEmailRequest) {
         User user = securityUtils.getCurrentUser();
-        if (user.getOrcid() == null) {
-            throw new ServiceException(ErrorReason.EMAIL_CANNOT_BE_UPDATED);
+        var existingEmail = userEmailRepository.findById(updateEmailRequest.getEmail());
+        if (existingEmail.isPresent()) {
+            throw new ServiceException(ErrorReason.EMAIL_ALREADY_EXISTS);
         }
-        user.setEmail(updateEmailRequest.getEmail());
-        user.setEmailVerified(false);
+        String verificationToken = UUID.randomUUID().toString();
+        UserEmail userEmail = new UserEmail(updateEmailRequest.getEmail(), false, user, verificationToken);
+        emailService.sendVerificationEmail(updateEmailRequest.getEmail(), generateEmailVerificationLink(updateEmailRequest.getEmail()));
+        userEmailRepository.save(userEmail);
         return userMapper.toDto(userRepository.save(user));
+    }
+
+    public void verifyEmail(String token) {
+        var userEmail = userEmailRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new ServiceException(ErrorReason.NOT_FOUND));
+        userEmail.setConfirmed(true);
+        userEmailRepository.save(userEmail);
+    }
+
+    private String generateEmailVerificationLink(String token) {
+        return "http://localhost:8080/api/profile/email/verify?token=" + token;
     }
 }

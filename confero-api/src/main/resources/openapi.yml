@@ -77,6 +77,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /profile/email/verify:
+    get:
+      tags:
+        - Profile
+        - User
+      summary: Verify user email
+      description: |-
+        Verify user email.
+      operationId: verifyUserEmail
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
   /profile/avatar:
@@ -815,6 +839,7 @@ components:
         - ADMIN_CANNOT_CREATE_APPLICATION
         - ADMIN_CANNOT_DELETE_APPLICATION
         - ADMIN_CANNOT_UPDATE_APPLICATION
+        - EMAIL_ALREADY_EXISTS
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -1175,12 +1200,21 @@ components:
           type: string
         lastName:
           type: string
-        email:
-          type: string
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailResponse'
         orcid:
           type: string
         avatarUrl:
           type: string
+    EmailResponse:
+      type: object
+      properties:
+        email:
+          type: string
+        confirmed:
+          type: boolean
     UpdateEmailRequest:
       type: object
       properties:

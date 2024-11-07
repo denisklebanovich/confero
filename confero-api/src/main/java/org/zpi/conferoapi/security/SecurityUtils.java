@@ -14,7 +14,7 @@ import org.zpi.conferoapi.user.UserRepository;
 public class SecurityUtils {
     private final UserRepository userRepository;
 
-    private static Long getCurrentUserId() {
+    public static Long getCurrentUserId() {
         return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
