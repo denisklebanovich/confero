@@ -5,23 +5,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.api.ApplicationApi;
-import org.openapitools.model.ApplicationPreviewResponse;
-import org.openapitools.model.ApplicationResponse;
-import org.openapitools.model.CreateApplicationRequest;
-import org.openapitools.model.PresenterResponse;
-import org.openapitools.model.ReviewRequest;
-import org.openapitools.model.UpdateApplicationRequest;
+import org.openapitools.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
+import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.security.SecurityUtils;
-import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -33,10 +25,15 @@ import java.util.stream.Collectors;
 class ApplicationController implements ApplicationApi {
 
     ApplicationService applicationService;
-    UserRepository userRepository;
+
+    private final SecurityUtils securityUtils;
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> createApplication(CreateApplicationRequest createApplicationRequest) {
+        if (securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.ADMIN_CANNOT_CREATE_APPLICATION);
+        }
+
         log.info("User requested to create an application with the following data: {}", createApplicationRequest);
 
         var session = applicationService.createApplication(createApplicationRequest);
@@ -52,10 +49,10 @@ class ApplicationController implements ApplicationApi {
                         .presenters(session.getPresentations().stream().flatMap(presentation -> presentation.getPresenters().stream())
                                 .map(presenter -> new PresenterResponse()
                                         .id(presenter.getId())
-                                        .firstName(presenter.getName())
-                                        .lastName(presenter.getSurname())
+                                        .name(presenter.getName())
+                                        .surname(presenter.getSurname())
                                         .orcid(presenter.getOrcid())
-                                        .isSpeaker(presenter.getIsMain())
+                                        .isSpeaker(presenter.getIsSpeaker())
                                 )
                                 .collect(Collectors.toList()))
                 , HttpStatus.CREATED);
@@ -63,26 +60,43 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<Void> deleteApplication(Long applicationId) {
-        return ApplicationApi.super.deleteApplication(applicationId);
+
+        log.info("User requested to delete an application with the following id: {}", applicationId);
+
+        if (securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.ADMIN_CANNOT_DELETE_APPLICATION);
+        }
+        applicationService.deleteApplication(applicationId);
+        return ResponseEntity.ok().build();
     }
 
     @Override
     public ResponseEntity<ApplicationResponse> getApplication(Long applicationId) {
-        return ApplicationApi.super.getApplication(applicationId);
+        log.info("User requested to get an application with the following id: {}", applicationId);
+        return ResponseEntity.ok(applicationService.getApplication(applicationId));
     }
 
     @Override
     public ResponseEntity<List<ApplicationPreviewResponse>> getApplications() {
-        return ApplicationApi.super.getApplications();
+        log.info("User requested to get all applications");
+        return ResponseEntity.ok(applicationService.getApplications());
     }
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> reviewApplication(Long applicationId, ReviewRequest reviewRequest) {
-        return ApplicationApi.super.reviewApplication(applicationId, reviewRequest);
+        log.info("User requested to review an application with the following id: {}", applicationId);
+        if (!securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(applicationService.reviewApplication(applicationId, reviewRequest));
     }
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> updateApplication(Long applicationId, UpdateApplicationRequest updateApplicationRequest) {
-        return ApplicationApi.super.updateApplication(applicationId, updateApplicationRequest);
+        log.info("User requested to update an application with the following id: {} and request: {}", applicationId, updateApplicationRequest);
+        if (securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.ADMIN_CANNOT_UPDATE_APPLICATION);
+        }
+        return ResponseEntity.ok(applicationService.updateApplication(applicationId, updateApplicationRequest));
     }
 }

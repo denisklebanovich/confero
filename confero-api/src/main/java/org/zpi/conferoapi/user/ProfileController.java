@@ -28,4 +28,10 @@ public class ProfileController implements ProfileApi {
     public ResponseEntity<ProfileResponse> updateUserEmail(UpdateEmailRequest updateEmailRequest) {
         return ResponseEntity.ok(profileService.updateUserEmail(updateEmailRequest));
     }
+
+    @Override
+    public ResponseEntity<Void> verifyUserEmail(String token) {
+        profileService.verifyEmail(token);
+        return ResponseEntity.ok().build();
+    }
 }

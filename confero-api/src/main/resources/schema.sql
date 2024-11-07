@@ -10,6 +10,15 @@ CREATE TABLE IF NOT EXISTS users
     is_admin       BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+CREATE TABLE IF NOT EXISTS user_emails
+(
+    email   VARCHAR(255) PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    verification_token VARCHAR(255),
+    CONSTRAINT fk_user_emails_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_email
     ON users (email);
 
@@ -90,7 +99,7 @@ CREATE TABLE IF NOT EXISTS presenter
     title           VARCHAR(255),
     organization    VARCHAR(255),
     presentation_id BIGINT       NOT NULL,
-    is_main         BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_speaker         BOOLEAN      NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_presenter_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id) ON DELETE CASCADE
 );

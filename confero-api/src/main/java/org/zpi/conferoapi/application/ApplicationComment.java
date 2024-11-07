@@ -2,10 +2,12 @@ package org.zpi.conferoapi.application;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.session.Session;
+import org.zpi.conferoapi.user.User;
 
 import java.time.Instant;
 

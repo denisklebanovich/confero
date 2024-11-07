@@ -77,6 +77,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /profile/email/verify:
+    get:
+      tags:
+        - Profile
+        - User
+      summary: Verify user email
+      description: |-
+        Verify user email.
+      operationId: verifyUserEmail
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
   /profile/avatar:
@@ -253,10 +277,13 @@ paths:
         - User
       summary: Create new application.
 
-      description:
-        |-
-        Create new application. Application will be created if the application deadline has not passed. Application
-        will be created as "draft" if the "saveAsDraft" is true.
+      description: |-
+        Create a new application. 
+        
+        - Only users can create applications. Admins are not allowed to create applications and will receive an error.
+        - Applications can be created as "draft" if the `saveAsDraft` field is set to `true`.
+        - If `saveAsDraft` is `false`, the application is sent for review and its status is set to "PENDING".
+        - An application cannot be created if the application deadline has passed.
       
 
       operationId: createApplication
@@ -286,7 +313,11 @@ paths:
         - Admin
       summary: Get all applications.
       description: |-
-        Get all applications. It will return all applications created by the user. Admin will see all applications.
+        Retrieve all applications:
+  
+        - Users will see only their own applications.
+        - Admins will see all applications across the system, except those that are already "ACCEPTED" (Sessions).
+      
       operationId: getApplications
       responses:
         '200':
@@ -306,6 +337,12 @@ paths:
         - Admin
       summary: Get complete application data as well as comments
       operationId: getApplication
+      description: |-
+        Retrieve full details of an application, including its comments.
+  
+        - Users can access their own applications.
+        - Admins can access any application.
+        - An error is returned if the application does not exist or is not accessible to the user.
       parameters:
         - $ref: '#/components/parameters/ApplicationId'
       responses:
@@ -327,8 +364,13 @@ paths:
         - User
       summary: Update an application
       description: |-
-        Update an application. It will be possible only if the application is not "resolved".
-        Changes made to the draft application will be saved as draft only if the "saveAsDraft" is true, otherwise, the application will be sent for review.
+        Update an existing application:
+  
+        - Changes to the application can only be made if its status is not "RESOLVED".
+        - If `saveAsDraft` is `true`, the application remains as "DRAFT".
+        - If `saveAsDraft` is `false`, the application is sent for review, and its status is set to "PENDING".
+        - Updates to the application will override its existing data. For example, if presentations are included in the update, they will replace the current presentations.
+        - Admins are not allowed to update applications and will receive an error.
       operationId: updateApplication
       parameters:
         - $ref: '#/components/parameters/ApplicationId'
@@ -363,7 +405,10 @@ paths:
         - User
       summary: Delete an application
       description: |-
-        Delete an application. It will be possible only if the application is not "resolved".
+         Delete an application:
+          - Applications can only be deleted if their status is "DRAFT" or "PENDING".
+          - Admins are not allowed to delete applications and will receive an error.
+          - Once deleted, an application cannot be recovered.
       operationId: deleteApplication
       parameters:
         - $ref: '#/components/parameters/ApplicationId'
@@ -392,7 +437,13 @@ paths:
       summary: Review an application
       description: |-
         Admin-only endpoint to review an application.
-        It will be possible only if the application is not "resolved". "ASK_FOR_ADJUSTMENTS" review type requires additional field "comment".
+  
+        - Only applications with the status "PENDING" can be reviewed.
+        - The `ReviewRequest` determines the action:
+          - "ACCEPT": Marks the application as "ACCEPTED".
+          - "REJECT": Marks the application as "REJECTED".
+          - "ASK_FOR_ADJUSTMENTS": Requires a `comment` to request changes and updates the status to "CHANGE_REQUESTED".
+        - Users attempting to access this endpoint will receive an error.
       operationId: reviewApplication
       parameters:
         - $ref: '#/components/parameters/ApplicationId'
@@ -668,11 +719,11 @@ paths:
         Get all organizers by first name, last name or orcid. It will return organizers from all conference editions.
       operationId: findOrganizers
       parameters:
-        - name: firstName
+        - name: name
           in: query
           schema:
             type: string
-        - name: lastName
+        - name: surname
           in: query
           schema:
             type: string
@@ -809,7 +860,16 @@ components:
         - S3_UPLOAD_ERROR
         - EMAIL_CANNOT_BE_UPDATED
         - NO_ACTIVE_CONFERENCE_EDITION
-
+        - UNAUTHORIZED
+        - INVALID_ORCID
+        - UNEXPECTED_ERROR
+        - ADMIN_CANNOT_CREATE_APPLICATION
+        - ADMIN_CANNOT_DELETE_APPLICATION
+        - ADMIN_CANNOT_UPDATE_APPLICATION
+        - EMAIL_ALREADY_EXISTS
+        - EMAIL_SENDING_ERROR
+        - NO_PRESENTATIONS_PROVIDED
+        - NO_PRESENTERS_PROVIDED
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -943,7 +1003,7 @@ components:
           type: string
         email:
           type: string
-        is_speaker:
+        isSpeaker:
           type: boolean
 
     PresenterResponse:
@@ -952,13 +1012,13 @@ components:
         id:
           type: integer
           format: int64
-        firstName:
+        name:
           type: string
-        lastName:
+        surname:
           type: string
         orcid:
           type: string
-        is_speaker:
+        isSpeaker:
           type: boolean
     
     PresentationRequest:
@@ -1042,6 +1102,8 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/ApplicationStatus'
+        from_active_conference_edition:
+          type: boolean
     ApplicationResponse:
       type: object
       properties:
@@ -1070,6 +1132,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CommentResponse'
+        from_active_conference_edition:
+          type: boolean
     CommentResponse:
       type: object
       properties:
@@ -1144,9 +1208,9 @@ components:
       properties:
         id:
           type: string
-        firstName:
+        name:
           type: string
-        lastName:
+        surname:
           type: string
         orcid:
           type: string
@@ -1166,12 +1230,21 @@ components:
           type: string
         lastName:
           type: string
-        email:
-          type: string
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailResponse'
         orcid:
           type: string
         avatarUrl:
           type: string
+    EmailResponse:
+      type: object
+      properties:
+        email:
+          type: string
+        confirmed:
+          type: boolean
     UpdateEmailRequest:
       type: object
       properties:

@@ -49,6 +49,6 @@ public class Presentation {
     @Column(name = "end_time")
     private Instant endTime;
 
-    @OneToMany(mappedBy = "presentation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "presentation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Presenter> presenters = new ArrayList<>();
 }

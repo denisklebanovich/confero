@@ -6,6 +6,7 @@ import org.openapitools.model.CreateApplicationRequest;
 import org.openapitools.model.PresentationRequest;
 import org.openapitools.model.PresenterRequest;
 import org.openapitools.model.SessionType;
+import org.zpi.conferoapi.user.User;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +18,9 @@ public class ApiTest extends IntegrationTestBase {
 
     @Test
     void sanity_check() {
+        userRepository.save(User.builder()
+                .email(EMAIL).isAdmin(false).build());
+
         var presenter = new PresenterRequest("Some orcid", "Some email");
         var presentation = new PresentationRequest("Some title", Collections.singletonList(presenter));
 
@@ -34,6 +38,7 @@ public class ApiTest extends IntegrationTestBase {
         RestAssured
                 .given()
                 .contentType("application/json")
+                .header("Authorization", EMAIL)
                 .body(applicationWithMissingField)
                 .post("/api/application")
                 .then()
@@ -52,6 +57,7 @@ public class ApiTest extends IntegrationTestBase {
         // when missing body
         RestAssured
                 .given()
+                .header("Authorization", EMAIL)
                 .contentType("application/json")
                 .post("/api/application")
                 .then()

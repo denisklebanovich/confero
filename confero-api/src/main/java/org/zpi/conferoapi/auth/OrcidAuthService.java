@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrcidAuthService {
     private final UserRepository userRepository;
+    private final SecurityUtils securityUtils;
 
     @Value("${orcid.client-id}")
     private String clientId;
@@ -63,11 +65,15 @@ public class OrcidAuthService {
 
         String orcid = (String) response.getBody().get("orcid");
         String accessToken = (String) response.getBody().get("access_token");
-        User user = userRepository.findByOrcid(orcid).orElseGet(() -> {
+        if (SecurityUtils.getCurrentUserId() != null) {
+            User currentUser = securityUtils.getCurrentUser();
+            currentUser.setOrcid(orcid);
+            currentUser.setAccessToken(accessToken);
+            userRepository.save(currentUser);
+        }
+        return userRepository.findByOrcid(orcid).orElseGet(() -> {
             User newUser = new User(orcid, accessToken);
             return userRepository.save(newUser);
         });
-
-        return user;
     }
 }

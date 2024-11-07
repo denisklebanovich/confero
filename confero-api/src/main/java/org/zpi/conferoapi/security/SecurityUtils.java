@@ -22,4 +22,8 @@ public class SecurityUtils {
         return userRepository.findById(getCurrentUserId())
                 .orElseThrow(() -> new ServiceException(ErrorReason.USER_NOT_FOUND));
     }
+
+    public boolean isCurrentUserAdmin() {
+        return getCurrentUser().getIsAdmin();
+    }
 }

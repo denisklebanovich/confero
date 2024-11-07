@@ -32,7 +32,6 @@ class SessionRepositoryTest extends DataJpaTestBase {
                 .orcid("0000-0000-0000-0000")
                 .email("artsi@gmail.com")
                 .isAdmin(false)
-                .emailVerified(true)
                 .build());
 
         var user_2 = userRepository.save(User.builder()
@@ -40,7 +39,6 @@ class SessionRepositoryTest extends DataJpaTestBase {
                 .orcid("0000-0000-0000-0001")
                 .email("asfas@gmail.com")
                 .isAdmin(false)
-                .emailVerified(true)
                 .build());
 
 
@@ -72,7 +70,7 @@ class SessionRepositoryTest extends DataJpaTestBase {
                 .orcid(user_1.getOrcid())
                 .name("Artur")
                 .surname("Sierżant")
-                .isMain(true)
+                .isSpeaker(true)
                 .user(user_1)
                 .presentation(presentation)
                 .title("mgr")
@@ -85,7 +83,7 @@ class SessionRepositoryTest extends DataJpaTestBase {
                 .orcid(user_2.getOrcid())
                 .name("Artur")
                 .surname("Sierżant")
-                .isMain(true)
+                .isSpeaker(true)
                 .user(user_2)
                 .title("mgr")
                 .presentation(presentation)
