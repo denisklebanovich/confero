@@ -16,6 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.application.ApplicationService;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.presentation.PresenterRepository;
+import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.UserRepository;
 
 @ActiveProfiles("test")
@@ -45,6 +46,9 @@ public abstract class IntegrationTestBase {
 
     @Autowired
     protected PresenterRepository presenterRepository;
+
+    @Autowired
+    protected SessionRepository sessionRepository;
 
 
     protected static final String ORCID = "0000-0002-5678-1234";

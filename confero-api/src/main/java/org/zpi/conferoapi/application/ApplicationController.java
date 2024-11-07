@@ -60,6 +60,9 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<Void> deleteApplication(Long applicationId) {
+
+        log.info("User requested to delete an application with the following id: {}", applicationId);
+
         if (securityUtils.isCurrentUserAdmin()) {
             throw new ServiceException(ErrorReason.ADMIN_CANNOT_DELETE_APPLICATION);
         }
@@ -69,16 +72,19 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<ApplicationResponse> getApplication(Long applicationId) {
+        log.info("User requested to get an application with the following id: {}", applicationId);
         return ResponseEntity.ok(applicationService.getApplication(applicationId));
     }
 
     @Override
     public ResponseEntity<List<ApplicationPreviewResponse>> getApplications() {
+        log.info("User requested to get all applications");
         return ResponseEntity.ok(applicationService.getApplications());
     }
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> reviewApplication(Long applicationId, ReviewRequest reviewRequest) {
+        log.info("User requested to review an application with the following id: {}", applicationId);
         if (!securityUtils.isCurrentUserAdmin()) {
             throw new ServiceException(ErrorReason.UNAUTHORIZED);
         }
@@ -87,6 +93,7 @@ class ApplicationController implements ApplicationApi {
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> updateApplication(Long applicationId, UpdateApplicationRequest updateApplicationRequest) {
+        log.info("User requested to update an application with the following id: {} and request: {}", applicationId, updateApplicationRequest);
         if (securityUtils.isCurrentUserAdmin()) {
             throw new ServiceException(ErrorReason.ADMIN_CANNOT_UPDATE_APPLICATION);
         }

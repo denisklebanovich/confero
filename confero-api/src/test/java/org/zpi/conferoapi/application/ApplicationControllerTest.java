@@ -24,7 +24,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
     OrcidService orcidService;
 
     @Test
-    void createApplicationSuccess() {
+    void createUpdateApplication() {
         userRepository.save(User.builder()
                 .email(EMAIL).isAdmin(false).build());
 
@@ -81,6 +81,55 @@ class ApplicationControllerTest extends IntegrationTestBase {
         assertEquals(ORCID, presenterResponse.getOrcid());
         assertEquals("John", presenterResponse.getName());
         assertEquals("Doe", presenterResponse.getSurname());
+
+        var updateApplicationRequest = new UpdateApplicationRequest()
+                .description("updated description");
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .body(updateApplicationRequest)
+                .put("/api/application/" + createdApplication.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response();
+
+
+        sessionRepository.findById(createdApplication.getId()).ifPresent(session -> {
+            assertEquals(updateApplicationRequest.getDescription(), session.getDescription());
+        });
+
+
+        var updatePresentationRequest = new UpdateApplicationRequest()
+                .presentations(List.of(new PresentationRequest()
+                        .title("Updated title")
+                        .addPresentersItem(new PresenterRequest()
+                                .email("arm@gmail.com")
+                                .isSpeaker(true)
+                                .orcid(ORCID)
+                        )));
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .body(updatePresentationRequest)
+                .put("/api/application/" + createdApplication.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response();
+
+
+        sessionRepository.findById(createdApplication.getId()).ifPresent(session -> {
+            assertEquals(updatePresentationRequest.getPresentations().get(0).getTitle(), session.getPresentations().get(0).getTitle());
+            assertEquals(updatePresentationRequest.getPresentations().get(0).getPresenters().get(0).getEmail(), session.getPresentations().get(0).getPresenters().get(0).getEmail());
+        });
+
     }
 
     @Test

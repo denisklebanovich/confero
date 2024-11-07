@@ -3,6 +3,7 @@ package org.zpi.conferoapi.application;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.openapitools.model.*;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.openapitools.model.ApplicationStatus.*;
 import static org.openapitools.model.ErrorReason.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
@@ -67,12 +69,15 @@ public class ApplicationService {
 
     public ApplicationPreviewResponse updateApplication(Long applicationId, UpdateApplicationRequest request) {
         Session session = findEditableApplication(applicationId);
+        log.info("Application before update: {}", session);
         updateSessionWithRequest(session, request);
-        sessionRepository.save(session);
+        var updatedApplication = sessionRepository.save(session);
+        log.info("Application after update: {}", updatedApplication);
         return applicationMapper.toPreviewDto(session);
     }
 
     public Session createApplication(CreateApplicationRequest request) {
+        validateApplicationRequest(request);
         validateActiveConference();
         Session session = createNewSession(request);
         sessionRepository.save(session);
@@ -144,8 +149,10 @@ public class ApplicationService {
         Optional.ofNullable(request.getTags()).ifPresent(session::setTags);
         Optional.ofNullable(request.getDescription()).ifPresent(session::setDescription);
         Optional.ofNullable(request.getPresentations()).ifPresent(presentations -> {
-            session.getPresentations().clear();
-            addPresentationsToSession(session, presentations);
+            if(!presentations.isEmpty()) {
+                session.getPresentations().clear();
+                addPresentationsToSession(session, presentations);
+            }
         });
 
         if (Boolean.FALSE.equals(request.getSaveAsDraft()) || session.getStatus() == CHANGE_REQUESTED) {
@@ -233,5 +240,15 @@ public class ApplicationService {
     private OrcidInfoResponse getOrcidInfo(String orcid) {
         return Try.of(() -> orcidService.getRecord(orcid))
                 .getOrElseThrow(() -> new ServiceException(INVALID_ORCID));
+    }
+
+
+    private void validateApplicationRequest(CreateApplicationRequest request) {
+        if (request.getPresentations().isEmpty()) {
+            throw new ServiceException(NO_PRESENTATIONS_PROVIDED);
+        }
+        if (request.getPresentations().stream().anyMatch(presentation -> presentation.getPresenters().isEmpty())) {
+            throw new ServiceException(NO_PRESENTERS_PROVIDED);
+        }
     }
 }
