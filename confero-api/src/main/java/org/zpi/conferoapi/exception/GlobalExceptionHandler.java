@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ErrorResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -18,13 +19,4 @@ public class GlobalExceptionHandler {
                 .status(ex.httpStatus())
                 .body(new ErrorResponse().reason(ex.getReason()));
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        log.error("Unexpected error: ", ex);
-        return ResponseEntity
-                .status(500)
-                .body(new ErrorResponse().reason(ErrorReason.UNEXPECTED_ERROR));
-    }
-
 }

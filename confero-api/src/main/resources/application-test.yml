@@ -4,7 +4,7 @@ spring:
   jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     hikari:
-      max-lifetime: 120000
+      max-lifetime: 30000
       idle-timeout: 10000
       maximum-pool-size: 5
 

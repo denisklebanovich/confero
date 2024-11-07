@@ -46,6 +46,13 @@ public abstract class IntegrationTestBase {
     @Autowired
     protected PresenterRepository presenterRepository;
 
+
+    protected static final String ORCID = "0000-0002-5678-1234";
+
+    protected static final String ORCID_2 = "0000-0002-5678-1235";
+
+    protected static final String EMAIL = "example@gmail.com";
+
     @BeforeEach
     void setUp() {
         RestAssured.baseURI = "http://localhost:" + port;
