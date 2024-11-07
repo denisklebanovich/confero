@@ -52,7 +52,7 @@ class ApplicationController implements ApplicationApi {
                                         .name(presenter.getName())
                                         .surname(presenter.getSurname())
                                         .orcid(presenter.getOrcid())
-                                        .isSpeaker(presenter.getIsSpeaker() == Boolean.TRUE)
+                                        .isSpeaker(presenter.getIsSpeaker())
                                 )
                                 .collect(Collectors.toList()))
                 , HttpStatus.CREATED);
