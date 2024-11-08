@@ -304,7 +304,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .response()
-                .as(ApplicationPreviewResponse.class);
+                .as(ApplicationResponse.class);
 
         tx.runInNewTransaction(() -> {
             var session = sessionRepository.findById(response.getId()).orElseThrow();
@@ -379,7 +379,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .response()
-                .as(ApplicationPreviewResponse.class);
+                .as(ApplicationResponse.class);
 
         tx.runInNewTransaction(() -> {
             var session = sessionRepository.findById(response.getId()).orElseThrow();
