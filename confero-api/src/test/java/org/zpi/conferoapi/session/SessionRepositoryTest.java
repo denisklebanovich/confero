@@ -5,6 +5,7 @@ import org.openapitools.model.ApplicationStatus;
 import org.openapitools.model.SessionType;
 import org.zpi.conferoapi.DataJpaTestBase;
 import org.zpi.conferoapi.conference.ConferenceEdition;
+import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.presentation.Presenter;
 import org.zpi.conferoapi.user.User;
@@ -30,16 +31,17 @@ class SessionRepositoryTest extends DataJpaTestBase {
         var user_1 = userRepository.save(User.builder()
                 .id(1L)
                 .orcid("0000-0000-0000-0000")
-                .email("artsi@gmail.com")
                 .isAdmin(false)
                 .build());
+        userEmailRepository.save(new UserEmail("artsi@gmail.com", true, user_1, null));
 
         var user_2 = userRepository.save(User.builder()
                 .id(2L)
                 .orcid("0000-0000-0000-0001")
-                .email("asfas@gmail.com")
                 .isAdmin(false)
                 .build());
+        userEmailRepository.save(new UserEmail("asfas@gmail.com", true, user_2, null));
+
 
 
         var session = sessionRepository.save(Session.builder()
@@ -66,28 +68,26 @@ class SessionRepositoryTest extends DataJpaTestBase {
 
         var presenter_1 = Presenter.builder()
                 .id(1L)
-                .email(user_1.getEmail())
-                .orcid(user_1.getOrcid())
                 .name("Artur")
                 .surname("Sierżant")
                 .isSpeaker(true)
-                .user(user_1)
                 .presentation(presentation)
                 .title("mgr")
                 .organization("PJAT")
+                .email("fake@email")
+                .orcid("fake")
                 .build();
 
         var presenter_2 = Presenter.builder()
                 .id(2L)
-                .email(user_2.getEmail())
-                .orcid(user_2.getOrcid())
                 .name("Artur")
                 .surname("Sierżant")
                 .isSpeaker(true)
-                .user(user_2)
                 .title("mgr")
                 .presentation(presentation)
                 .organization("PJAT")
+                .email("fake2@email")
+                .orcid("fake2")
                 .build();
 
         presenterRepository.save(presenter_1);

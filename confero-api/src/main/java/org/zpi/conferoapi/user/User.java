@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.zpi.conferoapi.email.UserEmail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -14,19 +15,18 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
     private String orcid;
     private String accessToken;
     private String avatarUrl;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<UserEmail> emails;
+    @Builder.Default
+    private List<UserEmail> emails = new ArrayList<>();
 
     @NotNull
     @Column(name = "is_admin", nullable = false)
@@ -37,7 +37,4 @@ public class User {
         this.accessToken = accessToken;
     }
 
-    public User(String email) {
-        this.email = email;
-    }
 }

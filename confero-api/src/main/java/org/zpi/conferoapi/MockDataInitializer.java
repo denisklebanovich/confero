@@ -1,5 +1,6 @@
 package org.zpi.conferoapi;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.openapitools.model.CreateApplicationRequest;
 import org.openapitools.model.PresentationRequest;
@@ -24,6 +25,7 @@ import java.util.List;
 @Component
 @Profile("dev")
 @RequiredArgsConstructor
+@Transactional
 public class MockDataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final ConferenceEditionRepository conferenceEditionRepository;
@@ -42,12 +44,11 @@ public class MockDataInitializer implements CommandLineRunner {
     private User initUser() {
         User user = User
                 .builder()
-                .email("denis.klebanovich@gmail.com")
                 .orcid("0009-0005-9044-6202")
                 .isAdmin(true)
                 .build();
         userRepository.save(user);
-        userEmailRepository.save(new UserEmail(user.getEmail(), true, user, null));
+        userEmailRepository.save(new UserEmail("denis.klebanovich@gmail.com", true, user, null));
         return user;
     }
 

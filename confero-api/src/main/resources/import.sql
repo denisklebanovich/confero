@@ -1,14 +1,12 @@
 CREATE TABLE IF NOT EXISTS users
 (
     id           BIGSERIAL PRIMARY KEY,
-    email        VARCHAR(255),
     orcid        VARCHAR(255),
     access_token VARCHAR(255),
     avatar_url   TEXT,
     is_admin     BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS unique_user_email ON users (email);
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_orcid ON users (orcid);
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_access_token ON users (access_token);
 
@@ -30,10 +28,9 @@ CREATE TABLE IF NOT EXISTS conference_edition
 
 CREATE TABLE IF NOT EXISTS conference_invitee
 (
-    user_id    BIGINT NOT NULL,
+    email      VARCHAR(255) NOT NULL,
     edition_id BIGINT NOT NULL,
-    PRIMARY KEY (user_id, edition_id),
-    CONSTRAINT fk_conference_invitee_user FOREIGN KEY (user_id) REFERENCES users (id),
+    PRIMARY KEY (email, edition_id),
     CONSTRAINT fk_conference_invitee_edition FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
 
@@ -56,11 +53,9 @@ CREATE TABLE IF NOT EXISTS application_comment
 (
     id         BIGSERIAL PRIMARY KEY,
     session_id BIGINT    NOT NULL,
-    user_id    BIGINT    NOT NULL,
     content    TEXT      NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_application_comment_session FOREIGN KEY (session_id) REFERENCES session (id) ON DELETE CASCADE,
-    CONSTRAINT fk_application_comment_user FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT fk_application_comment_session FOREIGN KEY (session_id) REFERENCES session (id) ON DELETE CASCADE
 );
 
 
@@ -85,9 +80,7 @@ CREATE TABLE IF NOT EXISTS presenter
     title           VARCHAR(255),
     organization    VARCHAR(255),
     is_speaker      BOOLEAN      NOT NULL DEFAULT FALSE,
-    user_id         BIGINT       NOT NULL,
     presentation_id BIGINT       NOT NULL,
-    CONSTRAINT fk_presenter_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id) ON DELETE CASCADE
 );
 

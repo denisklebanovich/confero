@@ -564,8 +564,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConferenceAgenda'
-    put:
+                $ref: '#/components/schemas/SessionPreviewResponse'
+
+    post:
       tags:
         - Session
         - User
@@ -578,14 +579,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConferenceAgenda'
+                $ref: '#/components/schemas/ConferenceAgenda'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConferenceAgenda'
+                $ref: '#/components/schemas/SessionPreviewResponse'
         '400':
           description: Bad request
           content:
@@ -1217,7 +1218,7 @@ components:
     ConferenceAgenda:
       type: object
       required:
-        - sessionIds
+        - sessionId
       properties:
         sessionIds:
           type: array

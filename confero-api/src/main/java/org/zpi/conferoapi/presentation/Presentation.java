@@ -50,5 +50,6 @@ public class Presentation {
     private Instant endTime;
 
     @OneToMany(mappedBy = "presentation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     private List<Presenter> presenters = new ArrayList<>();
 }

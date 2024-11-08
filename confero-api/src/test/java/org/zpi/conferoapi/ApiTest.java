@@ -18,8 +18,7 @@ public class ApiTest extends IntegrationTestBase {
 
     @Test
     void sanity_check() {
-        userRepository.save(User.builder()
-                .email(EMAIL).isAdmin(false).build());
+        userRepository.save(User.builder().isAdmin(false).build());
 
         var presenter = new PresenterRequest("Some orcid", "Some email");
         var presentation = new PresentationRequest("Some title", Collections.singletonList(presenter));

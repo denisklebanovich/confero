@@ -3,15 +3,7 @@ package org.zpi.conferoapi.application;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.openapitools.model.ApplicationPreviewResponse;
-import org.openapitools.model.ApplicationResponse;
-import org.openapitools.model.ApplicationStatus;
-import org.openapitools.model.CreateApplicationRequest;
-import org.openapitools.model.OrcidInfoResponse;
-import org.openapitools.model.PresentationRequest;
-import org.openapitools.model.PresenterRequest;
-import org.openapitools.model.ReviewRequest;
-import org.openapitools.model.UpdateApplicationRequest;
+import org.openapitools.model.*;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
@@ -31,16 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static org.openapitools.model.ApplicationStatus.ACCEPTED;
-import static org.openapitools.model.ApplicationStatus.CHANGE_REQUESTED;
-import static org.openapitools.model.ApplicationStatus.DRAFT;
-import static org.openapitools.model.ApplicationStatus.PENDING;
-import static org.openapitools.model.ApplicationStatus.REJECTED;
-import static org.openapitools.model.ErrorReason.APPLICATION_NOT_FOUND;
-import static org.openapitools.model.ErrorReason.INVALID_ORCID;
-import static org.openapitools.model.ErrorReason.NO_ACTIVE_CONFERENCE_EDITION;
-import static org.openapitools.model.ErrorReason.NO_PRESENTATIONS_PROVIDED;
-import static org.openapitools.model.ErrorReason.NO_PRESENTERS_PROVIDED;
+import static org.openapitools.model.ApplicationStatus.*;
+import static org.openapitools.model.ErrorReason.*;
 
 @Slf4j
 @Service
@@ -153,7 +137,6 @@ public class ApplicationService {
     private void addReviewComment(Session session, String commentContent) {
         ApplicationComment comment = new ApplicationComment();
         comment.setSession(session);
-        comment.setUser(securityUtils.getCurrentUser());
         comment.setCreatedAt(Instant.now());
         comment.setContent(commentContent);
         applicationCommentRepository.save(comment);
@@ -220,7 +203,7 @@ public class ApplicationService {
     private void addPresentersToPresentation(Presentation presentation, List<PresenterRequest> presenterRequests) {
         List<CompletableFuture<Presenter>> presenterFutures = presenterRequests.stream()
                 .map(presenterRequest -> getOrcidInfoAsync(presenterRequest.getOrcid())
-                        .thenApply(orcidInfo -> createOrGetPresenter(presentation, presenterRequest, orcidInfo)))
+                        .thenApply(orcidInfo -> createPresenter(presentation, presenterRequest, orcidInfo)))
                 .toList();
 
         List<Presenter> presenters = presenterFutures.stream()
@@ -230,10 +213,7 @@ public class ApplicationService {
         presentation.getPresenters().addAll(presenters);
     }
 
-    private Presenter createOrGetPresenter(Presentation presentation, PresenterRequest presenterRequest, OrcidInfoResponse orcidInfo) {
-        User existingUser = userRepository.findByEmailOrOrcid(presenterRequest.getEmail(), presenterRequest.getOrcid())
-                .orElseGet(() -> createUser(presenterRequest));
-
+    private Presenter createPresenter(Presentation presentation, PresenterRequest presenterRequest, OrcidInfoResponse orcidInfo) {
         return Presenter.builder()
                 .email(presenterRequest.getEmail())
                 .presentation(presentation)
@@ -243,18 +223,7 @@ public class ApplicationService {
                 .title(orcidInfo.getTitle())
                 .organization(orcidInfo.getOrganization())
                 .isSpeaker(presenterRequest.getIsSpeaker())
-                .user(existingUser)
                 .build();
-    }
-
-    private User createUser(PresenterRequest presenterRequest) {
-        return userRepository.save(
-                User.builder()
-                        .isAdmin(false)
-                        .email(presenterRequest.getEmail())
-                        .orcid(presenterRequest.getOrcid())
-                        .build()
-        );
     }
 
 

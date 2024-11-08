@@ -63,7 +63,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 User user = userRepository.findByEmail(email)
                         .orElseGet(() -> {
-                            var newUser = userRepository.save(new User(email));
+                            var newUser = userRepository.save(new User());
                             userEmailRepository.save(new UserEmail(email, true, newUser, null));
                             return newUser;
                         });

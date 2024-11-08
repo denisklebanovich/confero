@@ -16,6 +16,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.presentation.PresentationRepository;
 import org.zpi.conferoapi.presentation.PresenterRepository;
 import org.zpi.conferoapi.session.SessionRepository;
@@ -61,6 +62,9 @@ public abstract class IntegrationTestBase {
     protected PresentationRepository presentationRepository;
 
     @Autowired
+    protected UserEmailRepository userEmailRepository;
+
+    @Autowired
     protected TestTransactionalService tx;
 
     protected static final String ORCID = "0000-0002-5678-1234";
@@ -68,6 +72,7 @@ public abstract class IntegrationTestBase {
     protected static final String ORCID_2 = "0000-0002-5678-1235";
 
     protected static final String EMAIL = "example@gmail.com";
+    protected static final String ADMIN_EMAIL = "admin@gmail.com";
 
     @Autowired
     private EntityManager entityManager;

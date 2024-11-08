@@ -24,10 +24,6 @@ public interface ApplicationMapper {
     @Mapping(target = "presentations", ignore = true)
     Session partialUpdate(UpdateApplicationRequest request, @MappingTarget Session session);
 
-    static List<String> tagsToString(Map<String, Object> tags) {
-        return tags.keySet().stream().toList();
-    }
-
     PresenterResponse toDto(Presenter presenter);
 
     @Named("mapPresentersFromPresentations")

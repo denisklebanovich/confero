@@ -1,26 +1,9 @@
 package org.zpi.conferoapi.conference;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.zpi.conferoapi.presentation.Presentation;
+import lombok.*;
 import org.zpi.conferoapi.session.Session;
-import org.zpi.conferoapi.user.User;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,16 +28,18 @@ public class ConferenceEdition {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @ManyToMany
-    @JoinTable(
-            name = "conference_invitee",
-            joinColumns = @JoinColumn(name = "edition_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> invitees = new ArrayList<>();
+    @OneToMany(mappedBy = "edition", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<ConferenceInvitee> invitees = new ArrayList<>();
 
     @OneToMany(mappedBy = "edition", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     private List<Session> sessions = new ArrayList<>();
+
+    public void addInvitees(List<ConferenceInvitee> invitees) {
+        this.invitees.addAll(invitees);
+    }
 }
