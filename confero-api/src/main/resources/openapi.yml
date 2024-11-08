@@ -500,10 +500,12 @@ paths:
         - Admin
       summary: Get all sessions
       description: |-
-        Retrieve all sessions available to the user. If the user is a participant, they will see all sessions in the conference edition they were invited to.
-        If the user is a presenter, they will see all sessions they are involved in.
-        This will return only sessions with configured timetable.
-        Admin will see all sessions.
+        Retrieve all sessions with the status `ACCEPTED` and configured timetable. This endpoint is publicly accessible and does not require authentication.
+        
+        The response includes:
+        - Session details such as title, start and end times, and tags.
+        - Presenters associated with each session.
+        - A flag indicating whether the session is part of the active conference edition.
       operationId: getSessions
       responses:
         '200':
@@ -514,34 +516,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SessionPreviewResponse'
-    post:
-        tags:
-            - Session
-            - User
-        summary: Create test session
-        description: |-
-            Create test session.
-        operationId: createSession
-        deprecated: true
-        requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/CreateApplicationRequest'
-        responses:
-            '201':
-              description: Created
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/SessionPreviewResponse'
-            '400':
-              description: Bad request
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/ErrorResponse'
 
   /session/manage:
     get:
@@ -549,6 +523,10 @@ paths:
         - Session
         - Organizer
       summary: Get all sessions organizer can manage
+      description: |-
+        Retrieves all sessions that the current user can manage. A session is considered manageable if the user has an 
+        email or ORCID that is associated with a presenter within the session. The response includes details about 
+        whether the session belongs to an active conference edition, its start time, and its end time.
       operationId: getManagableSessions
       responses:
         '200':
@@ -635,7 +613,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SessionPreviewResponse'
+                $ref: '#/components/schemas/ConferenceAgenda'
     post:
       tags:
         - Session
@@ -1288,6 +1266,8 @@ components:
           items:
             $ref: '#/components/schemas/PresenterResponse'
         isInCalendar:
+         type: boolean
+        from_active_conference_edition:
           type: boolean
     SessionResponse:
       type: object
@@ -1308,6 +1288,8 @@ components:
           type: array
           items:
             type: string
+        from_active_conference_edition:
+          type: boolean
     AttachmentResponse:
       type: object
       properties:
@@ -1340,14 +1322,10 @@ components:
         orcid:
           type: string
     ConferenceAgenda:
-      type: object
-      required:
-        - sessionId
-      properties:
-        sessionIds:
-          type: array
-          items:
-            type: string
+      type: array
+      items:
+        $ref: '#/components/schemas/SessionPreviewResponse'
+      
     ProfileResponse:
       type: object
       properties:

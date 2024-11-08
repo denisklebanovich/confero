@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
+@ToString
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,7 @@ public class User {
     private String accessToken;
     private String avatarUrl;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
     @Builder.Default
     private List<UserEmail> emails = new ArrayList<>();
 
@@ -35,6 +36,10 @@ public class User {
     public User(String orcid, String accessToken) {
         this.orcid = orcid;
         this.accessToken = accessToken;
+    }
+
+    public List<String> getEmailList() {
+        return emails.stream().map(UserEmail::getEmail).toList();
     }
 
 }
