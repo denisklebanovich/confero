@@ -542,6 +542,25 @@ paths:
                 application/json:
                   schema:
                     $ref: '#/components/schemas/ErrorResponse'
+
+  /session/manage:
+    get:
+      tags:
+        - Session
+        - Organizer
+      summary: Get all sessions organizer can manage
+      operationId: getManagableSessions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionPreviewResponse'
+
+
   /session/event:
     get:
       tags:
