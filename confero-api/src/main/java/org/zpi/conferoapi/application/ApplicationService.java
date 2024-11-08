@@ -192,6 +192,7 @@ public class ApplicationService {
         Presentation presentation = Presentation.builder()
                 .title(presentationRequest.getTitle())
                 .session(session)
+                .description(presentationRequest.getDescription())
                 .presenters(new ArrayList<>())
                 .build();
 

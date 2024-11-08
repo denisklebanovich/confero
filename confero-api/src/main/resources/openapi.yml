@@ -270,6 +270,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Conference Edition
+        - Admin
+      summary: Delete conference edition
+      operationId: deleteConferenceEdition
+      parameters:
+        - $ref: '#/components/parameters/ConferenceEditionId'
+      responses:
+        '204':
+          description: No content
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
   /application:
     post:
       tags:
@@ -523,6 +542,25 @@ paths:
                 application/json:
                   schema:
                     $ref: '#/components/schemas/ErrorResponse'
+
+  /session/manage:
+    get:
+      tags:
+        - Session
+        - Organizer
+      summary: Get all sessions organizer can manage
+      operationId: getManagableSessions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionPreviewResponse'
+
+
   /session/event:
     get:
       tags:
@@ -548,6 +586,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   
+  /session/agenda/add-all-by-organizer/{organizerId}:
+    post:
+      tags:
+        - Session
+        - User
+      summary: Add all sessions by organizer to user's agenda
+      description: Add all sessions by the organizer to the user's personal agenda.
+      operationId: addAllSessionsByOrganizerToAgenda
+      parameters:
+        - $ref: '#/components/parameters/OrginizerId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  added:
+                    type: integer
+                    description: Number of sessions added to the agenda
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
   
   /session/agenda:
     get:
@@ -565,36 +631,71 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SessionPreviewResponse'
-
     post:
       tags:
         - Session
         - User
-      summary: Modify user's conference agenda
-      description: |-
-        Modify user's conference agenda.
-      operationId: modifyPersonalAgenda
+      summary: Add a session to user's agenda
+      description: Add a single session to the user's personal agenda.
+      operationId: addSessionToAgenda
       requestBody:
         required: true
         content:
           application/json:
             schema:
-                $ref: '#/components/schemas/ConferenceAgenda'
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                  description: The ID of the session to be added.
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SessionPreviewResponse'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-      
-      
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Session
+        - User
+      summary: Remove a session from user's agenda
+      description: Remove a single session from the user's personal agenda.
+      operationId: removeSessionFromAgenda
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                  description: The ID of the session to be deleted from agenda.
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          
 
   /session/{sessionId}:
     get:
@@ -743,6 +844,7 @@ paths:
                   $ref: '#/components/schemas/OrganizerResponse'
   /organizer/{orginizerId}/participation:
     get:
+      deprecated: true
       tags:
         - Organizer
       summary: Get organizer participations
@@ -871,6 +973,7 @@ components:
         - EMAIL_SENDING_ERROR
         - NO_PRESENTATIONS_PROVIDED
         - NO_PRESENTERS_PROVIDED
+        - FORBIDDEN
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -1027,8 +1130,11 @@ components:
       required:
         - title
         - presenters
+        - description
       properties:
         title:
+          type: string
+        description:
           type: string
         presenters:
           type: array
@@ -1267,9 +1373,9 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/SessionEventType'
-        url:
+        userFirstName:
           type: string
-        userId:
+        userLastName:
           type: string
         timestamp:
           type: string

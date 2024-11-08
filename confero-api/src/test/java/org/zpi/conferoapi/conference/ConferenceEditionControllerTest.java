@@ -10,6 +10,8 @@ import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.zpi.conferoapi.IntegrationTestBase;
+import org.zpi.conferoapi.email.UserEmail;
+import org.zpi.conferoapi.user.User;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -27,12 +29,14 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
     @Test
     void createConferenceEditionWithoutInviteesListProvided() {
         var applicationDeadlineTime = Instant.now().plus(1, DAYS);
+        var user = getUser();
+        setAdminRights(user);
 
         var response = RestAssured
                 .given()
                 .contentType("multipart/form-data")
                 .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
-                .header("Authorization", "user@gmail.com")
+                .header("Authorization", EMAIL)
                 .post("/api/conference-edition")
                 .then()
                 .log().ifError()
@@ -48,6 +52,7 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         var errorResponse = RestAssured
                 .given()
                 .contentType("multipart/form-data")
+                .header("Authorization", EMAIL)
                 .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
                 .post("/api/conference-edition")
                 .then()
@@ -64,6 +69,8 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
     @Test
     void createConferenceEditionWithInviteesListProvided() throws IOException {
         String csvContent = "artsi@example.com\ndenis@example.com";
+        var user = getUser();
+        setAdminRights(user);
 
         // Write the CSV content to a temporary file
         File tempFile = File.createTempFile("invitationList", ".csv");
@@ -77,6 +84,7 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         var response = RestAssured
                 .given()
                 .contentType("multipart/form-data")
+                .header("Authorization", EMAIL)
                 .multiPart("invitationList", tempFile) // Attach the CSV file here
                 .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
                 .post("/api/conference-edition")
@@ -100,6 +108,8 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
     }
 
     void createConferenceEditionWithInvalidFileFormat(String content) throws IOException {
+        var user = getUser();
+        setAdminRights(user);
         // Prepare an invalid file (non-CSV format)
         File invalidFile = File.createTempFile("invalidInvitationList", ".txt");
         try (FileWriter writer = new FileWriter(invalidFile)) {
@@ -111,6 +121,7 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         var errorResponse = RestAssured
                 .given()
                 .contentType("multipart/form-data")
+                .header("Authorization", EMAIL)
                 .multiPart("invitationList", invalidFile)
                 .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
                 .post("/api/conference-edition")
@@ -127,6 +138,8 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
 
     @Test
     void updateConferenceEditionOverridingInvitationList() throws IOException {
+        var user = getUser();
+        setAdminRights(user);
         String initialCsvContent = "initialuser1@example.com\ninitialuser2@example.com";
         File initialFile = File.createTempFile("initialInvitationList", ".csv");
         try (FileWriter writer = new FileWriter(initialFile)) {
@@ -138,6 +151,7 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         var createResponse = RestAssured
                 .given()
                 .contentType("multipart/form-data")
+                .header("Authorization", EMAIL)
                 .multiPart("invitationList", initialFile)
                 .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
                 .post("/api/conference-edition")
@@ -160,6 +174,7 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
         var updateResponse = RestAssured
                 .given()
                 .contentType("multipart/form-data")
+                .header("Authorization", EMAIL)
                 .multiPart("id", createdConferenceEdition.getId().toString())
                 .multiPart("invitationList", newFile)  // Attach the new CSV file here
                 .multiPart("applicationDeadlineTime", applicationDeadlineTime.toString())
@@ -178,6 +193,9 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
 
     @Test
     void getAllConferenceEditions() {
+        var user = getUser();
+        setAdminRights(user);
+
         tx.runInNewTransaction(() -> {
             conferenceEditionRepository.saveAndFlush(ConferenceEdition.builder()
                     .applicationDeadlineTime(Instant.now()).createdAt(Instant.now().plus(10, DAYS))
@@ -190,19 +208,9 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
             return null;
         });
 
-        System.out.println("pizda");
-
-
-        tx.runInNewTransaction(() -> {
-            System.out.println("all editions: " + conferenceEditionRepository.count());
-            return null;
-        });
-
-
-
-
         var response = RestAssured
                 .given()
+                .header("Authorization", EMAIL)
                 .get("/api/conference-edition")
                 .then()
                 .log().ifError()
@@ -218,7 +226,6 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
 
     @Test
     void getConferenceEditionSummary_WhenActiveEditionExists() {
-
         tx.runInNewTransaction(() -> {
             // Create an active conference edition
             ConferenceEdition activeEdition = ConferenceEdition.builder()

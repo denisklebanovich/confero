@@ -45,6 +45,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
         // Prepare mock data for CreateApplicationRequest
         var presentationRequest = new PresentationRequest()
                 .title("Introduction to AI")
+                .description("A brief introduction to AI")
                 .addPresentersItem(new PresenterRequest()
                         .email("presenter1@example.com")
                         .isSpeaker(true)
@@ -113,6 +114,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
         var updatePresentationRequest = new UpdateApplicationRequest()
                 .presentations(List.of(new PresentationRequest()
                         .title("Updated title")
+                        .description("Updated description")
                         .addPresentersItem(new PresenterRequest()
                                 .email("arm@gmail.com")
                                 .isSpeaker(true)
@@ -253,14 +255,6 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .statusCode(HttpStatus.OK.value());
     }
 
-    private void setAdminRights(User user) {
-        tx.runInNewTransaction(() -> {
-            user.setIsAdmin(true);
-            userRepository.save(user);
-            return null;
-        });
-    }
-
     @Test
     void application_status_should_change_after_review() {
         System.out.println("Running application_status_should_change_after_review test");
@@ -324,16 +318,6 @@ class ApplicationControllerTest extends IntegrationTestBase {
         });
     }
 
-    private User getUser() {
-        return tx.runInNewTransaction(() -> {
-            var savedUser = userRepository.save(User.builder()
-                    .id(1L)
-                    .isAdmin(false)
-                    .build());
-            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
-            return savedUser;
-        });
-    }
 
     @Test
     void admin_can_leave_comment_on_application() {
@@ -443,6 +427,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
     private PresentationRequest presentationRequest() {
         return new PresentationRequest()
                 .title("Introduction to AI")
+                .description("A brief introduction to AI")
                 .addPresentersItem(presenterRequest());
     }
 

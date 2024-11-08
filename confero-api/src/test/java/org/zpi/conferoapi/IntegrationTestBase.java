@@ -16,10 +16,12 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.presentation.PresentationRepository;
 import org.zpi.conferoapi.presentation.PresenterRepository;
 import org.zpi.conferoapi.session.SessionRepository;
+import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
 @ActiveProfiles("test")
@@ -90,6 +92,27 @@ public abstract class IntegrationTestBase {
             entityManager.flush();
             entityManager.clear();
             return null;
+        });
+    }
+
+
+
+    protected void setAdminRights(User user) {
+        tx.runInNewTransaction(() -> {
+            user.setIsAdmin(true);
+            userRepository.save(user);
+            return null;
+        });
+    }
+
+    protected User getUser() {
+        return tx.runInNewTransaction(() -> {
+            var savedUser = userRepository.save(User.builder()
+                    .id(1L)
+                    .isAdmin(false)
+                    .build());
+            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
+            return savedUser;
         });
     }
 }
