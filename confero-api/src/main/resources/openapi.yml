@@ -270,6 +270,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Conference Edition
+        - Admin
+      summary: Delete conference edition
+      operationId: deleteConferenceEdition
+      parameters:
+        - $ref: '#/components/parameters/ConferenceEditionId'
+      responses:
+        '204':
+          description: No content
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
   /application:
     post:
       tags:
@@ -871,6 +890,7 @@ components:
         - EMAIL_SENDING_ERROR
         - NO_PRESENTATIONS_PROVIDED
         - NO_PRESENTERS_PROVIDED
+        - FORBIDDEN
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]

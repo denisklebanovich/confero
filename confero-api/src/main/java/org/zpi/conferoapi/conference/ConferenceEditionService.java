@@ -23,12 +23,9 @@ import java.util.Optional;
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 @Slf4j
 public class ConferenceEditionService {
-    private final ConferenceInviteeRepository conferenceInviteeRepository;
 
+    ConferenceInviteeRepository conferenceInviteeRepository;
     ConferenceEditionRepository conferenceEditionRepository;
-
-    UserRepository userRepository;
-    private final UserEmailRepository userEmailRepository;
 
     public ConferenceEdition createConferenceEdition(CreateConferenceEdition createConferenceEditionRequest) {
         var activeEdition = conferenceEditionRepository.findActiveEditionConference();
@@ -76,6 +73,13 @@ public class ConferenceEditionService {
     }
 
 
+    public void deleteConferenceEdition(Long conferenceEditionId) {
+        var conferenceEdition = conferenceEditionRepository.findById(conferenceEditionId)
+                .orElseThrow(() -> new ServiceException(ErrorReason.NOT_FOUND));
+        conferenceEditionRepository.delete(conferenceEdition);
+    }
+
+
     public List<ConferenceEdition> getAllConferenceEditions() {
         return conferenceEditionRepository.findAll();
     }
@@ -88,9 +92,9 @@ public class ConferenceEditionService {
 
                 return emails.stream()
                         .map(email ->
-                            conferenceInviteeRepository.findByEditionAndIdEmail(edition, email)
-                                    .orElseGet(() ->
-                                            conferenceInviteeRepository.save(new ConferenceInvitee(edition, email)))
+                                conferenceInviteeRepository.findByEditionAndIdEmail(edition, email)
+                                        .orElseGet(() ->
+                                                conferenceInviteeRepository.save(new ConferenceInvitee(edition, email)))
                         )
                         .toList();
             } catch (IOException e) {

@@ -20,7 +20,7 @@ public class ServiceException extends RuntimeException {
                     HttpStatus.BAD_REQUEST;
             case S3_UPLOAD_ERROR, UNEXPECTED_ERROR, EMAIL_SENDING_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
             case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
-            case ADMIN_CANNOT_CREATE_APPLICATION, ADMIN_CANNOT_DELETE_APPLICATION -> HttpStatus.FORBIDDEN;
+            case ADMIN_CANNOT_CREATE_APPLICATION, ADMIN_CANNOT_DELETE_APPLICATION, FORBIDDEN -> HttpStatus.FORBIDDEN;
         };
     }
 }

@@ -8,11 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.openapitools.api.ConferenceEditionApi;
 import org.openapitools.model.ConferenceEditionResponse;
 import org.openapitools.model.ConferenceEditionSummaryResponse;
+import org.openapitools.model.ErrorReason;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.zpi.conferoapi.conference.ConferenceEditionService.CreateConferenceEdition;
 import org.zpi.conferoapi.conference.ConferenceEditionService.UpdateConferenceEdition;
+import org.zpi.conferoapi.exception.ServiceException;
+import org.zpi.conferoapi.security.SecurityUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,12 +32,17 @@ import static org.springframework.http.HttpStatus.OK;
 public class ConferenceEditionController implements ConferenceEditionApi {
 
     ConferenceEditionService conferenceEditionService;
+    SecurityUtils securityUtils;
 
 
     @Override
     public ResponseEntity<ConferenceEditionResponse> createConferenceEdition(Instant applicationDeadlineTime, MultipartFile invitationList) {
         log.info("Got request from user to create conference edition with application deadline time: {} and invitation list: {}",
                 applicationDeadlineTime, invitationList);
+
+        if(!securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.FORBIDDEN);
+        }
 
         var created = conferenceEditionService.createConferenceEdition(
                 CreateConferenceEdition.builder()
@@ -59,6 +67,10 @@ public class ConferenceEditionController implements ConferenceEditionApi {
         log.info("Got request from user to update conference edition with id: {} to application deadline time: {} and invitation list: {}",
                 conferenceEditionId, applicationDeadlineTime, invitationList);
 
+        if(!securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.FORBIDDEN);
+        }
+
         var updated = conferenceEditionService.updateConferenceEdition(
                 UpdateConferenceEdition.builder()
                         .id(conferenceEditionId)
@@ -80,8 +92,11 @@ public class ConferenceEditionController implements ConferenceEditionApi {
 
     @Override
     public ResponseEntity<List<ConferenceEditionResponse>> getAllConferenceEditions() {
-
         log.info("Got request from user to get all conference editions");
+
+        if(!securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.FORBIDDEN);
+        }
 
         var editions = conferenceEditionService.getAllConferenceEditions().stream().map(edition -> new ConferenceEditionResponse()
                 .id(edition.getId())
@@ -104,5 +119,16 @@ public class ConferenceEditionController implements ConferenceEditionApi {
 
         log.info("Returning conference edition summary: {}", summary);
         return ResponseEntity.ok(summary);
+    }
+
+
+    @Override
+    public ResponseEntity<Void> deleteConferenceEdition(Long conferenceEditionId) {
+        log.info("Got request from user to delete conference edition with id: {}", conferenceEditionId);
+        if(!securityUtils.isCurrentUserAdmin()) {
+            throw new ServiceException(ErrorReason.FORBIDDEN);
+        }
+        conferenceEditionService.deleteConferenceEdition(conferenceEditionId);
+        return ResponseEntity.ok().build();
     }
 }
