@@ -1,7 +1,6 @@
 CREATE TABLE IF NOT EXISTS users
 (
     id           BIGSERIAL PRIMARY KEY,
-    email        VARCHAR(255),
     orcid        VARCHAR(255),
     access_token VARCHAR(255),
     avatar_url   TEXT,
@@ -30,10 +29,9 @@ CREATE TABLE IF NOT EXISTS conference_edition
 
 CREATE TABLE IF NOT EXISTS conference_invitee
 (
-    user_id    BIGINT NOT NULL,
+    email      VARCHAR(255) NOT NULL,
     edition_id BIGINT NOT NULL,
-    PRIMARY KEY (user_id, edition_id),
-    CONSTRAINT fk_conference_invitee_user FOREIGN KEY (user_id) REFERENCES users (id),
+    PRIMARY KEY (email, edition_id),
     CONSTRAINT fk_conference_invitee_edition FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
 
@@ -85,9 +83,7 @@ CREATE TABLE IF NOT EXISTS presenter
     title           VARCHAR(255),
     organization    VARCHAR(255),
     is_speaker      BOOLEAN      NOT NULL DEFAULT FALSE,
-    user_id         BIGINT       NOT NULL,
     presentation_id BIGINT       NOT NULL,
-    CONSTRAINT fk_presenter_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_presenter_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id) ON DELETE CASCADE
 );
 

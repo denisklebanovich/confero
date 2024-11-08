@@ -32,7 +32,9 @@ public class DevAuth extends OncePerRequestFilter {
             String email = request.getHeader("Authorization");
             User user = userRepository.findByEmail(email)
                     .orElseGet(() -> {
-                        var newUser = userRepository.save(new User(email));
+                        var newUser = userRepository.save(User.builder()
+                                .isAdmin(true)
+                                .build());
                         userEmailRepository.save(new UserEmail(email, true, newUser, null));
                         return newUser;
                     });

@@ -2,21 +2,12 @@ package org.zpi.conferoapi.application;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
-import org.openapitools.model.ApplicationPreviewResponse;
-import org.openapitools.model.CreateApplicationRequest;
-import org.openapitools.model.ErrorReason;
-import org.openapitools.model.ErrorResponse;
-import org.openapitools.model.OrcidInfoResponse;
-import org.openapitools.model.PresentationRequest;
-import org.openapitools.model.PresenterRequest;
-import org.openapitools.model.ReviewRequest;
-import org.openapitools.model.ReviewType;
-import org.openapitools.model.SessionType;
-import org.openapitools.model.UpdateApplicationRequest;
+import org.openapitools.model.*;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.zpi.conferoapi.IntegrationTestBase;
 import org.zpi.conferoapi.conference.ConferenceEdition;
+import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.orcid.OrcidService;
 import org.zpi.conferoapi.user.User;
 
@@ -24,9 +15,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 class ApplicationControllerTest extends IntegrationTestBase {
@@ -39,8 +28,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
     void createUpdateApplication() {
 
         tx.runInNewTransaction(() -> {
-            userRepository.save(User.builder()
-                    .email(EMAIL).isAdmin(false).build());
+           var savedUser =  userRepository.save(User.builder().isAdmin(false).build());
+            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
 
             conferenceEditionRepository.save(ConferenceEdition.builder()
                     .id(1L)
@@ -146,7 +135,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
         tx.runInNewTransaction(() -> {
             sessionRepository.findById(createdApplication.getId()).ifPresent(session -> {
                 assertEquals(updatePresentationRequest.getPresentations().get(0).getTitle(), session.getPresentations().get(0).getTitle());
-                assertEquals(updatePresentationRequest.getPresentations().get(0).getPresenters().get(0).getEmail(), session.getPresentations().get(0).getPresenters().get(0).getEmail());
+                assertEquals(updatePresentationRequest.getPresentations().get(0).getPresenters().get(0).getOrcid(), session.getPresentations().get(0).getPresenters().get(0).getOrcid());
             });
             return null;
         });
@@ -155,8 +144,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
     @Test
     void createApplicationShouldFailCausedByNoActiveConferenceEdition() {
         tx.runInNewTransaction(() -> {
-            userRepository.save(User.builder()
-                    .email(EMAIL).isAdmin(false).build());
+            var savedUser = userRepository.save(User.builder().isAdmin(false).build());
+            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
             return null;
         });
 
@@ -183,9 +172,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
     @Test
     void shouldGetApplication() {
         tx.runInNewTransaction(() -> {
-            userRepository.save(User.builder()
-                    .email(EMAIL).isAdmin(false).build());
-
+            var savedUser = userRepository.save(User.builder().isAdmin(false).build());
+            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
             conferenceEditionRepository.save(ConferenceEdition.builder()
                     .id(1L)
                     .createdAt(Instant.now())
@@ -213,13 +201,14 @@ class ApplicationControllerTest extends IntegrationTestBase {
     @Test
     void only_admin_can_review_application() {
         System.out.println("Running only_admin_can_review_application test");
-        var user = tx.runInNewTransaction(() ->
-                userRepository.save(User.builder()
-                        .id(1L)
-                        .email(EMAIL)
-                        .isAdmin(false)
-                        .build())
-        );
+        var user = tx.runInNewTransaction(() -> {
+            var savedUser = userRepository.save(User.builder()
+                    .id(1L)
+                    .isAdmin(false)
+                    .build());
+            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
+            return savedUser;
+        });
 
         RestAssured
                 .given()
@@ -279,8 +268,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
     @Test
     void presentation_can_have_multiple_main_speakers() {
         tx.runInNewTransaction(() -> {
-            userRepository.save(User.builder()
-                    .email(EMAIL).isAdmin(false).build());
+            var savedUser = userRepository.save(User.builder().isAdmin(false).build());
+            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
             conferenceEditionRepository.save(ConferenceEdition.builder()
                     .id(1L)
                     .createdAt(Instant.now())

@@ -13,6 +13,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.presentation.PresentationRepository;
 import org.zpi.conferoapi.presentation.PresenterRepository;
 import org.zpi.conferoapi.session.SessionRepository;
@@ -47,6 +48,9 @@ public abstract class DataJpaTestBase {
 
     @Autowired
     protected PresenterRepository presenterRepository;
+
+    @Autowired
+    protected UserEmailRepository userEmailRepository;
 
     @BeforeEach
     void setUp() {

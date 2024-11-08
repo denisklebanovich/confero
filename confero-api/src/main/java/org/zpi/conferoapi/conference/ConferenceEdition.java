@@ -45,16 +45,14 @@ public class ConferenceEdition {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
-    @ManyToMany
-    @JoinTable(
-            name = "conference_invitee",
-            joinColumns = @JoinColumn(name = "edition_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> invitees = new ArrayList<>();
+    @OneToMany(mappedBy = "edition", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<ConferenceInvitee> invitees = new ArrayList<>();
 
     @OneToMany(mappedBy = "edition", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     private List<Session> sessions = new ArrayList<>();
 }
