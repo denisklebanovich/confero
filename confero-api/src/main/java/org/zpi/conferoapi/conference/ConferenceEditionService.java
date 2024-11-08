@@ -15,7 +15,6 @@ import org.zpi.conferoapi.util.CsvReader;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +43,7 @@ public class ConferenceEditionService {
                 .build());
 
         List<ConferenceInvitee> invitees = getInviteesFromInvitationList(newConferenceEdition, createConferenceEditionRequest.getInvitationList());
-        newConferenceEdition.setInvitees(invitees);
+        newConferenceEdition.addInvitees(invitees);
         return newConferenceEdition;
     }
 
@@ -71,7 +70,6 @@ public class ConferenceEditionService {
             }
 
             currentInvitees.removeIf(existingUser -> !newInvitees.contains(existingUser));
-            conferenceEdition.setInvitees(currentInvitees);
         });
 
         return conferenceEditionRepository.save(conferenceEdition);
