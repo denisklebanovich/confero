@@ -45,6 +45,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
         // Prepare mock data for CreateApplicationRequest
         var presentationRequest = new PresentationRequest()
                 .title("Introduction to AI")
+                .description("A brief introduction to AI")
                 .addPresentersItem(new PresenterRequest()
                         .email("presenter1@example.com")
                         .isSpeaker(true)
@@ -113,6 +114,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
         var updatePresentationRequest = new UpdateApplicationRequest()
                 .presentations(List.of(new PresentationRequest()
                         .title("Updated title")
+                        .description("Updated description")
                         .addPresentersItem(new PresenterRequest()
                                 .email("arm@gmail.com")
                                 .isSpeaker(true)
@@ -425,6 +427,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
     private PresentationRequest presentationRequest() {
         return new PresentationRequest()
                 .title("Introduction to AI")
+                .description("A brief introduction to AI")
                 .addPresentersItem(presenterRequest());
     }
 

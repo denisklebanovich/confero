@@ -21,7 +21,10 @@ public class ApiTest extends IntegrationTestBase {
         userRepository.save(User.builder().isAdmin(false).build());
 
         var presenter = new PresenterRequest("Some orcid", "Some email");
-        var presentation = new PresentationRequest("Some title", Collections.singletonList(presenter));
+        var presentation = new PresentationRequest()
+                .title("Some title")
+                .description("Some description")
+                .presenters(Collections.singletonList(presenter));
 
 
         CreateApplicationRequest applicationWithMissingField = new CreateApplicationRequest(

@@ -1047,8 +1047,11 @@ components:
       required:
         - title
         - presenters
+        - description
       properties:
         title:
+          type: string
+        description:
           type: string
         presenters:
           type: array
