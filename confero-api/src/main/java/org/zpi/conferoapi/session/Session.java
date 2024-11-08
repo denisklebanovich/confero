@@ -28,7 +28,7 @@ import java.util.List;
 public class Session {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Size(max = 255)
