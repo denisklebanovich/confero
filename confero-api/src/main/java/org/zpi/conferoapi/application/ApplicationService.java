@@ -137,7 +137,6 @@ public class ApplicationService {
     private void addReviewComment(Session session, String commentContent) {
         ApplicationComment comment = new ApplicationComment();
         comment.setSession(session);
-        comment.setUser(securityUtils.getCurrentUser());
         comment.setCreatedAt(Instant.now());
         comment.setContent(commentContent);
         applicationCommentRepository.save(comment);

@@ -8,6 +8,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.openapitools.model.ApplicationStatus;
 import org.openapitools.model.SessionType;
+import org.zpi.conferoapi.application.ApplicationComment;
 import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.user.User;
@@ -72,4 +73,8 @@ public class Session {
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<Presentation> presentations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<ApplicationComment> comments = new ArrayList<>();
 }

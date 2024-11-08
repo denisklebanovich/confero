@@ -28,7 +28,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
     void createUpdateApplication() {
 
         tx.runInNewTransaction(() -> {
-           var savedUser =  userRepository.save(User.builder().isAdmin(false).build());
+            var savedUser = userRepository.save(User.builder().isAdmin(false).build());
             userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
 
             conferenceEditionRepository.save(ConferenceEdition.builder()
@@ -201,14 +201,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
     @Test
     void only_admin_can_review_application() {
         System.out.println("Running only_admin_can_review_application test");
-        var user = tx.runInNewTransaction(() -> {
-            var savedUser = userRepository.save(User.builder()
-                    .id(1L)
-                    .isAdmin(false)
-                    .build());
-            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
-            return savedUser;
-        });
+        var user = getUser();
 
         RestAssured
                 .given()
@@ -247,11 +240,49 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .as(ApplicationPreviewResponse.class);
 
 
+        setAdminRights(user);
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", ADMIN_EMAIL)
+                .body(new ReviewRequest().type(ReviewType.ACCEPT))
+                .post("/api/application/" + response.getId() + "/review")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    private void setAdminRights(User user) {
         tx.runInNewTransaction(() -> {
             user.setIsAdmin(true);
             userRepository.save(user);
             return null;
         });
+    }
+
+    @Test
+    void application_status_should_change_after_review() {
+        System.out.println("Running application_status_should_change_after_review test");
+        var user = getUser();
+        createConferenceEdition();
+
+        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .body(createApplicationRequest())
+                .post("/api/application")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
+                .response()
+                .as(ApplicationPreviewResponse.class);
+        setAdminRights(user);
+
 
         RestAssured
                 .given()
@@ -262,6 +293,99 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .then()
                 .log().ifError()
                 .statusCode(HttpStatus.OK.value());
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .get("/api/application/" + response.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(ApplicationPreviewResponse.class);
+
+        tx.runInNewTransaction(() -> {
+            var session = sessionRepository.findById(response.getId()).orElseThrow();
+            assertEquals(ApplicationStatus.ACCEPTED, session.getStatus());
+            return null;
+        });
+    }
+
+    private void createConferenceEdition() {
+        tx.runInNewTransaction(() -> {
+            conferenceEditionRepository.save(ConferenceEdition.builder()
+                    .id(1L)
+                    .createdAt(Instant.now())
+                    .applicationDeadlineTime(Instant.now().plus(2, DAYS))
+                    .build());
+            return null;
+        });
+    }
+
+    private User getUser() {
+        return tx.runInNewTransaction(() -> {
+            var savedUser = userRepository.save(User.builder()
+                    .id(1L)
+                    .isAdmin(false)
+                    .build());
+            userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
+            return savedUser;
+        });
+    }
+
+    @Test
+    void admin_can_leave_comment_on_application() {
+        System.out.println("Running admin_can_leave_comment_on_application test");
+        var user = getUser();
+
+        createConferenceEdition();
+
+        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .body(createApplicationRequest())
+                .post("/api/application")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
+                .response()
+                .as(ApplicationPreviewResponse.class);
+
+        setAdminRights(user);
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .body(new ReviewRequest().type(ReviewType.ACCEPT).comment("Good job!"))
+                .post("/api/application/" + response.getId() + "/review")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", EMAIL)
+                .get("/api/application/" + response.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(ApplicationPreviewResponse.class);
+
+        tx.runInNewTransaction(() -> {
+            var session = sessionRepository.findById(response.getId()).orElseThrow();
+            assertEquals(1, session.getComments().size());
+            return null;
+        });
     }
 
 

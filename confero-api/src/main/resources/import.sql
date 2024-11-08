@@ -54,11 +54,9 @@ CREATE TABLE IF NOT EXISTS application_comment
 (
     id         BIGSERIAL PRIMARY KEY,
     session_id BIGINT    NOT NULL,
-    user_id    BIGINT    NOT NULL,
     content    TEXT      NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_application_comment_session FOREIGN KEY (session_id) REFERENCES session (id) ON DELETE CASCADE,
-    CONSTRAINT fk_application_comment_user FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT fk_application_comment_session FOREIGN KEY (session_id) REFERENCES session (id) ON DELETE CASCADE
 );
 
 

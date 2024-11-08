@@ -26,11 +26,6 @@ public class ApplicationComment {
     private Session session;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @NotNull
     @Column(name = "content", nullable = false)
     private String content;
 

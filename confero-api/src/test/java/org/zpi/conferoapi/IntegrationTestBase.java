@@ -72,6 +72,7 @@ public abstract class IntegrationTestBase {
     protected static final String ORCID_2 = "0000-0002-5678-1235";
 
     protected static final String EMAIL = "example@gmail.com";
+    protected static final String ADMIN_EMAIL = "admin@gmail.com";
 
     @Autowired
     private EntityManager entityManager;
