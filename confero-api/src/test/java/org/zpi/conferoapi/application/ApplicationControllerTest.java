@@ -363,7 +363,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .given()
                 .contentType("application/json")
                 .header("Authorization", EMAIL)
-                .body(new ReviewRequest().type(ReviewType.ACCEPT).comment("Good job!"))
+                .body(new ReviewRequest().type(ReviewType.ASK_FOR_ADJUSTMENTS).comment("Good job!"))
                 .post("/api/application/" + response.getId() + "/review")
                 .then()
                 .log().ifError()
