@@ -567,6 +567,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   
+  /session/agenda/add-all-by-organizer/{organizerId}:
+    post:
+      tags:
+        - Session
+        - User
+      summary: Add all sessions by organizer to user's agenda
+      description: Add all sessions by the organizer to the user's personal agenda.
+      operationId: addAllSessionsByOrganizerToAgenda
+      parameters:
+        - $ref: '#/components/parameters/OrginizerId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  added:
+                    type: integer
+                    description: Number of sessions added to the agenda
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
   
   /session/agenda:
     get:
@@ -797,6 +825,7 @@ paths:
                   $ref: '#/components/schemas/OrganizerResponse'
   /organizer/{orginizerId}/participation:
     get:
+      deprecated: true
       tags:
         - Organizer
       summary: Get organizer participations
