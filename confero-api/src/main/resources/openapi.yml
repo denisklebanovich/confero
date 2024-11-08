@@ -584,36 +584,71 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SessionPreviewResponse'
-
     post:
       tags:
         - Session
         - User
-      summary: Modify user's conference agenda
-      description: |-
-        Modify user's conference agenda.
-      operationId: modifyPersonalAgenda
+      summary: Add a session to user's agenda
+      description: Add a single session to the user's personal agenda.
+      operationId: addSessionToAgenda
       requestBody:
         required: true
         content:
           application/json:
             schema:
-                $ref: '#/components/schemas/ConferenceAgenda'
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                  description: The ID of the session to be added.
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SessionPreviewResponse'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-      
-      
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Session
+        - User
+      summary: Remove a session from user's agenda
+      description: Remove a single session from the user's personal agenda.
+      operationId: removeSessionFromAgenda
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                  description: The ID of the session to be deleted from agenda.
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          
 
   /session/{sessionId}:
     get:
