@@ -2,7 +2,17 @@ package org.zpi.conferoapi.application;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
-import org.openapitools.model.*;
+import org.openapitools.model.ApplicationPreviewResponse;
+import org.openapitools.model.CreateApplicationRequest;
+import org.openapitools.model.ErrorReason;
+import org.openapitools.model.ErrorResponse;
+import org.openapitools.model.OrcidInfoResponse;
+import org.openapitools.model.PresentationRequest;
+import org.openapitools.model.PresenterRequest;
+import org.openapitools.model.ReviewRequest;
+import org.openapitools.model.ReviewType;
+import org.openapitools.model.SessionType;
+import org.openapitools.model.UpdateApplicationRequest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.zpi.conferoapi.IntegrationTestBase;
@@ -14,7 +24,9 @@ import java.time.Instant;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 class ApplicationControllerTest extends IntegrationTestBase {
@@ -25,14 +37,18 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
     @Test
     void createUpdateApplication() {
-        userRepository.save(User.builder()
-                .email(EMAIL).isAdmin(false).build());
 
-        conferenceEditionRepository.save(ConferenceEdition.builder()
-                .id(1L)
-                .createdAt(Instant.now())
-                .applicationDeadlineTime(Instant.now().plus(2, DAYS))
-                .build());
+        tx.runInNewTransaction(() -> {
+            userRepository.save(User.builder()
+                    .email(EMAIL).isAdmin(false).build());
+
+            conferenceEditionRepository.save(ConferenceEdition.builder()
+                    .id(1L)
+                    .createdAt(Instant.now())
+                    .applicationDeadlineTime(Instant.now().plus(2, DAYS))
+                    .build());
+            return null;
+        });
 
         when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
 
@@ -98,10 +114,12 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .response();
 
 
-        sessionRepository.findById(createdApplication.getId()).ifPresent(session -> {
-            assertEquals(updateApplicationRequest.getDescription(), session.getDescription());
+        tx.runInNewTransaction(() -> {
+            sessionRepository.findById(createdApplication.getId()).ifPresent(session -> {
+                assertEquals(updateApplicationRequest.getDescription(), session.getDescription());
+            });
+            return null;
         });
-
 
         var updatePresentationRequest = new UpdateApplicationRequest()
                 .presentations(List.of(new PresentationRequest()
@@ -125,17 +143,22 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .response();
 
 
-        sessionRepository.findById(createdApplication.getId()).ifPresent(session -> {
-            assertEquals(updatePresentationRequest.getPresentations().get(0).getTitle(), session.getPresentations().get(0).getTitle());
-            assertEquals(updatePresentationRequest.getPresentations().get(0).getPresenters().get(0).getEmail(), session.getPresentations().get(0).getPresenters().get(0).getEmail());
+        tx.runInNewTransaction(() -> {
+            sessionRepository.findById(createdApplication.getId()).ifPresent(session -> {
+                assertEquals(updatePresentationRequest.getPresentations().get(0).getTitle(), session.getPresentations().get(0).getTitle());
+                assertEquals(updatePresentationRequest.getPresentations().get(0).getPresenters().get(0).getEmail(), session.getPresentations().get(0).getPresenters().get(0).getEmail());
+            });
+            return null;
         });
-
     }
 
     @Test
     void createApplicationShouldFailCausedByNoActiveConferenceEdition() {
-        userRepository.save(User.builder()
-                .email(EMAIL).isAdmin(false).build());
+        tx.runInNewTransaction(() -> {
+            userRepository.save(User.builder()
+                    .email(EMAIL).isAdmin(false).build());
+            return null;
+        });
 
         when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
 
@@ -159,14 +182,18 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
     @Test
     void shouldGetApplication() {
-        userRepository.save(User.builder()
-                .email(EMAIL).isAdmin(false).build());
+        tx.runInNewTransaction(() -> {
+            userRepository.save(User.builder()
+                    .email(EMAIL).isAdmin(false).build());
 
-        conferenceEditionRepository.save(ConferenceEdition.builder()
-                .id(1L)
-                .createdAt(Instant.now())
-                .applicationDeadlineTime(Instant.now().plus(2, DAYS))
-                .build());
+            conferenceEditionRepository.save(ConferenceEdition.builder()
+                    .id(1L)
+                    .createdAt(Instant.now())
+                    .applicationDeadlineTime(Instant.now().plus(2, DAYS))
+                    .build());
+
+            return null;
+        });
 
         when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
 
@@ -185,8 +212,14 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
     @Test
     void only_admin_can_review_application() {
-        var user = userRepository.save(User.builder()
-                .email(EMAIL).isAdmin(false).build());
+        System.out.println("Running only_admin_can_review_application test");
+        var user = tx.runInNewTransaction(() ->
+                userRepository.save(User.builder()
+                        .id(1L)
+                        .email(EMAIL)
+                        .isAdmin(false)
+                        .build())
+        );
 
         RestAssured
                 .given()
@@ -199,12 +232,15 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
 
 
+        tx.runInNewTransaction(() -> {
+            conferenceEditionRepository.save(ConferenceEdition.builder()
+                    .id(1L)
+                    .createdAt(Instant.now())
+                    .applicationDeadlineTime(Instant.now().plus(2, DAYS))
+                    .build());
+            return null;
+        });
 
-        conferenceEditionRepository.save(ConferenceEdition.builder()
-                .id(1L)
-                .createdAt(Instant.now())
-                .applicationDeadlineTime(Instant.now().plus(2, DAYS))
-                .build());
 
         when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
 
@@ -222,8 +258,11 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .as(ApplicationPreviewResponse.class);
 
 
-        user.setIsAdmin(true);
-        userRepository.save(user);
+        tx.runInNewTransaction(() -> {
+            user.setIsAdmin(true);
+            userRepository.save(user);
+            return null;
+        });
 
         RestAssured
                 .given()
@@ -239,14 +278,16 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
     @Test
     void presentation_can_have_multiple_main_speakers() {
-        userRepository.save(User.builder()
-                .email(EMAIL).isAdmin(false).build());
-
-        conferenceEditionRepository.save(ConferenceEdition.builder()
-                .id(1L)
-                .createdAt(Instant.now())
-                .applicationDeadlineTime(Instant.now().plus(2, DAYS))
-                .build());
+        tx.runInNewTransaction(() -> {
+            userRepository.save(User.builder()
+                    .email(EMAIL).isAdmin(false).build());
+            conferenceEditionRepository.save(ConferenceEdition.builder()
+                    .id(1L)
+                    .createdAt(Instant.now())
+                    .applicationDeadlineTime(Instant.now().plus(2, DAYS))
+                    .build());
+            return null;
+        });
 
         when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
         when(orcidService.getRecord(ORCID_2)).thenReturn(new OrcidInfoResponse().name("Jane").surname("Doe"));

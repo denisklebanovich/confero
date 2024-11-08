@@ -2,6 +2,7 @@ package org.zpi.conferoapi;
 
 
 import io.restassured.RestAssured;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,10 +12,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.zpi.conferoapi.application.ApplicationService;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.presentation.PresentationRepository;
 import org.zpi.conferoapi.presentation.PresenterRepository;
 import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.UserRepository;
@@ -22,13 +24,17 @@ import org.zpi.conferoapi.user.UserRepository;
 @ActiveProfiles("test")
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = {IntegrationTestConfiguration.class, ConferoApiApplication.class}
+        classes = {
+                IntegrationTestConfiguration.class,
+                ConferoApiApplication.class,
+                TransactionTestConfiguration.class
+        }
 )
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:tc:postgresql:17-alpine:///confero"
 })
 @Testcontainers
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class IntegrationTestBase {
 
     @LocalServerPort
@@ -36,7 +42,8 @@ public abstract class IntegrationTestBase {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine")
+            .waitingFor(Wait.defaultWaitStrategy());
 
     @Autowired
     protected UserRepository userRepository;
@@ -50,6 +57,11 @@ public abstract class IntegrationTestBase {
     @Autowired
     protected SessionRepository sessionRepository;
 
+    @Autowired
+    protected PresentationRepository presentationRepository;
+
+    @Autowired
+    protected TestTransactionalService tx;
 
     protected static final String ORCID = "0000-0002-5678-1234";
 
@@ -57,11 +69,22 @@ public abstract class IntegrationTestBase {
 
     protected static final String EMAIL = "example@gmail.com";
 
+    @Autowired
+    private EntityManager entityManager;
+
+
     @BeforeEach
     void setUp() {
         RestAssured.baseURI = "http://localhost:" + port;
-        userRepository.deleteAll();
-        conferenceEditionRepository.deleteAll();
-        presenterRepository.deleteAll();
+        tx.runInNewTransaction(() -> {
+            presenterRepository.deleteAll();
+            presentationRepository.deleteAll();
+            sessionRepository.deleteAll();
+            conferenceEditionRepository.deleteAll();
+            userRepository.deleteAll();
+            entityManager.flush();
+            entityManager.clear();
+            return null;
+        });
     }
 }

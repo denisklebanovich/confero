@@ -9,6 +9,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
@@ -18,7 +19,7 @@ import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.UserRepository;
 
 @DataJpaTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @ActiveProfiles("test")
@@ -29,7 +30,8 @@ public abstract class DataJpaTestBase {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine")
+            .waitingFor(Wait.defaultWaitStrategy());
 
     @Autowired
     protected UserRepository userRepository;

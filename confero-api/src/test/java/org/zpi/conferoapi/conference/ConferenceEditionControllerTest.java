@@ -2,6 +2,8 @@ package org.zpi.conferoapi.conference;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openapitools.model.ConferenceEditionResponse;
 import org.openapitools.model.ConferenceEditionSummaryResponse;
 import org.openapitools.model.ErrorReason;
@@ -176,16 +178,28 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
 
     @Test
     void getAllConferenceEditions() {
-        conferenceEditionRepository.saveAll(List.of(
-                ConferenceEdition.builder()
-                        .id(1L)
-                        .applicationDeadlineTime(Instant.now()).createdAt(Instant.now().plus(1, DAYS))
-                        .build(),
-                ConferenceEdition.builder()
-                        .id(2L)
-                        .applicationDeadlineTime(Instant.now()).createdAt(Instant.now().plus(2, DAYS))
-                        .build()
-        ));
+        tx.runInNewTransaction(() -> {
+            conferenceEditionRepository.saveAndFlush(ConferenceEdition.builder()
+                    .applicationDeadlineTime(Instant.now()).createdAt(Instant.now().plus(10, DAYS))
+                    .build());
+
+            conferenceEditionRepository.saveAndFlush(ConferenceEdition.builder()
+                    .applicationDeadlineTime(Instant.now()).createdAt(Instant.now().plus(11, DAYS))
+                    .build());
+
+            return null;
+        });
+
+        System.out.println("pizda");
+
+
+        tx.runInNewTransaction(() -> {
+            System.out.println("all editions: " + conferenceEditionRepository.count());
+            return null;
+        });
+
+
+
 
         var response = RestAssured
                 .given()
@@ -204,12 +218,16 @@ class ConferenceEditionControllerTest extends IntegrationTestBase {
 
     @Test
     void getConferenceEditionSummary_WhenActiveEditionExists() {
-        // Create an active conference edition
-        ConferenceEdition activeEdition = ConferenceEdition.builder()
-                .applicationDeadlineTime(Instant.now().plus(1, DAYS))
-                .createdAt(Instant.now())
-                .build();
-        conferenceEditionRepository.save(activeEdition);
+
+        tx.runInNewTransaction(() -> {
+            // Create an active conference edition
+            ConferenceEdition activeEdition = ConferenceEdition.builder()
+                    .applicationDeadlineTime(Instant.now().plus(1, DAYS))
+                    .createdAt(Instant.now())
+                    .build();
+            conferenceEditionRepository.save(activeEdition);
+            return null;
+        });
 
         var response = RestAssured
                 .given()
