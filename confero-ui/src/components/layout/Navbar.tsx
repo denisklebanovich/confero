@@ -48,6 +48,19 @@ const Navbar = () => {
                   Applications
                 </Link>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link
+                    to="/organizers"
+                    className={`px-4 py-2 rounded-md ${
+                        location.pathname === "/organizers"
+                            ? "bg-gray-100 text-black"
+                            : "text-black"
+                    } transition-colors`}
+                >
+                  Organizers
+                </Link>
+
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         ) : null}
