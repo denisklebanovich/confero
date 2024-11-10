@@ -3,14 +3,11 @@ import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
 import scheduler from "dhtmlx-scheduler";
 import TimeTableModal from "@/components/timetable/TimeTableModal.tsx";
 
-const Scheduler = () => {
+const Timetable = ({presentations, setPresentations}) => {
     const schedulerContainer = useRef(null);
 
     const [open, setOpen] = useState(false)
-    const [title, setTitle] = useState("Context-based machine learning methods")
-    const [description, setDescription] = useState(
-        "Context-based machine learning methods leverage contextual information—such as user location, time, or recent interactions—to enhance model predictions and decision-making. By integrating real-world context, these methods aim to make models more adaptive, relevant, and personalized to user needs."
-    )
+    const [selectedEvent, setSelectedEvent] = useState({})
 
 
     useEffect(() => {
@@ -27,15 +24,16 @@ const Scheduler = () => {
         scheduler.config.first_hour = 8;
         scheduler.config.last_hour = 20;
         scheduler.config.time_step = 5;
-
         scheduler.config.hour_size_px = 80;
+
+
         scheduler.templates.event_text = function (start, end, event) {
 
             let eventHtml = `
                         <div class="w-full h-full items-center flex justify-between align-center">
                             <div class="w-2/3 h-full">
-                                <strong>${event.text}</strong><br/>
-                                <span>${event.description || ""}</span><br/>
+                                <span class="font-light text-xl">${event.organisers_line || ""}</span><br/>
+                                <strong class="font-bold text-xl">${event.title}</strong><br/>
                             </div>`;
 
             if (event.toShow) {
@@ -48,18 +46,22 @@ const Scheduler = () => {
         };
 
         scheduler.templates.event_class = function(start, end, event){
-            console.log(event, 123)
             if(!event.toShow){
                 return "dhx_event_gray dhx_event_no_footer";
             }
             return "dhx_event_gray";
         }
 
-        scheduler.parse([
-            { id: 1, start_date: "2024-11-10T10:00:00Z", end_date: "2024-11-10T12:30:00Z", text: "Event 1", "description" : "21212", onClick: () => onEventChange("dfdf"), toShow: true},
-            { id: 2, start_date: "2024-11-10T12:35:00Z", end_date: "2024-11-10T14:30:00Z", text: "Event 2", "description" : "21212", onClick: () => console.log("clicked"), toShow: false},
-            { id: 3, start_date: "2024-11-10T14:35:00Z", end_date: "2024-11-10T16:30:00Z", text: "Event 3", "description" : "21212", onClick: () => console.log("clicked"), toShow: true},
-        ], "json");
+        scheduler.parse(
+
+            presentations.map(
+                presentation => {
+            return {
+            ...presentation,
+            onClick: () => onEventChange(presentation)
+        }
+                }
+                ), "json");
 
         window.handleEventClick = (eventId) => {
             const event = scheduler.getEvent(eventId);
@@ -77,6 +79,14 @@ const Scheduler = () => {
             return event.toShow;
 
         });
+
+        const excludeProperty = (array, propToExclude) =>
+            array.map(({ [propToExclude]: _, ...rest }) => rest);
+
+        scheduler.attachEvent("onEventChanged", function(){
+            setPresentations(excludeProperty(scheduler.getEvents(), "onClick"));
+            return true;
+        })
 
 
         scheduler.attachEvent("onBeforeEventMenu", function (id, menu) {
@@ -108,13 +118,24 @@ const Scheduler = () => {
     }, []);
 
     function onEventChange(event){
+         setSelectedEvent(event);
         setOpen(true)
     }
+
 
     const getAllEvents = () => {
         return scheduler.getEvents();
     };
 
+    useEffect(() => {
+        scheduler.clearAll();
+        scheduler.parse(presentations.map(presentation => {
+            return {
+                ...presentation,
+                onClick: () => onEventChange(presentation)
+            }
+        }), "json");
+    }, [open]);
 
     return(
         <>
@@ -130,11 +151,11 @@ const Scheduler = () => {
                      }
                 `}
             </style>
-            <TimeTableModal open={open} setOpen={setOpen} title={title} description={description} setTitle={setTitle} setDescription={setDescription}/>
+            <TimeTableModal open={open} setOpen={setOpen} selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setPresentations={setPresentations} />
             <div ref={schedulerContainer} style={{ width: "70%", height: "450px", paddingTop: "5px" }} />
         </>
     )
 
 };
 
-export default Scheduler;
+export default Timetable;

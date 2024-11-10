@@ -3,14 +3,13 @@ import {
     Dialog,
     DialogContent,
     DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+    DialogTitle
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export default function TimeTableModal({open, setOpen, title, setTitle, description, setDescription}) {
+export default function TimeTableModal({open, setOpen, selectedEvent, setSelectedEvent, setPresentations}) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -22,8 +21,8 @@ export default function TimeTableModal({open, setOpen, title, setTitle, descript
                     <div className="grid gap-2">
                         <Input
                             id="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            value={selectedEvent.title}
+                            onChange={(e) => setSelectedEvent({...selectedEvent, title: e.target.value})}
                             className="w-full"
                         />
                     </div>
@@ -33,8 +32,8 @@ export default function TimeTableModal({open, setOpen, title, setTitle, descript
                         </Label>
                         <Textarea
                             id="description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            value={selectedEvent.description}
+                            onChange={(e) => setSelectedEvent({...selectedEvent, description: e.target.value})}
                             className="min-h-[150px]"
                         />
                     </div>
@@ -43,6 +42,12 @@ export default function TimeTableModal({open, setOpen, title, setTitle, descript
                     className="w-20 mx-auto mb-4"
                     onClick={() => {
                         setOpen(false)
+                        setPresentations(prev => {
+                            const presentationsCopy = [...prev];
+                            const presentationCopy = presentationsCopy.find(presentation => presentation.internal_id === selectedEvent.internal_id);
+                            presentationCopy.title  = selectedEvent.title;
+                            presentationCopy.description = selectedEvent.description;
+                            return presentationsCopy});
                     }}
                 >
                     Save
