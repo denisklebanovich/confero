@@ -6,12 +6,13 @@
   "scripts": {
     "predev": "npm run generate",
     "dev": "vite --host",
-    "prebuild": "npm run generate",
+    "prebuild": "npm run generate-prod",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "prepreview": "npm run generate",
     "preview": "vite preview",
-    "generate": "openapi --input ../confero-api/src/main/resources/openapi.yml --output ./src/generated --name AppClient"
+    "generate": "openapi --input ../confero-api/src/main/resources/openapi.yml --output ./src/generated --name AppClient",
+    "generate-prod": "openapi --input ./src/generated/openapi.yml --output ./src/generated --name AppClient"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

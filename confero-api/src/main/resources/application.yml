@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/confero
     username: ${DB_USER:postgres}
-    password: ${DB_PASS:admin}
+    password: ${DB_PASSWORD:admin}
     hikari:
       max-lifetime: 120000
       idle-timeout: 10000
