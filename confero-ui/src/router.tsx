@@ -11,6 +11,8 @@ import {AuthProvider} from "@/auth/AuthProvider.tsx";
 import CommentView from "@/views/CommentView";
 import ProposalEditView from "./views/ProposalEditView";
 import ProposalAdminView from "./views/ProposalAdminView";
+import MyCalendarView from "@/views/MyCalendarView.tsx";
+import MySessionsView from "@/views/MySessionsView.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -58,6 +60,14 @@ export const router = createBrowserRouter([
             {
                 path: 'comment',
                 element: <CommentView/>
+            },
+            {
+                path: 'my-calendar',
+                element: <MyCalendarView/>
+            },
+            {
+                path: 'my-sessions',
+                element: <MySessionsView/>
             }
         ]
     },

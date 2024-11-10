@@ -9,7 +9,36 @@ export default function SessionView() {
   const session = {
       "sessionID": "vladz2323gf", title: "Computer Science Club",
       "description": "Computer vision combined with artificial intelligence has been created to better serve the increasing needs of the people. These kinds of computer vision have been applied in a wide range of areas such as surveillance systems, medical diagnosis, intelligent transportation system, and further on cyber-physical interaction systems. As a technological discipline, computer vision seeks to apply the theories and models of computer vision to the construction of intelligent systems.",
-      "organisers": ["Van-Dung Hoang", "Dinh-Hien","Nguyen", "Huyen Trang Phan"]
+      "organisers": [
+        {
+            "id": 1,
+            "name": "Dinh-Hien",
+            "surname": "Nguyen",
+            "orcid": "0000-0002-0759-9656",
+            "isSpeaker": true
+        },
+        {
+            "id": 2,
+            "name": "Huyen",
+            "surname": "Nguyen",
+            "orcid": "0000-0002-0759-9656",
+            "isSpeaker": true,
+        },
+        {
+            "id": 3,
+            "name": "Huyen",
+            "surname": "Trang Phan",
+            "orcid": "0000-0002-0759-9656",
+            "isSpeaker": false
+        },
+        {
+            "id": 4,
+            "name": "Kang-Hyun",
+            "surname": " Jo",
+            "orcid": "0000-0002-0759-9656",
+            "isSpeaker": false
+        }
+    ]
   }
 
   const [isLoggedIn, setIsLoggedIn] = useState(true);

@@ -56,9 +56,9 @@ const SessionsView = () => {
       <div className="flex w-full justify-center">
         <div className={"w-2/3 items-center gap-5 flex flex-col"}>
           <div className="flex w-full">
-            <div className="text-3xl font-bold w-full">Sessions:</div>
-            <Button onClick={() => navigate("/admin-sessions")}>
-              Manage Sessions
+            <div className="text-3xl font-bold w-full">All Sessions:</div>
+            <Button onClick={() => navigate("/my-calendar")}>
+              View my calendar
             </Button>
           </div>
           {sessions?.map((session) => (

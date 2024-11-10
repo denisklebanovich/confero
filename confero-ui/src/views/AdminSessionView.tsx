@@ -18,10 +18,6 @@ const AdminSessionView = () => {
               <Label>Accepting Applications</Label>
             </div>
           </div>
-          <SessionTimeSetter />
-          <SessionTimeSetter />
-          <SessionTimeSetter />
-          <SessionTimeSetter />
           <div className="flex w-full justify-between">
             <Button onClick={() => navigate("/")} variant="secondary">Back</Button>
             <ViewersDataLoader />
