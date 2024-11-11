@@ -47,11 +47,11 @@ export default function EditionModal({open, setOpen, date, setDate}) {
                             <Input
                                 id="deadline"
                                 type="date"
-                                className="pl-10 bg-gray-600 text-white w-full"
+                                className="pl-10 bg-gray-500 text-white w-full"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
                             />
-                            <CalendarIcon className="absolute left-3 top-2.5 h-6 w-6 text-muted-foreground text-white " />
+                            <CalendarIcon className="absolute left-2.5 top-2 h-6 w-6 text-muted-foreground text-white " />
                         </div>
                     </div>
                     <div className="grid gap-2">
