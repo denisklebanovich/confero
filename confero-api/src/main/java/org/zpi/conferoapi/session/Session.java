@@ -80,31 +80,4 @@ public class Session {
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<ApplicationComment> comments = new ArrayList<>();
-
-
-    public Instant getStartTime() {
-        if(!isTimeTableConfigured()) {
-            return null;
-        }
-        return  presentations.stream()
-                .map(Presentation::getStartTime)
-                .min(Instant::compareTo)
-                .orElse(null);
-    }
-
-    public Instant getEndTime() {
-        if(!isTimeTableConfigured()) {
-            return null;
-        }
-        return presentations.stream()
-                .map(Presentation::getEndTime)
-                .max(Instant::compareTo)
-                .orElse(null);
-    }
-
-    public boolean isTimeTableConfigured() {
-        return presentations.stream()
-                .allMatch(presentation -> presentation.getStartTime() != null && presentation.getEndTime() != null);
-    }
-
 }

@@ -7,9 +7,12 @@ import org.openapitools.model.ApplicationStatus;
 import org.openapitools.model.SessionPreviewResponse;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.security.SecurityUtils;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -27,8 +30,8 @@ public class SessionService {
         return getSessionsWithConfiguredTimeTable()
                 .map(session -> sessionMapper.toPreviewDto(session)
                         .fromActiveConferenceEdition(isFromActiveConference(session))
-                        .startTime(session.getStartTime())
-                        .endTime(session.getEndTime())
+                        .startTime(getSessionStartTime(session).orElse(null))
+                        .endTime(getSessionEndTime(session).orElse(null))
                 )
                 .peek(session -> {
                     log.info("Returning session: {}", session);
@@ -43,8 +46,8 @@ public class SessionService {
         return participations.stream()
                 .map(session -> sessionMapper.toPreviewDto(session)
                         .fromActiveConferenceEdition(isFromActiveConference(session))
-                        .startTime(session.getStartTime())
-                        .endTime(session.getEndTime())
+                        .startTime(getSessionStartTime(session).orElse(null))
+                        .endTime(getSessionEndTime(session).orElse(null))
                 )
                 .peek(session -> {
                     log.info("Returning managable session: {}", session);
@@ -60,12 +63,34 @@ public class SessionService {
 
     private Stream<Session> getSessionsWithConfiguredTimeTable() {
         return sessionRepository.findAllByStatus(ApplicationStatus.ACCEPTED)
-                .stream().filter(Session::isTimeTableConfigured);
+                .stream().filter(this::isSessionHasConfiguredTimeTable);
     }
-
 
     private boolean isSessionHasConfiguredTimeTable(Session session) {
         return session.getPresentations().stream()
-                .allMatch(presentation -> presentation.getStartTime() != null && presentation.getEndTime() != null);
+                .allMatch(presentation -> presentation.startTime().isPresent() && presentation.endTime().isPresent());
+    }
+
+    private Optional<Instant> getSessionStartTime(Session session) {
+        if (!isSessionHasConfiguredTimeTable(session)) {
+            return Optional.empty();
+        }
+
+        return session.getPresentations().stream()
+                .map(Presentation::startTime)
+                .map(Optional::get)
+                .min(Instant::compareTo);
+    }
+
+
+    private Optional<Instant> getSessionEndTime(Session session) {
+        if (!isSessionHasConfiguredTimeTable(session)) {
+            return Optional.empty();
+        }
+
+        return session.getPresentations().stream()
+                .map(Presentation::endTime)
+                .map(Optional::get)
+                .max(Instant::compareTo);
     }
 }

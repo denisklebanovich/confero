@@ -157,12 +157,16 @@ class SessionControllerTest extends IntegrationTestBase {
                 "This is a test session description."
         );
 
+        var presentation_2_start = Instant.now().plusSeconds(3600);
+        var presentation_2_end = Instant.now().plusSeconds(7200);
+
+
         var presentation_2 = givenPresentation(
                 "Test Presentation 2",
                 "Presentation Description",
                 session_2,
-                Instant.now().plusSeconds(3600),
-                Instant.now().plusSeconds(7200)
+                presentation_2_start,
+                presentation_2_end
         );
 
 
@@ -194,7 +198,11 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals(2, response.length, "Expected one session in the response");
 
         var sessionResponse = response[0];
-        assertEquals(session.getStartTime(), sessionResponse.getStartTime(), "Start time mismatch");
-        assertEquals(session.getEndTime(), sessionResponse.getEndTime(), "End time mismatch");
+        assertEquals(null, sessionResponse.getStartTime(), "Start time mismatch");
+        assertEquals(null, sessionResponse.getEndTime(), "End time mismatch");
+
+        var sessionResponse_2 = response[1];
+        assertEquals(presentation_2_start, sessionResponse_2.getStartTime(), "Start time mismatch");
+        assertEquals(presentation_2_end, sessionResponse_2.getEndTime(), "End time mismatch");
     }
 }
