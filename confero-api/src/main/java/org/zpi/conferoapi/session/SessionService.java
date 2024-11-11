@@ -132,12 +132,6 @@ public class SessionService {
 
     public SessionResponse updateSession(Long sessionId, UpdateSessionRequest request) {
         var user = securityUtils.getCurrentUser();
-        var isUserParticipant = sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList());
-
-        if (!isUserParticipant) {
-            throw new ServiceException(ONLY_PARTICIPANTS_CAN_UPDATE_SESSION);
-        }
-
         var session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
 
@@ -147,6 +141,9 @@ public class SessionService {
                     .filter(p -> p.getId().equals(presentation.getId()))
                     .findFirst()
                     .orElseThrow(() -> new ServiceException(PRESENTATION_NOT_FOUND));
+
+            findPresenterByUser(presentationToUpdate, user)
+                    .orElseThrow(() -> new ServiceException(ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION));
 
             if (Objects.isNull(presentation.getStartTime()) ^ Objects.isNull(presentation.getEndTime())) {
                 throw new ServiceException(BOTH_START_AND_END_TIME_MUST_BE_PROVIDED_FOR_PRESENTATION_UPDATE);

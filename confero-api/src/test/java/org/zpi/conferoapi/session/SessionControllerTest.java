@@ -684,7 +684,7 @@ class SessionControllerTest extends IntegrationTestBase {
                 .response()
                 .as(ErrorResponse.class);
 
-        assertEquals(response_1.getReason(), ErrorReason.ONLY_PARTICIPANTS_CAN_UPDATE_SESSION);
+        assertEquals(response_1.getReason(), ErrorReason.ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION);
 
 
         var presentationStart = Instant.now().plus(1, ChronoUnit.HOURS);
