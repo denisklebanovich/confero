@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.zpi.conferoapi.IntegrationTestBase;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,7 +19,7 @@ class SessionControllerTest extends IntegrationTestBase {
     @Test
     void getSessions() {
         var user = givenUser("0000-0002-5678-1234", "access-token", "http://example.com/avatar.png", false, List.of("artsi@gmail.com"));
-        var conferenceEdition = givenConferenceEdition(Instant.now().plusSeconds(3600));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
