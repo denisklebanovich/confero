@@ -14,6 +14,7 @@ import org.zpi.conferoapi.session.Session;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -52,4 +53,13 @@ public class Presentation {
     @OneToMany(mappedBy = "presentation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<Presenter> presenters = new ArrayList<>();
+
+    public Optional<Instant> startTime() {
+        return Optional.ofNullable(startTime);
+    }
+
+    public Optional<Instant> endTime() {
+        return Optional.ofNullable(endTime);
+    }
+
 }

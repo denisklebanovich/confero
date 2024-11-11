@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS conference_edition
 CREATE TABLE IF NOT EXISTS conference_invitee
 (
     email      VARCHAR(255) NOT NULL,
-    edition_id BIGINT NOT NULL,
+    edition_id BIGINT       NOT NULL,
     PRIMARY KEY (email, edition_id),
     CONSTRAINT fk_conference_invitee_edition FOREIGN KEY (edition_id) REFERENCES conference_edition (id)
 );
@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS session
     tags        JSONB                 DEFAULT '[]',
     edition_id  BIGINT       NOT NULL,
     description TEXT         NOT NULL,
-    status      VARCHAR(255) NOT NULL CHECK (status IN ('PENDING', 'DRAFT', 'REJECTED', 'ACCEPTED', 'CHANGE_REQUESTED')),
+    status      VARCHAR(255) NOT NULL CHECK (status IN
+                                             ('PENDING', 'DRAFT', 'REJECTED', 'ACCEPTED', 'CHANGE_REQUESTED')),
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_session_creator FOREIGN KEY (creator_id) REFERENCES users (id),
     CONSTRAINT fk_session_edition FOREIGN KEY (edition_id) REFERENCES conference_edition (id) ON DELETE CASCADE
@@ -63,7 +64,7 @@ CREATE TABLE IF NOT EXISTS presentation
 (
     id          BIGSERIAL PRIMARY KEY,
     title       VARCHAR(255) NOT NULL,
-    description TEXT,
+    description TEXT         NOT NULL,
     session_id  BIGINT       NOT NULL,
     start_time  TIMESTAMP,
     end_time    TIMESTAMP,

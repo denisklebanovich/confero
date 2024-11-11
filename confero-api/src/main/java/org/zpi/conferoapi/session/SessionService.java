@@ -62,4 +62,10 @@ public class SessionService {
         return sessionRepository.findAllByStatus(ApplicationStatus.ACCEPTED)
                 .stream().filter(Session::isTimeTableConfigured);
     }
+
+
+    private boolean isSessionHasConfiguredTimeTable(Session session) {
+        return session.getPresentations().stream()
+                .allMatch(presentation -> presentation.getStartTime() != null && presentation.getEndTime() != null);
+    }
 }
