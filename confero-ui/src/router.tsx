@@ -17,6 +17,7 @@ import OrganisersView from "@/views/OrganisersView.tsx";
 import ConferenceEditionsView from "@/views/ConferenceEditionsView.tsx";
 import {Toaster} from "@/components/ui/toaster.tsx";
 import React from "react";
+import SignUpView from "@/views/SignUpView.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -24,7 +25,7 @@ export const router = createBrowserRouter([
         element: (
             <>
                 <AuthProvider>
-                    <Toaster />
+                    <Toaster/>
                     <Layout/>
                 </AuthProvider>
             </>
@@ -89,7 +90,17 @@ export const router = createBrowserRouter([
         path: '/login',
         element: <>
             <AuthProvider>
+                <Toaster/>
                 <LoginView/>
+            </AuthProvider>
+        </>
+    },
+    {
+        path: '/signup',
+        element: <>
+            <AuthProvider>
+                <Toaster/>
+                <SignUpView/>
             </AuthProvider>
         </>
     }

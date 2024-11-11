@@ -14,7 +14,7 @@ export function useApiClient() {
 
     return useMemo(() => new AppClient({
         HEADERS: headers,
-        CREDENTIALS: "include",
+        WITH_CREDENTIALS: true,
         BASE: "/api",
     }), [headers]);
 }

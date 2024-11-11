@@ -1,5 +1,5 @@
 # Use a Node.js base image for building the frontend
-FROM node:21-alpine as build
+FROM node:21-alpine AS build
 
 # Set the working directory
 WORKDIR /app

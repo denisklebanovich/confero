@@ -60,6 +60,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
         const {error} = await supabase.auth.signOut()
         if (error) throw error
         setOrcidAccessToken(null);
+        setAuthorized(false)
         navigate('/login')
     }
 
