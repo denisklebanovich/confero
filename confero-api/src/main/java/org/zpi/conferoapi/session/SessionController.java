@@ -35,4 +35,8 @@ public class SessionController implements SessionApi {
         return ResponseEntity.ok(sessionService.getManagableSessions());
     }
 
+    @Override
+    public ResponseEntity<List<SessionPreviewResponse>> getPersonalAgenda() {
+        return SessionApi.super.getPersonalAgenda();
+    }
 }

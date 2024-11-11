@@ -50,6 +50,15 @@ CREATE TABLE IF NOT EXISTS session
     CONSTRAINT fk_session_edition FOREIGN KEY (edition_id) REFERENCES conference_edition (id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS agenda
+(
+    user_id    BIGINT NOT NULL,
+    session_id BIGINT NOT NULL,
+    CONSTRAINT pk_agenda PRIMARY KEY (user_id, session_id),
+    CONSTRAINT fk_agenda_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_agenda_session FOREIGN KEY (session_id) REFERENCES session (id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS application_comment
 (
     id         BIGSERIAL PRIMARY KEY,

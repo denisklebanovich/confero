@@ -32,6 +32,7 @@ public class SessionService {
                         .fromActiveConferenceEdition(isFromActiveConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
+                        // TODO isInCalendar
                 )
                 .peek(session -> {
                     log.info("Returning session: {}", session);
@@ -48,6 +49,7 @@ public class SessionService {
                         .fromActiveConferenceEdition(isFromActiveConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
+                        // TODO isInCalendar
                 )
                 .peek(session -> {
                     log.info("Returning managable session: {}", session);
