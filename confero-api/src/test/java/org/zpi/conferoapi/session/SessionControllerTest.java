@@ -150,7 +150,6 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-
         var session_2 = givenSession(
                 "Test Session 2",
                 SessionType.SESSION,
@@ -207,4 +206,113 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals(presentation_2_start, sessionResponse_2.getStartTime(), "Start time mismatch");
         assertEquals(presentation_2_end, sessionResponse_2.getEndTime(), "End time mismatch");
     }
+
+
+    @Test
+    void get_agenda() {
+
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plusSeconds(3600));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                null,
+                null
+        );
+
+        givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+
+        var session_2 = givenSession(
+                "Test Session 2",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+        var presentation_2_start = Instant.now().plusSeconds(3600);
+        var presentation_2_end = Instant.now().plusSeconds(7200);
+
+
+        var presentation_2 = givenPresentation(
+                "Test Presentation 2",
+                "Presentation Description",
+                session_2,
+                presentation_2_start,
+                presentation_2_end
+        );
+
+
+        givenPresenter(
+                "random@gmail.com",
+                "0000-0002-5678-1234",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation_2
+        );
+
+
+
+        var agenda_requester = givenUser(
+                "0000-0002-5678-1235",
+                "access-token1",
+                "http://example.com/avatar.png",
+                false,
+                List.of("artsi@gmail.com")
+        );
+
+        givenAgendaForUser(agenda_requester, List.of(session));
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionPreviewResponse[].class);
+
+        assertNotNull(response);
+        assertEquals(1, response.length, "Expected one session in the response");
+
+        var sessionResponse = response[0];
+        assertEquals(session.getId(), sessionResponse.getId(), "Session ID mismatch");
+        assertEquals(true, sessionResponse.getIsInCalendar(), "Is in calendar mismatch");
+    }
+
+
 }

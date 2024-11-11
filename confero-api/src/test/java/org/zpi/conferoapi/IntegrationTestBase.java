@@ -195,4 +195,12 @@ public abstract class IntegrationTestBase {
             return presenterRepository.save(presenter);
         });
     }
+
+    protected void givenAgendaForUser(User user, List<Session> sessions) {
+        tx.runInNewTransaction(() -> {
+            user.setAgenda(sessions);
+            userRepository.save(user);
+            return null;
+        });
+    }
 }

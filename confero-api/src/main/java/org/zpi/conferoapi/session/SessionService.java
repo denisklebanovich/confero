@@ -66,6 +66,22 @@ public class SessionService {
                 .toList();
     }
 
+
+    public List<SessionPreviewResponse> getPersonalAgenda() {
+        var user = securityUtils.getCurrentUser();
+        return user.getAgenda().stream()
+                .map(session -> sessionMapper.toPreviewDto(session)
+                        .fromActiveConferenceEdition(isFromActiveConference(session))
+                        .startTime(getSessionStartTime(session).orElse(null))
+                        .endTime(getSessionEndTime(session).orElse(null))
+                        .isInCalendar(true)
+                )
+                .peek(session -> {
+                    log.info("Returning session from personal agenda: {}", session);
+                })
+                .toList();
+    }
+
     private boolean isFromActiveConference(Session session) {
         return conferenceEditionRepository.findActiveEditionConference()
                 .map(activeEdition -> activeEdition.getId().equals(session.getEdition().getId()))
