@@ -5,31 +5,29 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import {Organisers} from "@/utils/Organisers.tsx";
 
-const SessionTimeSetter = () => {
+const SessionTimeSetter = ({title, organisers, sessionID}) => {
   const navigate = useNavigate();
-
   return (
-    <Card className="w-full">
+    <Card className="w-full m-2">
       <CardHeader>
         <div className={"w-full flex justify-between"}>
           <CardTitle className="text-xl">
-            Computer Vision and Intelligent systems
+            {title}
           </CardTitle>
 
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 pb-2">
+          <div className="flex flex-col sm:flex-row items-center sm:space-y-0 sm:space-x-2">
             <Button
-              className="w-full sm:w-auto mr-2"
-              onClick={() => navigate("/timetable")}
+                className="w-full sm:w-auto mr-2"
+                onClick={() => navigate(`/timetable?sessionID=${sessionID}`)}
             >
               Set timetable
             </Button>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Organizers: Van-Dung Hoang, Dinh-Hien Nguyen, Huyen Trang Phan and
-          Kang-Hyun Jo
-        </p>
+        <h3 className="font-semibold">Organizers:</h3>
+        <Organisers organisers={organisers} chunkSize={5}/>
       </CardHeader>
     </Card>
   );
