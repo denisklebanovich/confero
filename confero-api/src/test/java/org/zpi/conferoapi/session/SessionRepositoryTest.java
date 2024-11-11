@@ -62,6 +62,7 @@ class SessionRepositoryTest extends DataJpaTestBase {
                 .id(1L)
                 .title("Presentation")
                 .session(session)
+                .description("description")
                 .presenters(List.of())
                 .build());
 
