@@ -629,7 +629,8 @@ paths:
               type: object
               properties:
                 sessionId:
-                  type: string
+                  type: integer
+                  format: int64
                   description: The ID of the session to be added.
       responses:
         '200':
@@ -661,7 +662,8 @@ paths:
               type: object
               properties:
                 sessionId:
-                  type: string
+                  type: integer
+                  format: int64
                   description: The ID of the session to be deleted from agenda.
       responses:
         '204':
@@ -952,6 +954,7 @@ components:
         - NO_PRESENTATIONS_PROVIDED
         - NO_PRESENTERS_PROVIDED
         - FORBIDDEN
+        - SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -1169,7 +1172,7 @@ components:
         - id
       properties:
         id:
-          type: number
+          type: integer
           format: int64
         title:
           type: string

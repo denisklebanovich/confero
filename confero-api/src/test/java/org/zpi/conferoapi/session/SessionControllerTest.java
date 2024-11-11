@@ -2,6 +2,7 @@ package org.zpi.conferoapi.session;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
+import org.openapitools.model.AddSessionToAgendaRequest;
 import org.openapitools.model.SessionPreviewResponse;
 import org.openapitools.model.SessionType;
 import org.springframework.http.HttpStatus;
@@ -312,6 +313,163 @@ class SessionControllerTest extends IntegrationTestBase {
         var sessionResponse = response[0];
         assertEquals(session.getId(), sessionResponse.getId(), "Session ID mismatch");
         assertEquals(true, sessionResponse.getIsInCalendar(), "Is in calendar mismatch");
+    }
+
+
+    @Test
+    void addSessionToAgenda() {
+
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                null,
+                null
+        );
+
+        givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+
+        var session_2 = givenSession(
+                "Test Session 2",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+        var presentation_2_start = Instant.now().plusSeconds(3600);
+        var presentation_2_end = Instant.now().plusSeconds(7200);
+
+
+        var presentation_2 = givenPresentation(
+                "Test Presentation 2",
+                "Presentation Description",
+                session_2,
+                presentation_2_start,
+                presentation_2_end
+        );
+
+
+        givenPresenter(
+                "random@gmail.com",
+                "0000-0002-5678-1234",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation_2
+        );
+
+
+        givenUser(
+                "0000-0002-5678-1235",
+                "access-token1",
+                "http://example.com/avatar.png",
+                false,
+                List.of("artsi@gmail.com")
+        );
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionPreviewResponse[].class);
+
+        assertNotNull(response);
+        assertEquals(0, response.length, "Expected one session in the response");
+
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new AddSessionToAgendaRequest().sessionId(session.getId()))
+                .post("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value());
+
+
+        var response_1 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionPreviewResponse[].class);
+
+        assertNotNull(response_1);
+        assertEquals(1, response_1.length, "Expected one session in the response");
+
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new AddSessionToAgendaRequest().sessionId(session_2.getId()))
+                .post("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value());
+
+
+
+        var response_2 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionPreviewResponse[].class);
+
+        assertNotNull(response_2);
+        assertEquals(2, response_2.length, "Expected one session in the response");
+
+
     }
 
 

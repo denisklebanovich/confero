@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.api.SessionApi;
+import org.openapitools.model.AddSessionToAgendaRequest;
 import org.openapitools.model.SessionPreviewResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,5 +40,13 @@ public class SessionController implements SessionApi {
     public ResponseEntity<List<SessionPreviewResponse>> getPersonalAgenda() {
         log.info("User {} requested personal agenda", securityUtils.getCurrentUser());
         return ResponseEntity.ok(sessionService.getPersonalAgenda());
+    }
+
+
+    @Override
+    public ResponseEntity<Void> addSessionToAgenda(AddSessionToAgendaRequest addSessionToAgendaRequest) {
+        log.info("User {} requested to add session {} to agenda", securityUtils.getCurrentUser(), addSessionToAgendaRequest.getSessionId());
+        sessionService.addSessionToAgenda(addSessionToAgendaRequest);
+        return ResponseEntity.ok().build();
     }
 }

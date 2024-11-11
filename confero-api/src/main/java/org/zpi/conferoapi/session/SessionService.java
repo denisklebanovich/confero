@@ -4,19 +4,26 @@ import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.openapitools.model.AddSessionToAgendaRequest;
 import org.openapitools.model.ApplicationStatus;
+import org.openapitools.model.ErrorReason;
 import org.openapitools.model.SessionPreviewResponse;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.user.User;
+import org.zpi.conferoapi.user.UserRepository;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static org.openapitools.model.ErrorReason.SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION;
+import static org.openapitools.model.ErrorReason.SESSION_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -28,6 +35,7 @@ public class SessionService {
     ConferenceEditionRepository conferenceEditionRepository;
     SessionMapper sessionMapper;
     SecurityUtils securityUtils;
+    private final UserRepository userRepository;
 
     public List<SessionPreviewResponse> getSessions() {
         return getSessionsWithConfiguredTimeTable()
@@ -47,7 +55,7 @@ public class SessionService {
         var user = securityUtils.getCurrentUser();
 
         log.info("Getting managable sessions for user: {}", user);
-        if(Objects.isNull(user.getOrcid()) && (Objects.isNull(user.getEmails()) || user.getEmails().isEmpty())) {
+        if (Objects.isNull(user.getOrcid()) && (Objects.isNull(user.getEmails()) || user.getEmails().isEmpty())) {
             System.out.println("Returning empty list");
             return List.of();
         }
@@ -80,6 +88,21 @@ public class SessionService {
                     log.info("Returning session from personal agenda: {}", session);
                 })
                 .toList();
+    }
+
+    public void addSessionToAgenda(AddSessionToAgendaRequest request) {
+        var user = securityUtils.getCurrentUser();
+        var session = sessionRepository.findById(request.getSessionId())
+                .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
+
+        if (!isFromActiveConference(session)) {
+            throw new ServiceException(SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION);
+        }
+
+        if (!userHasSessionInAgenda(user, session)) {
+            user.getAgenda().add(session);
+            userRepository.save(user);
+        }
     }
 
     private boolean isFromActiveConference(Session session) {
