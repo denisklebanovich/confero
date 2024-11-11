@@ -1051,6 +1051,7 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals("test.pdf", response.getName(), "Attachment name mismatch");
         assertEquals("https://mock-s3-url.com/attachments/test.pdf", response.getUrl(), "Attachment URL mismatch");
         assertNotNull(response.getId(), "Attachment ID missing");
+        assertThat(findAllAttachments().size()).isEqualTo(1);
     }
 
 

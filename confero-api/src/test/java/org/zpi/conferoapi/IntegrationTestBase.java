@@ -24,10 +24,7 @@ import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.configuration.S3Service;
 import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.email.UserEmailRepository;
-import org.zpi.conferoapi.presentation.Presentation;
-import org.zpi.conferoapi.presentation.PresentationRepository;
-import org.zpi.conferoapi.presentation.Presenter;
-import org.zpi.conferoapi.presentation.PresenterRepository;
+import org.zpi.conferoapi.presentation.*;
 import org.zpi.conferoapi.session.Session;
 import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.User;
@@ -83,6 +80,9 @@ public abstract class IntegrationTestBase {
 
     @Autowired
     protected UserEmailRepository userEmailRepository;
+
+    @Autowired
+    protected AttachmentRepository attachmentRepository;
 
     @Autowired
     protected TestTransactionalService tx;
@@ -216,5 +216,10 @@ public abstract class IntegrationTestBase {
             userRepository.save(user);
             return null;
         });
+    }
+
+
+    protected List<Attachment> findAllAttachments() {
+        return tx.runInNewTransaction(() -> attachmentRepository.findAll());
     }
 }
