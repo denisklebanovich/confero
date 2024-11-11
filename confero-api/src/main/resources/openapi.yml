@@ -517,6 +517,36 @@ paths:
                 items:
                   $ref: '#/components/schemas/SessionPreviewResponse'
 
+    post:
+        tags:
+            - Session
+            - User
+        summary: Create test session
+        description: |-
+            Create test session.
+        operationId: createSession
+        deprecated: true
+        requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/CreateApplicationRequest'
+        responses:
+            '201':
+              description: Created
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/SessionPreviewResponse'
+            '400':
+              description: Bad request
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/ErrorResponse'
+
+
   /session/manage:
     get:
       tags:
