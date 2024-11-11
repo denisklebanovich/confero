@@ -17,45 +17,31 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface UploadedFile {
   name: string;
-  status: "uploading" | "success" | "error";
+  status: "success" | "error";
+  jsonData?: Record<string, any> | null;
 }
 
-const verifyJsonStructure = (file: File): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const jsonData = JSON.parse(e.target?.result as string);
-
-        const isValid =
-          typeof jsonData.title === "string" &&
-          (jsonData.type === "SESSION" ||
-            jsonData.type === "WORKSHOP" ||
-            jsonData.type === "TUTORIAL") &&
-          Array.isArray(jsonData.tags) &&
-          jsonData.tags.every((tag) => typeof tag === "string") &&
-          typeof jsonData.description === "string" &&
-          Array.isArray(jsonData.presentations) &&
-          jsonData.presentations.every(
-            (presentation) =>
-              typeof presentation.title === "string" &&
-              typeof presentation.description === "string" &&
-              Array.isArray(presentation.presenters) &&
-              presentation.presenters.every(
-                (presenter) =>
-                  typeof presenter.orcid === "string" &&
-                  typeof presenter.email === "string" &&
-                  typeof presenter.isSpeaker === "boolean"
-              )
-          );
-        resolve(isValid);
-      } catch (error) {
-        resolve(false);
-      }
-    };
-    reader.onerror = () => resolve(false);
-    reader.readAsText(file);
-  });
+const verifyApplicationJsonStructure = (data: Record<string, any>): boolean => {
+  return (
+    typeof data.title === "string" &&
+    ["SESSION", "WORKSHOP", "TUTORIAL"].includes(data.type) &&
+    Array.isArray(data.tags) &&
+    data.tags.every((tag) => typeof tag === "string") &&
+    typeof data.description === "string" &&
+    Array.isArray(data.presentations) &&
+    data.presentations.every(
+      (presentation) =>
+        typeof presentation.title === "string" &&
+        typeof presentation.description === "string" &&
+        Array.isArray(presentation.presenters) &&
+        presentation.presenters.every(
+          (presenter) =>
+            typeof presenter.orcid === "string" &&
+            typeof presenter.email === "string" &&
+            typeof presenter.isSpeaker === "boolean"
+        )
+    )
+  );
 };
 
 const FileUpload = () => {
@@ -75,43 +61,40 @@ const FileUpload = () => {
     setIsDragging(false);
   };
 
+  const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    handleFiles(files);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
   };
 
-  const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    handleFiles(files);
-  };
-
-  const handleFiles = async (files: File[]) => {
+  const handleFile = async (file: File) => {
     setError(null);
-    if (files.length === 0) return;
-
-    const file = files[0];
 
     if (file.type !== "application/json") {
       setError("Please upload a JSON file.");
       return;
     }
 
-    setUploadedFile({ name: file.name, status: "uploading" });
-
     try {
-      const isValid = await verifyJsonStructure(file);
-      if (isValid) {
-        setUploadedFile({ name: file.name, status: "success" });
+      const fileContent = await file.text();
+      const jsonData = JSON.parse(fileContent);
+
+      if (verifyApplicationJsonStructure(jsonData)) {
+        setUploadedFile({ name: file.name, status: "success", jsonData });
       } else {
-        setUploadedFile({ name: file.name, status: "error" });
+        setUploadedFile({ name: file.name, status: "error", jsonData: null });
         setError(
           "Invalid JSON structure. Please check your file and try again."
         );
       }
     } catch (err) {
-      setUploadedFile({ name: file.name, status: "error" });
+      setUploadedFile({ name: file.name, status: "error", jsonData: null });
       setError(
         "An error occurred while processing the file. Please try again."
       );
@@ -129,8 +112,18 @@ const FileUpload = () => {
     setUploadedFile(null);
   };
 
+  const handleOpenChange = (openState: boolean) => {
+    if (!openState) {
+      setUploadedFile(null);
+      setError(null);
+      setIsDragging(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+    setOpen(openState);
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(openState) => handleOpenChange(openState)}>
       <DialogTrigger asChild>
         <Button variant="outline">Upload JSON File</Button>
       </DialogTrigger>
@@ -179,7 +172,6 @@ const FileUpload = () => {
           <div className="mt-4 flex items-center justify-between rounded-md border p-2">
             <span className="truncate">{uploadedFile.name}</span>
             <div className="flex items-center gap-2">
-              {uploadedFile.status === "uploading" && <span>Uploading...</span>}
               {uploadedFile.status === "success" && (
                 <Check className="text-green-500" />
               )}
