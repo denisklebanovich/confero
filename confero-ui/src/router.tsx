@@ -15,6 +15,8 @@ import MyCalendarView from "@/views/MyCalendarView.tsx";
 import MySessionsView from "@/views/MySessionsView.tsx";
 import OrganisersView from "@/views/OrganisersView.tsx";
 import ConferenceEditionsView from "@/views/ConferenceEditionsView.tsx";
+import {Toaster} from "@/components/ui/toaster.tsx";
+import React from "react";
 
 export const router = createBrowserRouter([
     {
@@ -22,6 +24,7 @@ export const router = createBrowserRouter([
         element: (
             <>
                 <AuthProvider>
+                    <Toaster />
                     <Layout/>
                 </AuthProvider>
             </>

@@ -47,7 +47,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
 
 
     return (
-    <Card className="w-full cursor-pointer" onClick={() => navigate("/session")}>
+    <Card className="w-full cursor-pointer" onClick={() => navigate(`/session?sessionId=${session.id}`)}>
         <CardHeader>
             <div className="flex justify-between items-start">
                 <CardTitle className="text-xl font-bold">{session.title}</CardTitle>

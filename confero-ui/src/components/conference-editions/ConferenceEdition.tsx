@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const ConferenceEdition = ({index, id, applicationDeadlineTime}) => {
+const ConferenceEdition = ({index, id, applicationDeadlineTime, openModal}) => {
 
     function convertDate() {
         const date = new Date(applicationDeadlineTime);
@@ -17,6 +17,7 @@ const ConferenceEdition = ({index, id, applicationDeadlineTime}) => {
     }
 
     function onUpdate() {
+        openModal();
         console.log("Update clicked");
     }
 

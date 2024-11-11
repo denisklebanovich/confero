@@ -41,11 +41,17 @@ const ConferenceEditionsView = () => {
 
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState("");
+    const [editionIndex, setEditionIndex] = useState(-1);
 
-    function addConferenceEdtion() {
+    function addConferenceEdition() {
         setOpen(true);
     }
 
+    function updateConferenceEdition(applicationDeadlineTime, id) {
+        setDate(new Date(applicationDeadlineTime).toISOString().split("T")[0]);
+        setEditionIndex(id);
+        setOpen(true);
+    }
 
 
     return (
@@ -54,17 +60,17 @@ const ConferenceEditionsView = () => {
                 <div className={"w-2/3 items-center gap-5 flex flex-col"}>
                     <div className="flex w-full">
                         <div className="text-3xl font-bold w-full">Editions:</div>
-                        <Button variant={"secondary_grey"} onClick={() => addConferenceEdtion()}>
+                        <Button variant={"secondary_grey" as any} onClick={() => addConferenceEdition()}>
                             Add conference edition
                         </Button>
                     </div>
                     {editions.map(({id, applicationDeadlineTime}, index) =>
-                            <ConferenceEdition key={index} index={index+1} id={id} applicationDeadlineTime={applicationDeadlineTime}/>
+                            <ConferenceEdition key={index} index={index+1} id={id} applicationDeadlineTime={applicationDeadlineTime}  openModal={() => updateConferenceEdition(applicationDeadlineTime, index+1)}/>
                     )
                     }
                 </div>
             </div>
-            <EditionModal open={open} setOpen={setOpen} date={date} setDate={setDate}/>
+            <EditionModal open={open} setOpen={setOpen}  index={editionIndex} setIndex={setEditionIndex} date={date} setDate={setDate}/>
         </div>
     );
 };

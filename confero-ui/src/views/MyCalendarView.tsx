@@ -77,7 +77,7 @@ const MyCalendarView = () => {
                     ))}
                     <div className="w-full text-sm text-gray-600 flex justify-start flex-col mt-5">
                         Export all of the sessions to the Google Calendar:
-                        <Button onClick={() => generateICSFile(mock)} variant={"secondary_grey" as any} className={"w-1/4 mt-2"}>
+                        <Button onClick={() => generateICSFile(mock)} variant={"secondary_grey" as any} className={"w-24 mt-2"}>
                             Export all
                         </Button>
                     </div>

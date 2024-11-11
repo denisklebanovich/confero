@@ -1,48 +1,85 @@
-import {CalendarIcon, Upload, X} from "lucide-react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { CalendarIcon, Upload, X } from "lucide-react";
+import {useEffect, useState} from "react";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import {Card} from "@/components/ui/card.tsx";
+import {useToast} from "@/hooks/use-toast.ts";
 
-export default function EditionModal({open, setOpen, date, setDate}) {
-    const [dragActive, setDragActive] = useState(false)
 
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault()
-        setDragActive(true)
-    }
+export default function EditionModal({ open, setOpen, date, setDate, index = -1, setIndex }) {
+    const [dragActive, setDragActive] = useState(false);
+    const [file, setFile] = useState(null);
 
-    const handleDragLeave = (e: React.DragEvent) => {
-        e.preventDefault()
-        setDragActive(false)
-    }
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setDragActive(true);
+    };
 
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault()
-        setDragActive(false)
-        // Handle file drop here
-    }
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setDragActive(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setDragActive(false);
+        const droppedFile = e.dataTransfer.files[0];
+        handleFileSelection(droppedFile);
+    };
+
+    const handleFileSelection = (selectedFile) => {
+        setFile(selectedFile);
+    };
+
+    const handleFileInputChange = (e) => {
+        const selectedFile = e.target.files[0];
+        handleFileSelection(selectedFile);
+    };
 
     const handleSave = () => {
-        setOpen(false)
-    }
+        setOpen(false);
+        showNotification(false);
+        // showNotification(true);
+    };
+
+    const { toast } = useToast();
+
+    const showNotification = (isError) => {
+        const variant = isError ? "error" : "success";
+
+        const title = isError ? "Error occurred" : "Success!";
+
+        toast({
+            variant: variant as any,
+            title: title,
+        });
+    };
+
+    useEffect(() => {
+        if(!open){
+            setFile(null);
+            setDate("");
+            setIndex(-1);
+        }
+    }, [open]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold">Edition #15</DialogTitle>
+                    <DialogTitle className="text-xl font-bold">{index === -1 ? "New Edition" : `Edition #${index}`}</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-6 py-4 w-full">
                     <div className="grid gap-2 w-full">
-                        <Label htmlFor="deadline">Applications&apos; dealine</Label>
+                        <Label htmlFor="deadline">Applications&apos; deadline</Label>
                         <div className="relative w-full flex items-center justify-center">
                             <Input
                                 id="deadline"
@@ -59,7 +96,7 @@ export default function EditionModal({open, setOpen, date, setDate}) {
                         <div
                             className={cn(
                                 "border-2 border-dashed rounded-lg p-8 text-center",
-                                dragActive ? "border-primary" : "border-muted",
+                                dragActive ? "border-primary" : "border-gray-300"
                             )}
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
@@ -74,7 +111,7 @@ export default function EditionModal({open, setOpen, date, setDate}) {
                                 <Button
                                     variant="secondary"
                                     size="sm"
-                                    onClick={() => document.getElementById('file-upload')?.click()}
+                                    onClick={() => document.getElementById("file-upload")?.click()}
                                 >
                                     Browse for .csv file
                                 </Button>
@@ -83,15 +120,22 @@ export default function EditionModal({open, setOpen, date, setDate}) {
                                     type="file"
                                     className="hidden"
                                     accept=".csv"
+                                    onChange={handleFileInputChange}
                                 />
                             </div>
                         </div>
+                        {file && (
+                            <Card className="bg-white/50 mt-2  p-3 shadow-sm">
+                                <h1 className="text-l font-medium ">{file.name}</h1>
+                            </Card>
+                        )}
                     </div>
-                    <Button className="w-full" size="lg" onClick={() => handleSave()}>
+                    <Button className="w-full" size="lg" onClick={handleSave}>
                         Save
                     </Button>
+
                 </div>
             </DialogContent>
         </Dialog>
-    )
+    );
 }

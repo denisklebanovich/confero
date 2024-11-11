@@ -21,7 +21,7 @@ const Navbar = () => {
         >
           Confero
         </a>
-        {location.pathname === "/" || location.pathname === "/applications" ? (
+        {location.pathname as any === "/" || location.pathname as any === "/applications" ? (
           <NavigationMenu>
             <NavigationMenuList className="flex gap-4">
               <NavigationMenuItem>
