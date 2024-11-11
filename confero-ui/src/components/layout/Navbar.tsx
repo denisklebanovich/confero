@@ -61,12 +61,25 @@ const Navbar = () => {
                 </Link>
 
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link
+                    to="/conference-editions"
+                    className={`px-4 py-2 rounded-md ${
+                        location.pathname === "/organizers"
+                            ? "bg-gray-100 text-black"
+                            : "text-black"
+                    } transition-colors`}
+                >
+                  Conference Editions
+                </Link>
+
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         ) : null}
 
         {authorized ? (
-          <Button onClick={signOut}>Logout</Button>
+          <Button onClick={signOut} variant={"secondary_grey"}>Logout</Button>
         ) : (
           <Button>
             <Link to="/login">Login</Link>

@@ -14,6 +14,7 @@ import ProposalAdminView from "./views/ProposalAdminView";
 import MyCalendarView from "@/views/MyCalendarView.tsx";
 import MySessionsView from "@/views/MySessionsView.tsx";
 import OrganisersView from "@/views/OrganisersView.tsx";
+import ConferenceEditionsView from "@/views/ConferenceEditionsView.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -73,6 +74,11 @@ export const router = createBrowserRouter([
             {
                 path: 'organizers',
                 element: <OrganisersView/>
+            }
+            ,
+            {
+                path: 'conference-editions',
+                element: <ConferenceEditionsView/>
             }
         ]
     },
