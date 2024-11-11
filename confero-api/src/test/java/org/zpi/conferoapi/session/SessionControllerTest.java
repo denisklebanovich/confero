@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.model.*;
 import org.springframework.http.HttpStatus;
 import org.zpi.conferoapi.IntegrationTestBase;
+import org.zpi.conferoapi.exception.ServiceException;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -109,7 +110,6 @@ class SessionControllerTest extends IntegrationTestBase {
                 .log().ifError()
                 .statusCode(HttpStatus.OK.value());
     }
-
 
 
     @Test
@@ -283,7 +283,6 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-
         var agenda_requester = givenUser(
                 "0000-0002-5678-1235",
                 "access-token1",
@@ -452,7 +451,6 @@ class SessionControllerTest extends IntegrationTestBase {
                 .statusCode(HttpStatus.OK.value());
 
 
-
         var response_2 = RestAssured
                 .given()
                 .contentType("application/json")
@@ -584,7 +582,7 @@ class SessionControllerTest extends IntegrationTestBase {
 
         assertEquals(session.getId(), session_response_1.getId(), "Session ID mismatch");
         assertEquals(session.getTitle(), session_response_1.getTitle(), "Session title mismatch");
-        assertEquals(true , session_response_1.getIsMine(), "Is mine mismatch");
+        assertEquals(true, session_response_1.getIsMine(), "Is mine mismatch");
         assertEquals(session.getDescription(), session_response_1.getDescription(), "Description mismatch");
 
 
@@ -603,8 +601,203 @@ class SessionControllerTest extends IntegrationTestBase {
 
         assertEquals(session.getId(), session_response_2.getId(), "Session ID mismatch");
         assertEquals(session.getTitle(), session_response_2.getTitle(), "Session title mismatch");
-        assertEquals(false , session_response_2.getIsMine(), "Is mine mismatch");
+        assertEquals(false, session_response_2.getIsMine(), "Is mine mismatch");
         assertEquals(session.getDescription(), session_response_2.getDescription(), "Description mismatch");
+    }
+
+    @Test
+    void updateSession() {
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS)
+        );
+
+        givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+
+        givenUser(
+                "0000-0002-5678-1235",
+                "access-token1",
+                "http://example.com/avatar.png",
+                false,
+                List.of("artsi@gmail.com")
+        );
+
+        givenUser(
+                "0000-0002-5678-1236",
+                "access-token2",
+                "http://example.com/avatar.png",
+                false,
+                List.of("foobar@gmail.com")
+        );
+
+        var response_1 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "foobar@gmail.com")
+                .body(new UpdateSessionRequest()
+                        .presentations(List.of(
+                                new UpdatePresentationRequest()
+                                        .id(presentation.getId())
+                                        .title("Updated Title")
+                        ))
+                )
+                .put("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .extract()
+                .response()
+                .as(ErrorResponse.class);
+
+        assertEquals(response_1.getReason(), ErrorReason.ONLY_PARTICIPANTS_CAN_UPDATE_SESSION);
+
+
+        var presentationStart = Instant.now().plus(1, ChronoUnit.HOURS);
+        var presentationEnd = Instant.now().plus(2, ChronoUnit.HOURS);
+
+        var response_2 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new UpdateSessionRequest()
+                        .presentations(List.of(
+                                new UpdatePresentationRequest()
+                                        .id(presentation.getId())
+                                        .title("Updated Title")
+                                        .description("Updated Description")
+                                        .startTime(presentationStart)
+                                        .endTime(presentationEnd)
+                        ))
+                )
+                .put("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionResponse.class);
+        assertEquals("Updated Title", response_2.getPresentations().get(0).getTitle(), "Presentation title mismatch");
+        assertEquals("Updated Description", response_2.getPresentations().get(0).getDescription(), "Presentation description mismatch");
+        assertEquals(presentationStart, response_2.getPresentations().get(0).getStartTime(), "Presentation start time mismatch");
+        assertEquals(presentationEnd, response_2.getPresentations().get(0).getEndTime(), "Presentation end time mismatch");
+        assertEquals(true, response_2.getIsMine(), "Is mine mismatch");
+
+
+        var response_3 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new UpdateSessionRequest()
+                        .presentations(List.of(
+                                new UpdatePresentationRequest()
+                                        .id(666L)
+                                        .title("Updated Title")
+                        ))
+                )
+                .put("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .extract()
+                .response()
+                .as(ErrorResponse.class);
+        assertEquals(response_3.getReason(), ErrorReason.PRESENTATION_NOT_FOUND);
+
+
+
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new UpdateSessionRequest()
+                        .presentations(List.of(
+                                new UpdatePresentationRequest()
+                                        .id(presentation.getId())
+                                        .startTime(presentationStart)
+                        ))
+                )
+                .put("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .extract()
+                .response()
+                .as(ErrorResponse.class);
+
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new UpdateSessionRequest()
+                        .presentations(List.of(
+                                new UpdatePresentationRequest()
+                                        .id(presentation.getId())
+                                        .endTime(presentationEnd)
+                        ))
+                )
+                .put("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .extract()
+                .response()
+                .as(ErrorResponse.class);
+
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new UpdateSessionRequest()
+                        .presentations(List.of(
+                                new UpdatePresentationRequest()
+                                        .id(presentation.getId())
+                                        .endTime(presentationStart)
+                                        .startTime(presentationEnd)
+                        ))
+                )
+                .put("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .extract()
+                .response()
+                .as(ErrorResponse.class);
+
     }
 
 

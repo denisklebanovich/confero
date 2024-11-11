@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.presentation.Presentation;
+import org.zpi.conferoapi.presentation.PresentationRepository;
 import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
@@ -19,8 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.openapitools.model.ErrorReason.SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION;
-import static org.openapitools.model.ErrorReason.SESSION_NOT_FOUND;
+import static org.openapitools.model.ErrorReason.*;
 
 @Slf4j
 @Service
@@ -33,6 +33,7 @@ public class SessionService {
     SessionMapper sessionMapper;
     SecurityUtils securityUtils;
     private final UserRepository userRepository;
+    private final PresentationRepository presentationRepository;
 
     public List<SessionPreviewResponse> getSessions() {
         return getSessionsWithConfiguredTimeTable()
@@ -122,6 +123,43 @@ public class SessionService {
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
         var user = securityUtils.getCurrentUser();
         return sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()));
+    }
+
+
+    public SessionResponse updateSession(Long sessionId, UpdateSessionRequest request) {
+        var user = securityUtils.getCurrentUser();
+        var isUserParticipant = sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList());
+
+        if(!isUserParticipant) {
+            throw new ServiceException(ONLY_PARTICIPANTS_CAN_UPDATE_SESSION);
+        }
+
+        var session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
+
+
+        request.getPresentations().forEach(presentation -> {
+            var presentationToUpdate = session.getPresentations().stream()
+                    .filter(p -> p.getId().equals(presentation.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new ServiceException(PRESENTATION_NOT_FOUND));
+
+            if(Objects.isNull(presentation.getStartTime()) ^ Objects.isNull(presentation.getEndTime())) {
+                throw new ServiceException(BOTH_START_AND_END_TIME_MUST_BE_PROVIDED_FOR_PRESENTATION_UPDATE);
+            }
+
+            if(Objects.nonNull(presentation.getStartTime()) && Objects.nonNull(presentation.getEndTime()) && presentation.getStartTime().isAfter(presentation.getEndTime())) {
+                throw new ServiceException(START_TIME_MUST_BE_BEFORE_END_TIME);
+            }
+
+            Optional.ofNullable(presentation.getTitle()).ifPresent(presentationToUpdate::setTitle);
+            Optional.ofNullable(presentation.getDescription()).ifPresent(presentationToUpdate::setDescription);
+            Optional.ofNullable(presentation.getStartTime()).ifPresent(presentationToUpdate::setStartTime);
+            Optional.ofNullable(presentation.getEndTime()).ifPresent(presentationToUpdate::setEndTime);
+            presentationRepository.save(presentationToUpdate);
+        });
+
+        return sessionMapper.toDto(session, true);
     }
 
     private boolean isFromActiveConference(Session session) {

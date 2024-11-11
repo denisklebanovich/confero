@@ -63,4 +63,13 @@ public class SessionController implements SessionApi {
         log.info("Responding with session: {}", session);
         return ResponseEntity.ok(session);
     }
+
+
+    @Override
+    public ResponseEntity<SessionResponse> updateSession(Long sessionId, UpdateSessionRequest updateSessionRequest) {
+        log.info("User {} requested to update session with id {} and request {}", securityUtils.getCurrentUser(), sessionId, updateSessionRequest);
+        var session = sessionService.updateSession(sessionId, updateSessionRequest);
+        log.info("Responding with updated session: {}", session);
+        return ResponseEntity.ok(session);
+    }
 }
