@@ -2,10 +2,7 @@ package org.zpi.conferoapi.session;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
-import org.openapitools.model.AddSessionToAgendaRequest;
-import org.openapitools.model.RemoveSessionFromAgendaRequest;
-import org.openapitools.model.SessionPreviewResponse;
-import org.openapitools.model.SessionType;
+import org.openapitools.model.*;
 import org.springframework.http.HttpStatus;
 import org.zpi.conferoapi.IntegrationTestBase;
 
@@ -514,6 +511,100 @@ class SessionControllerTest extends IntegrationTestBase {
         assertNotNull(allSessions);
         assertEquals(2, allSessions.length, "Expected two sessions in the response");
         assertThat(allSessions).extracting(SessionPreviewResponse::getIsInCalendar).containsExactlyInAnyOrder(true, false);
+    }
+
+
+    @Test
+    void findSession() {
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS)
+        );
+
+        givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+        givenUser(
+                "0000-0002-5678-1235",
+                "access-token1",
+                "http://example.com/avatar.png",
+                false,
+                List.of("artsi@gmail.com")
+        );
+
+        givenUser(
+                "0000-0002-5678-1236",
+                "access-token2",
+                "http://example.com/avatar.png",
+                false,
+                List.of("foobar@gmail.com")
+        );
+
+        var session_response_1 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionResponse.class);
+
+        assertEquals(session.getId(), session_response_1.getId(), "Session ID mismatch");
+        assertEquals(session.getTitle(), session_response_1.getTitle(), "Session title mismatch");
+        assertEquals(true , session_response_1.getIsMine(), "Is mine mismatch");
+        assertEquals(session.getDescription(), session_response_1.getDescription(), "Description mismatch");
+
+
+        var session_response_2 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "foobar@gmail.com")
+                .get("/api/session/" + session.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionResponse.class);
+
+
+        assertEquals(session.getId(), session_response_2.getId(), "Session ID mismatch");
+        assertEquals(session.getTitle(), session_response_2.getTitle(), "Session title mismatch");
+        assertEquals(false , session_response_2.getIsMine(), "Is mine mismatch");
+        assertEquals(session.getDescription(), session_response_2.getDescription(), "Description mismatch");
     }
 
 

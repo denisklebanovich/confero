@@ -117,6 +117,12 @@ public class SessionService {
         }
     }
 
+    public SessionResponse getSession(Long sessionId) {
+        var session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
+        var user = securityUtils.getCurrentUser();
+        return sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()));
+    }
 
     private boolean isFromActiveConference(Session session) {
         return conferenceEditionRepository.findActiveEditionConference()
