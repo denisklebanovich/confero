@@ -46,6 +46,7 @@ class ApplicationController implements ApplicationApi {
                         .title(session.getTitle())
                         .type(session.getType())
                         .status(session.getStatus())
+                        .createdAt(session.getCreatedAt())
                         .presenters(session.getPresentations().stream().flatMap(presentation -> presentation.getPresenters().stream())
                                 .map(presenter -> new PresenterResponse()
                                         .id(presenter.getId())

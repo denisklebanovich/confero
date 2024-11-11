@@ -77,6 +77,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
         // Verify the response fields
         assertNotNull(createdApplication.getId());
+        assertNotNull(createdApplication.getCreatedAt());
         assertEquals(createApplicationRequest.getTitle(), createdApplication.getTitle());
         assertEquals(createApplicationRequest.getType(), createdApplication.getType());
         assertEquals("PENDING", createdApplication.getStatus().name()); // assuming default status is PENDING when not a draft

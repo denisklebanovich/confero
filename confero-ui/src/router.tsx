@@ -11,6 +11,12 @@ import {AuthProvider} from "@/auth/AuthProvider.tsx";
 import CommentView from "@/views/CommentView";
 import ProposalEditView from "./views/ProposalEditView";
 import ProposalAdminView from "./views/ProposalAdminView";
+import MyCalendarView from "@/views/MyCalendarView.tsx";
+import MySessionsView from "@/views/MySessionsView.tsx";
+import OrganisersView from "@/views/OrganisersView.tsx";
+import ConferenceEditionsView from "@/views/ConferenceEditionsView.tsx";
+import {Toaster} from "@/components/ui/toaster.tsx";
+import React from "react";
 
 export const router = createBrowserRouter([
     {
@@ -18,6 +24,7 @@ export const router = createBrowserRouter([
         element: (
             <>
                 <AuthProvider>
+                    <Toaster />
                     <Layout/>
                 </AuthProvider>
             </>
@@ -58,6 +65,23 @@ export const router = createBrowserRouter([
             {
                 path: 'comment',
                 element: <CommentView/>
+            },
+            {
+                path: 'my-calendar',
+                element: <MyCalendarView/>
+            },
+            {
+                path: 'my-sessions',
+                element: <MySessionsView/>
+            },
+            {
+                path: 'organizers',
+                element: <OrganisersView/>
+            }
+            ,
+            {
+                path: 'conference-editions',
+                element: <ConferenceEditionsView/>
             }
         ]
     },

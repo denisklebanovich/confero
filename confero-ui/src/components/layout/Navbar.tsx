@@ -21,7 +21,7 @@ const Navbar = () => {
         >
           Confero
         </a>
-        {location.pathname === "/" || location.pathname === "/applications" ? (
+        {location.pathname as any === "/" || location.pathname as any === "/applications" ? (
           <NavigationMenu>
             <NavigationMenuList className="flex gap-4">
               <NavigationMenuItem>
@@ -48,12 +48,38 @@ const Navbar = () => {
                   Applications
                 </Link>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link
+                    to="/organizers"
+                    className={`px-4 py-2 rounded-md ${
+                        location.pathname === "/organizers"
+                            ? "bg-gray-100 text-black"
+                            : "text-black"
+                    } transition-colors`}
+                >
+                  Organizers
+                </Link>
+
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link
+                    to="/conference-editions"
+                    className={`px-4 py-2 rounded-md ${
+                        location.pathname === "/organizers"
+                            ? "bg-gray-100 text-black"
+                            : "text-black"
+                    } transition-colors`}
+                >
+                  Conference Editions
+                </Link>
+
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         ) : null}
 
         {authorized ? (
-          <Button onClick={signOut}>Logout</Button>
+          <Button onClick={signOut} variant={"secondary_grey"}>Logout</Button>
         ) : (
           <Button>
             <Link to="/login">Login</Link>

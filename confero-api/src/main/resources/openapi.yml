@@ -566,10 +566,15 @@ paths:
       tags:
         - Session
         - User
-      summary: Get session events
+      summary: Get events from all sessions
       operationId: getSessionEvents
       parameters:
-        - $ref: '#/components/parameters/SessionId'
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 5
+
       responses:
         '200':
           description: OK
@@ -719,37 +724,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /session/{sessionId}/presentation/{presentationId}:
     put:
       tags:
         - Session
         - User
-        - Presentation
-      summary: Update presentation
-      operationId: updatePresentation
-      description: |-
-        Update presentation. It will be possible only for orginizers of the session.
+      summary: Update a session
+      operationId: updateSession
       parameters:
         - $ref: '#/components/parameters/SessionId'
-        - $ref: '#/components/parameters/PresentationId'
-
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateSessionPresentationRequest'
-
+              $ref: '#/components/schemas/UpdateSessionRequest'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionPreviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-                
+      
 
   /session/{sessionId}/presentation/{presentationId}/attachment:
     post:
@@ -818,18 +826,10 @@ paths:
         - Organizer
       summary: Find organizers
       description: |-
-        Get all organizers by first name, last name or orcid. It will return organizers from all conference editions.
+        Get all organizers by search query(first name, last name or orcid). It will return organizers from all conference editions.
       operationId: findOrganizers
       parameters:
-        - name: name
-          in: query
-          schema:
-            type: string
-        - name: surname
-          in: query
-          schema:
-            type: string
-        - name: orcid
+        - name: searchQuery
           in: query
           schema:
             type: string
@@ -1176,9 +1176,23 @@ components:
         endTime:
           type: string
           format: date-time
-    UpdateSessionPresentationRequest:
+
+    UpdateSessionRequest:
       type: object
       properties:
+        presentations:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdatePresentationRequest'
+
+    UpdatePresentationRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: number
+          format: int64
         title:
           type: string
         description:
@@ -1204,7 +1218,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PresenterResponse'
-        lastUpdated:
+        createdAt:
           type: string
           format: date-time
         status:
@@ -1230,7 +1244,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicationPresentationResponse'
-        lastUpdated:
+        createdAt:
           type: string
           format: date-time
         status:
@@ -1273,6 +1287,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PresenterResponse'
+        isInCalendar:
+          type: boolean
     SessionResponse:
       type: object
       properties:
@@ -1280,6 +1296,8 @@ components:
           type: string
         title:
           type: string
+        isMine:
+          type: boolean
         description:
           type: string
         presentations:
