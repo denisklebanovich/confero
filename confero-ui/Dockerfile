@@ -16,7 +16,7 @@ RUN npm install
 COPY confero-ui .
 
 # Build the app
-RUN npm run build
+RUN npm run build:prod
 
 # Use an nginx image to serve the frontend
 FROM nginx:alpine
