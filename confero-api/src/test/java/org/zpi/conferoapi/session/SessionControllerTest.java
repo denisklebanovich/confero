@@ -77,6 +77,7 @@ class SessionControllerTest extends IntegrationTestBase {
         var sessionResponse = response[0];
 
         assertEquals(session.getId(), sessionResponse.getId(), "Session ID mismatch");
+        assertEquals(false, sessionResponse.getIsInCalendar(), "Is in calendar mismatch");
         assertEquals(session.getTitle(), sessionResponse.getTitle(), "Session title mismatch");
         assertEquals(session.getTags(), sessionResponse.getTags(), "Session tags mismatch");
         assertNotNull(sessionResponse.getStartTime(), "Start time missing");

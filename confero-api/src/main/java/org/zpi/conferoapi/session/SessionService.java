@@ -1,5 +1,6 @@
 package org.zpi.conferoapi.session;
 
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.security.SecurityUtils;
+import org.zpi.conferoapi.user.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,7 +35,7 @@ public class SessionService {
                         .fromActiveConferenceEdition(isFromActiveConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
-                        // TODO isInCalendar
+                        .isInCalendar(Try.of(() -> userHasSessionInAgenda(securityUtils.getCurrentUser(), session)).getOrElse(false))
                 )
                 .peek(session -> {
                     log.info("Returning session: {}", session);
@@ -56,7 +58,7 @@ public class SessionService {
                         .fromActiveConferenceEdition(isFromActiveConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
-                        // TODO isInCalendar
+                        .isInCalendar(userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
                 )
                 .peek(session -> {
                     log.info("Returning managable session: {}", session);
@@ -101,5 +103,10 @@ public class SessionService {
                 .map(Presentation::endTime)
                 .map(Optional::get)
                 .max(Instant::compareTo);
+    }
+
+
+    private boolean userHasSessionInAgenda(User user, Session session) {
+        return user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
     }
 }
