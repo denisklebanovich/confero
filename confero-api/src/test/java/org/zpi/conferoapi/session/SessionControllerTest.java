@@ -3,6 +3,7 @@ package org.zpi.conferoapi.session;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.AddSessionToAgendaRequest;
+import org.openapitools.model.RemoveSessionFromAgendaRequest;
 import org.openapitools.model.SessionPreviewResponse;
 import org.openapitools.model.SessionType;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -317,7 +319,7 @@ class SessionControllerTest extends IntegrationTestBase {
 
 
     @Test
-    void addSessionToAgenda() {
+    void addRemoveSessionToFromAgenda() {
 
         var session_creator_user = givenUser(
                 "0000-0002-5678-1234",
@@ -342,8 +344,8 @@ class SessionControllerTest extends IntegrationTestBase {
                 "Test Presentation",
                 "Presentation Description",
                 session,
-                null,
-                null
+                Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS)
         );
 
         givenPresenter(
@@ -470,6 +472,48 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals(2, response_2.length, "Expected one session in the response");
 
 
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .body(new RemoveSessionFromAgendaRequest().sessionId(session_2.getId()))
+                .delete("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value());
+
+
+        var response_3 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionPreviewResponse[].class);
+
+        assertNotNull(response_3);
+        assertEquals(1, response_3.length, "Expected one session in the response");
+
+
+        var allSessions = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionPreviewResponse[].class);
+
+        assertNotNull(allSessions);
+        assertEquals(2, allSessions.length, "Expected two sessions in the response");
+        assertThat(allSessions).extracting(SessionPreviewResponse::getIsInCalendar).containsExactlyInAnyOrder(true, false);
     }
 
 

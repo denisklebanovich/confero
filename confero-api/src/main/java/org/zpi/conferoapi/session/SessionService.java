@@ -4,10 +4,7 @@ import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.openapitools.model.AddSessionToAgendaRequest;
-import org.openapitools.model.ApplicationStatus;
-import org.openapitools.model.ErrorReason;
-import org.openapitools.model.SessionPreviewResponse;
+import org.openapitools.model.*;
 import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
@@ -104,6 +101,22 @@ public class SessionService {
             userRepository.save(user);
         }
     }
+
+    public void removeSessionFromAgenda(RemoveSessionFromAgendaRequest request) {
+        var user = securityUtils.getCurrentUser();
+        var session = sessionRepository.findById(request.getSessionId())
+                .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
+
+        if (!isFromActiveConference(session)) {
+            throw new ServiceException(SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION);
+        }
+
+        if(userHasSessionInAgenda(user, session)) {
+            user.getAgenda().remove(session);
+            userRepository.save(user);
+        }
+    }
+
 
     private boolean isFromActiveConference(Session session) {
         return conferenceEditionRepository.findActiveEditionConference()
