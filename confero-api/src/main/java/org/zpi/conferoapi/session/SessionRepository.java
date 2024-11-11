@@ -26,7 +26,8 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
                 SELECT s FROM Session s
                 JOIN s.presentations p
                 JOIN p.presenters pr
-                WHERE pr.orcid = :orcid OR pr.email IN :emails
+                WHERE (:orcid IS NULL OR pr.orcid = :orcid)
+                  OR (:emails IS NULL OR pr.email IN :emails)
             """)
     List<Session> findUsersParticipations(@Param("orcid") String orcid, @Param("emails") List<String> emails);
 

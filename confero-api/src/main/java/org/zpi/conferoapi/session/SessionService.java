@@ -12,6 +12,7 @@ import org.zpi.conferoapi.security.SecurityUtils;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -42,6 +43,12 @@ public class SessionService {
 
     public List<SessionPreviewResponse> getManagableSessions() {
         var user = securityUtils.getCurrentUser();
+
+        log.info("Getting managable sessions for user: {}", user);
+        if(Objects.isNull(user.getOrcid()) && (Objects.isNull(user.getEmails()) || user.getEmails().isEmpty())) {
+            System.out.println("Returning empty list");
+            return List.of();
+        }
         var participations = sessionRepository.findUsersParticipations(user.getOrcid(), user.getEmailList());
 
         return participations.stream()
