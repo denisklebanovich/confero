@@ -11,6 +11,15 @@ services:
       - "5434:5432"
   confero-api:
     container_name: confero-api
+    environment:
+        DB_HOST: postgres
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}
+        MAIL_PASS: ${MAIL_PASS}
+        SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
+        S3_SECRET_KEY: ${S3_SECRET_KEY}
+        ORCID_CLIENT_SECRET: ${ORCID_CLIENT_SECRET}
+        SPRING_PROFILES_ACTIVE: dev
     build:
       context: ./confero-api
       dockerfile: Dockerfile
@@ -19,8 +28,6 @@ services:
       - postgres
     ports:
       - "8080:8080"
-    env_file:
-      - .env
   confero-ui:
     container_name: confero-ui
     build:
@@ -29,5 +36,3 @@ services:
     restart: always
     ports:
       - "80:80"
-    env_file:
-      - .env
