@@ -10,6 +10,7 @@ import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.presentation.PresentationRepository;
+import org.zpi.conferoapi.presentation.PresenterRepository;
 import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
@@ -34,6 +35,7 @@ public class SessionService {
     SecurityUtils securityUtils;
     private final UserRepository userRepository;
     private final PresentationRepository presentationRepository;
+    private final PresenterRepository presenterRepository;
 
     public List<SessionPreviewResponse> getSessions() {
         return getSessionsWithConfiguredTimeTable()
@@ -160,6 +162,25 @@ public class SessionService {
         });
 
         return sessionMapper.toDto(session, true);
+    }
+
+    public int addAllSessionsByOrganizerToAgenda(Long presenterId) {
+        var user = securityUtils.getCurrentUser();
+
+        var presenter = presenterRepository.findById(presenterId)
+                .orElseThrow(() -> new ServiceException(PRESENTER_NOT_FOUND));
+
+        var presenterParticipations = sessionRepository.findParticipationsByOrganizerId(presenter.getId());
+
+        var sessionsToAddToAgenda = presenterParticipations.stream()
+                .filter(this::isFromActiveConference)
+                .filter(session -> !userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
+                .toList();
+
+        user.getAgenda().addAll(sessionsToAddToAgenda);
+        userRepository.save(user);
+
+        return sessionsToAddToAgenda.size();
     }
 
     private boolean isFromActiveConference(Session session) {

@@ -42,4 +42,13 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
                   OR (:emails IS NULL OR pr.email IN :emails))
             """)
     boolean isUserParticipantForSession(@Param("sessionId") Long sessionId, @Param("orcid") String orcid, @Param("emails") List<String> emails);
+
+
+    @Query(value = """
+                SELECT s FROM Session s
+                JOIN s.presentations p
+                JOIN p.presenters pr
+                WHERE pr.id = :orginizerId
+            """)
+    List<Session> findParticipationsByOrganizerId(@Param("orginizerId")Long organizerId);
 }

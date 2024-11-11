@@ -585,11 +585,8 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  added:
-                    type: integer
-                    description: Number of sessions added to the agenda
+                type: integer
+                description: Number of sessions added to the agenda
         '404':
           description: Not found
           content:
@@ -959,6 +956,7 @@ components:
         - BOTH_START_AND_END_TIME_MUST_BE_PROVIDED_FOR_PRESENTATION_UPDATE
         - ONLY_PARTICIPANTS_CAN_UPDATE_SESSION
         - START_TIME_MUST_BE_BEFORE_END_TIME
+        - PRESENTER_NOT_FOUND
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]

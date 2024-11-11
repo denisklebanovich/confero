@@ -801,4 +801,152 @@ class SessionControllerTest extends IntegrationTestBase {
     }
 
 
+    @Test
+    void addSessionsToAgendaByOrginizer() {
+
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS)
+        );
+
+        var presenter = givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+
+        var session_2 = givenSession(
+                "Test Session 2",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+        var presentation_2_start = Instant.now().plusSeconds(3600);
+        var presentation_2_end = Instant.now().plusSeconds(7200);
+
+
+        var presentation_2 = givenPresentation(
+                "Test Presentation 2",
+                "Presentation Description",
+                session_2,
+                presentation_2_start,
+                presentation_2_end
+        );
+
+
+        var presenter_2 = givenPresenter(
+                "random@gmail.com",
+                "0000-0002-5678-1234",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation_2
+        );
+
+
+        var agenda_requester = givenUser(
+                "0000-0002-5678-1230",
+                "access-token123",
+                "http://example.com/avatar.png",
+                false,
+                List.of("foobar@gmail.com")
+        );
+
+        givenAgendaForUser(agenda_requester, List.of(session));
+
+
+        var response_1 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "foobar@gmail.com")
+                .post("/api/session/agenda/add-all-by-organizer/" + 999)
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .extract()
+                .response()
+                .as(ErrorResponse.class);
+
+        assertEquals(response_1.getReason(), ErrorReason.PRESENTER_NOT_FOUND);
+
+
+        var response_2 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "foobar@gmail.com")
+                .post("/api/session/agenda/add-all-by-organizer/" + presenter.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(Integer.class);
+
+        assertEquals(0, response_2, "Expected zero sessions to be added to the agenda");
+
+
+        var response_3 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "foobar@gmail.com")
+                .post("/api/session/agenda/add-all-by-organizer/" + presenter_2.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(Integer.class);
+
+        assertEquals(1, response_3, "Expected zero sessions to be added to the agenda");
+
+
+        var response_4 = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "foobar@gmail.com")
+                .post("/api/session/agenda/add-all-by-organizer/" + presenter_2.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(Integer.class);
+
+        assertEquals(0, response_4, "Expected zero sessions to be added to the agenda");
+
+    }
+
+
 }

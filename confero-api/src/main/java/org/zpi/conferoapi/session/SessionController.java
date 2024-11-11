@@ -72,4 +72,12 @@ public class SessionController implements SessionApi {
         log.info("Responding with updated session: {}", session);
         return ResponseEntity.ok(session);
     }
+
+    @Override
+    public ResponseEntity<Integer> addAllSessionsByOrganizerToAgenda(Long organizerId) {
+        log.info("User {} requested to add all sessions by organizer with id {} to agenda", securityUtils.getCurrentUser(), organizerId);
+        var added = sessionService.addAllSessionsByOrganizerToAgenda(organizerId);
+        log.info("Responding with number of sessions added: {}", added);
+        return ResponseEntity.ok(added);
+    }
 }
