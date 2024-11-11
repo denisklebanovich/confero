@@ -566,7 +566,7 @@ paths:
       tags:
         - Session
         - User
-      summary: Get session events
+      summary: Get events from all sessions
       operationId: getSessionEvents
       parameters:
         - name: pageSize
