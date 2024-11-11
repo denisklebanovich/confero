@@ -6,6 +6,7 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {useForm} from "react-hook-form";
 import {useEffect, useState} from "react";
+import FileUpload from "@/components/file-upload/FileUpload";
 
 const ApplicationView = () => {
     const navigate = useNavigate();
@@ -62,8 +63,9 @@ const ApplicationView = () => {
         <div>
             <div className={"w-full flex justify-around"}>
                 <div className={"w-1/4"}></div>
-                <div className={"w-2/3 justify-around flex flex-row"}>
+                <div className={"w-2/3 justify-around flex  gap-2 flex-row"}>
                     <div className='text-3xl font-bold w-full'>Applications:</div>
+                    <FileUpload/>
                     <Button>
                         <Link to='/proposal'>Add application</Link>
                     </Button>
