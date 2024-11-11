@@ -1218,7 +1218,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PresenterResponse'
-        lastUpdated:
+        createdAt:
           type: string
           format: date-time
         status:
@@ -1244,7 +1244,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicationPresentationResponse'
-        lastUpdated:
+        createdAt:
           type: string
           format: date-time
         status:

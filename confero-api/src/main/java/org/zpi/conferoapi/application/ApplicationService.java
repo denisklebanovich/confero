@@ -33,7 +33,6 @@ import static org.openapitools.model.ErrorReason.*;
 public class ApplicationService {
 
     ConferenceEditionRepository conferenceEditionRepository;
-    UserRepository userRepository;
     SessionRepository sessionRepository;
     PresentationRepository presentationRepository;
     OrcidService orcidService;
