@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS attachment
 (
     id         BIGSERIAL PRIMARY KEY,
     creator_id BIGINT       NOT NULL,
-    title      VARCHAR(255) NOT NULL,
+    name      VARCHAR(255) NOT NULL,
     url        VARCHAR(255) NOT NULL,
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_attachment_presenter FOREIGN KEY (creator_id) REFERENCES presenter (id) ON DELETE CASCADE

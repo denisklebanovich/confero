@@ -62,4 +62,11 @@ public class Presentation {
         return Optional.ofNullable(endTime);
     }
 
+    public List<Attachment> getAttachments() {
+        return presenters.stream()
+                .map(Presenter::getAttachments)
+                .flatMap(List::stream)
+                .toList();
+    }
+
 }

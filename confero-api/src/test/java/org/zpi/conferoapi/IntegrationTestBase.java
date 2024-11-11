@@ -218,6 +218,20 @@ public abstract class IntegrationTestBase {
         });
     }
 
+    protected Attachment givenAttachment(String url, String name, Presenter creator) {
+        return tx.runInNewTransaction(() -> {
+            Attachment attachment = Attachment.builder()
+                    .url(url)
+                    .name(name)
+                    .creator(creator)
+                    .build();
+            return attachmentRepository.save(attachment);
+        });
+    }
+
+    protected List<Attachment> sessionAttachments(Long id) {
+        return tx.runInNewTransaction(() -> sessionRepository.findById(id).map(Session::getAttachments).orElseThrow());
+    }
 
     protected List<Attachment> findAllAttachments() {
         return tx.runInNewTransaction(() -> attachmentRepository.findAll());

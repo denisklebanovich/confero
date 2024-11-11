@@ -544,7 +544,7 @@ class SessionControllerTest extends IntegrationTestBase {
                 Instant.now().plus(2, ChronoUnit.HOURS)
         );
 
-        givenPresenter(
+        var presenter = givenPresenter(
                 "artsi@gmail.com",
                 "orcid1",
                 "name1",
@@ -553,6 +553,12 @@ class SessionControllerTest extends IntegrationTestBase {
                 "Politechnika Wrocławska",
                 true,
                 presentation
+        );
+
+        givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
         );
 
         givenUser(
@@ -587,7 +593,7 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals(session.getTitle(), session_response_1.getTitle(), "Session title mismatch");
         assertEquals(true, session_response_1.getIsMine(), "Is mine mismatch");
         assertEquals(session.getDescription(), session_response_1.getDescription(), "Description mismatch");
-
+        assertEquals(sessionAttachments(session.getId()).size(), session_response_1.getPresentations().get(0).getAttachments().size(), "Attachments mismatch");
 
         var session_response_2 = RestAssured
                 .given()

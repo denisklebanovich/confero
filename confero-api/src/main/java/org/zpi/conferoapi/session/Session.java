@@ -10,6 +10,7 @@ import org.openapitools.model.ApplicationStatus;
 import org.openapitools.model.SessionType;
 import org.zpi.conferoapi.application.ApplicationComment;
 import org.zpi.conferoapi.conference.ConferenceEdition;
+import org.zpi.conferoapi.presentation.Attachment;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.user.User;
 
@@ -83,11 +84,17 @@ public class Session {
     @Builder.Default
     private List<Session> agenda = new ArrayList<>();
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Presentation> presentations = new ArrayList<>();
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<ApplicationComment> comments = new ArrayList<>();
+
+    public List<Attachment> getAttachments() {
+        return presentations.stream()
+                .flatMap(presentation -> presentation.getAttachments().stream())
+                .toList();
+    }
 }

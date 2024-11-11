@@ -126,7 +126,8 @@ public class SessionService {
         var session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
         var user = securityUtils.getCurrentUser();
-        return sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()));
+        return sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
+                .fromActiveConferenceEdition(isFromActiveConference(session));
     }
 
 
@@ -160,7 +161,8 @@ public class SessionService {
             presentationRepository.save(presentationToUpdate);
         });
 
-        return sessionMapper.toDto(session, true);
+        return sessionMapper.toDto(session, true)
+                .fromActiveConferenceEdition(isFromActiveConference(session));
     }
 
     public int addAllSessionsByOrganizerToAgenda(Long presenterId) {
@@ -201,7 +203,7 @@ public class SessionService {
         String url = s3Service.uploadFile(key, file);
 
         var attachment = Attachment.builder()
-                .title(file.getOriginalFilename())
+                .name(file.getOriginalFilename())
                 .createdAt(Instant.now())
                 .creator(presenter)
                 .url(url)
@@ -211,7 +213,7 @@ public class SessionService {
 
         return new AttachmentResponse()
                 .id(attachment.getId())
-                .name(attachment.getTitle())
+                .name(attachment.getName())
                 .url(attachment.getUrl());
     }
 
