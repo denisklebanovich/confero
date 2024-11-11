@@ -14,6 +14,12 @@ import {
 } from "@/components/ui/dialog";
 import { useRef, useState, DragEvent, ChangeEvent } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useApi } from "@/api/useApi";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  ApplicationPreviewResponse,
+  CreateApplicationRequest,
+} from "@/generated";
 
 interface UploadedFile {
   name: string;
@@ -50,6 +56,21 @@ const FileUpload = () => {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { apiClient, useApiMutation } = useApi();
+  const queryClient = useQueryClient();
+
+  const createApplicationMutation = useApiMutation<
+    ApplicationPreviewResponse,
+    CreateApplicationRequest
+  >((request) => apiClient.application.createApplication(request), {
+    onSuccess: (newApplication) => {
+      queryClient.setQueryData<ApplicationPreviewResponse[]>(
+        ["applications"],
+        (oldApplications) => [...(oldApplications || []), newApplication]
+      );
+    },
+  });
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
@@ -110,6 +131,17 @@ const FileUpload = () => {
   const handleUpload = () => {
     setOpen(false);
     setUploadedFile(null);
+
+    const applicationData: CreateApplicationRequest = {
+      title: uploadedFile.jsonData.title,
+      type: uploadedFile.jsonData.type,
+      tags: uploadedFile.jsonData.tags,
+      description: uploadedFile.jsonData.description,
+      presentations: uploadedFile.jsonData.presentations,
+      saveAsDraft: true
+    };
+
+    createApplicationMutation.mutate(applicationData);
   };
 
   const handleOpenChange = (openState: boolean) => {
@@ -120,10 +152,13 @@ const FileUpload = () => {
       if (inputRef.current) inputRef.current.value = "";
     }
     setOpen(openState);
-  }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(openState) => handleOpenChange(openState)}>
+    <Dialog
+      open={open}
+      onOpenChange={(openState) => handleOpenChange(openState)}
+    >
       <DialogTrigger asChild>
         <Button variant="outline">Upload JSON File</Button>
       </DialogTrigger>
