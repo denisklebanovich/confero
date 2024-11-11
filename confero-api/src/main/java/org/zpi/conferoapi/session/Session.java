@@ -38,6 +38,7 @@ public class Session {
 
     @NotNull
     @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private SessionType type;
 
     @NotNull
@@ -63,6 +64,7 @@ public class Session {
 
     @NotNull
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
 
     @NotNull
