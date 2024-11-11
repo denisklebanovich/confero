@@ -96,10 +96,10 @@ CREATE TABLE IF NOT EXISTS presenter
 
 CREATE TABLE IF NOT EXISTS attachment
 (
-    id              BIGSERIAL PRIMARY KEY,
-    presentation_id BIGINT       NOT NULL,
-    title           VARCHAR(255) NOT NULL,
-    url             VARCHAR(255) NOT NULL,
-    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_attachment_presentation FOREIGN KEY (presentation_id) REFERENCES presentation (id) ON DELETE CASCADE
+    id         BIGSERIAL PRIMARY KEY,
+    creator_id BIGINT       NOT NULL,
+    title      VARCHAR(255) NOT NULL,
+    url        VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_attachment_presenter FOREIGN KEY (creator_id) REFERENCES presenter (id) ON DELETE CASCADE
 );

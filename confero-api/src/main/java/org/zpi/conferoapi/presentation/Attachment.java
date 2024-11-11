@@ -18,9 +18,9 @@ public class Attachment {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "presentation_id", nullable = false)
-    private Presentation presentation;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private Presenter creator;
 
     @NotNull
     @Column(name = "title", nullable = false)
