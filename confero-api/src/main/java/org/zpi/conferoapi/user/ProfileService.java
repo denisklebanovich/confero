@@ -33,8 +33,7 @@ public class ProfileService {
     public ProfileResponse updateAvatar(MultipartFile file) {
         User user = securityUtils.getCurrentUser();
         String key = "avatars/" + user.getId() + "/" + file.getOriginalFilename();
-        s3Service.uploadFile(key, file);
-        String url = s3Service.getFileUrl(key);
+        String url = s3Service.uploadFile(key, file);
         user.setAvatarUrl(url);
         return userMapper.toDto(userRepository.save(user));
     }

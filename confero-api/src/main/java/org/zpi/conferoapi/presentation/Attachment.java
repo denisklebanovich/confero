@@ -2,8 +2,7 @@ package org.zpi.conferoapi.presentation;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.zpi.conferoapi.session.Session;
 
 import java.time.Instant;
@@ -12,6 +11,9 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "attachment")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +34,6 @@ public class Attachment {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 }

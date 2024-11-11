@@ -957,6 +957,7 @@ components:
         - ONLY_PARTICIPANTS_CAN_UPDATE_SESSION
         - START_TIME_MUST_BE_BEFORE_END_TIME
         - PRESENTER_NOT_FOUND
+        - ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -1300,7 +1301,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         name:
           type: string
         url:
@@ -1309,10 +1311,7 @@ components:
       type: object
       required:
         - file
-        - name
       properties:
-        name:
-          type: string
         file:
           type: string
           format: binary

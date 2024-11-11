@@ -9,6 +9,7 @@ import org.openapitools.api.SessionApi;
 import org.openapitools.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.zpi.conferoapi.security.SecurityUtils;
 
 import java.util.List;
@@ -79,5 +80,14 @@ public class SessionController implements SessionApi {
         var added = sessionService.addAllSessionsByOrganizerToAgenda(organizerId);
         log.info("Responding with number of sessions added: {}", added);
         return ResponseEntity.ok(added);
+    }
+
+    @Override
+    public ResponseEntity<AttachmentResponse> addPresentationAttachment(Long sessionId, Long presentationId, MultipartFile file) {
+        log.info("User {} requested to add attachment to presentation with id {} in session with id {} and filename {}",
+                securityUtils.getCurrentUser(), presentationId, sessionId, file.getOriginalFilename());
+        var attachment = sessionService.addPresentationAttachment(sessionId, presentationId, file);
+        log.info("Responding with attachment: {}", attachment);
+        return ResponseEntity.ok(attachment);
     }
 }

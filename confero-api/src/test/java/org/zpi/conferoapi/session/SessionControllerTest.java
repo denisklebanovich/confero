@@ -4,9 +4,11 @@ import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockMultipartFile;
 import org.zpi.conferoapi.IntegrationTestBase;
 import org.zpi.conferoapi.exception.ServiceException;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 class SessionControllerTest extends IntegrationTestBase {
 
@@ -946,6 +949,108 @@ class SessionControllerTest extends IntegrationTestBase {
 
         assertEquals(0, response_4, "Expected zero sessions to be added to the agenda");
 
+    }
+
+
+    @Test
+    void add_session_attachment() throws IOException {
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS)
+        );
+
+        givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+
+        givenUser(
+                "0000-0002-5678-1230",
+                "access-token123",
+                "http://example.com/avatar.png",
+                false,
+                List.of("foobar@gmail.com")
+        );
+
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "file",
+                "test.pdf",
+                MULTIPART_FORM_DATA_VALUE,
+                "Mock File Content".getBytes()
+        );
+
+        var error_response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "foobar@gmail.com")
+                .contentType(MULTIPART_FORM_DATA_VALUE)
+                .multiPart("file", mockFile.getOriginalFilename(), mockFile.getInputStream(), mockFile.getContentType())
+                .post("api/session/" + session.getId() + "/presentation/" + presentation.getId() + "/attachment")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .extract()
+                .response()
+                .as(ErrorResponse.class);
+
+        assertEquals(error_response.getReason(), ErrorReason.ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION);
+
+
+        givenUser(
+                "0000-0002-5678-1232",
+                "access-token1234",
+                "http://example.com/avatar.png",
+                false,
+                List.of("artsi@gmail.com")
+        );
+
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .contentType(MULTIPART_FORM_DATA_VALUE)
+                .multiPart("file", mockFile.getOriginalFilename(), mockFile.getInputStream(), mockFile.getContentType())
+                .post("api/session/" + session.getId() + "/presentation/" + presentation.getId() + "/attachment")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(AttachmentResponse.class);
+
+        assertEquals("test.pdf", response.getName(), "Attachment name mismatch");
+        assertEquals("https://mock-s3-url.com/attachments/test.pdf", response.getUrl(), "Attachment URL mismatch");
+        assertNotNull(response.getId(), "Attachment ID missing");
     }
 
 

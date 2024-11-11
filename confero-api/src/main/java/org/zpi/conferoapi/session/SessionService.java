@@ -6,11 +6,11 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.model.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.configuration.S3Service;
 import org.zpi.conferoapi.exception.ServiceException;
-import org.zpi.conferoapi.presentation.Presentation;
-import org.zpi.conferoapi.presentation.PresentationRepository;
-import org.zpi.conferoapi.presentation.PresenterRepository;
+import org.zpi.conferoapi.presentation.*;
 import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
@@ -33,9 +33,11 @@ public class SessionService {
     ConferenceEditionRepository conferenceEditionRepository;
     SessionMapper sessionMapper;
     SecurityUtils securityUtils;
-    private final UserRepository userRepository;
-    private final PresentationRepository presentationRepository;
-    private final PresenterRepository presenterRepository;
+    UserRepository userRepository;
+    PresentationRepository presentationRepository;
+    PresenterRepository presenterRepository;
+    S3Service s3Service;
+    AttachmentRepository attachmentRepository;
 
     public List<SessionPreviewResponse> getSessions() {
         return getSessionsWithConfiguredTimeTable()
@@ -114,7 +116,7 @@ public class SessionService {
             throw new ServiceException(SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION);
         }
 
-        if(userHasSessionInAgenda(user, session)) {
+        if (userHasSessionInAgenda(user, session)) {
             user.getAgenda().remove(session);
             userRepository.save(user);
         }
@@ -132,7 +134,7 @@ public class SessionService {
         var user = securityUtils.getCurrentUser();
         var isUserParticipant = sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList());
 
-        if(!isUserParticipant) {
+        if (!isUserParticipant) {
             throw new ServiceException(ONLY_PARTICIPANTS_CAN_UPDATE_SESSION);
         }
 
@@ -146,11 +148,11 @@ public class SessionService {
                     .findFirst()
                     .orElseThrow(() -> new ServiceException(PRESENTATION_NOT_FOUND));
 
-            if(Objects.isNull(presentation.getStartTime()) ^ Objects.isNull(presentation.getEndTime())) {
+            if (Objects.isNull(presentation.getStartTime()) ^ Objects.isNull(presentation.getEndTime())) {
                 throw new ServiceException(BOTH_START_AND_END_TIME_MUST_BE_PROVIDED_FOR_PRESENTATION_UPDATE);
             }
 
-            if(Objects.nonNull(presentation.getStartTime()) && Objects.nonNull(presentation.getEndTime()) && presentation.getStartTime().isAfter(presentation.getEndTime())) {
+            if (Objects.nonNull(presentation.getStartTime()) && Objects.nonNull(presentation.getEndTime()) && presentation.getStartTime().isAfter(presentation.getEndTime())) {
                 throw new ServiceException(START_TIME_MUST_BE_BEFORE_END_TIME);
             }
 
@@ -181,6 +183,39 @@ public class SessionService {
         userRepository.save(user);
 
         return sessionsToAddToAgenda.size();
+    }
+
+
+    public AttachmentResponse addPresentationAttachment(Long sessionId, Long presentationId, MultipartFile file) {
+        var user = securityUtils.getCurrentUser();
+
+        var session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
+
+        var presentation = session.getPresentations().stream()
+                .filter(p -> p.getId().equals(presentationId))
+                .findFirst()
+                .orElseThrow(() -> new ServiceException(PRESENTATION_NOT_FOUND));
+
+        var presenter = findPresenterByUser(presentation, user)
+                .orElseThrow(() -> new ServiceException(ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION));
+
+        String key = "attachments/" + file.getOriginalFilename();
+        String url = s3Service.uploadFile(key, file);
+
+        var attachment = Attachment.builder()
+                .title(file.getOriginalFilename())
+                .createdAt(Instant.now())
+                .creator(presenter)
+                .url(url)
+                .build();
+
+        attachmentRepository.save(attachment);
+
+        return new AttachmentResponse()
+                .id(attachment.getId())
+                .name(attachment.getTitle())
+                .url(attachment.getUrl());
     }
 
     private boolean isFromActiveConference(Session session) {
@@ -225,5 +260,16 @@ public class SessionService {
 
     private boolean userHasSessionInAgenda(User user, Session session) {
         return user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
+    }
+
+
+    private Optional<Presenter> findPresenterByUser(Presentation presentation, User user) {
+        return presentation.getPresenters().stream()
+                .filter(presenter -> (
+                        user.getEmailList().contains(presenter.getEmail())
+                                ||
+                                user.getOrcid().equals(presenter.getOrcid())
+                ))
+                .findFirst();
     }
 }
