@@ -82,6 +82,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
         assertEquals(createApplicationRequest.getType(), createdApplication.getType());
         assertEquals("PENDING", createdApplication.getStatus().name()); // assuming default status is PENDING when not a draft
         assertEquals(1, createdApplication.getPresenters().size());
+        assertNotNull(createdApplication.getCreatedAt());
 
         var presenterResponse = createdApplication.getPresenters().get(0);
         assertTrue(presenterResponse.getIsSpeaker());
