@@ -22,9 +22,39 @@ interface UploadedFile {
 
 const verifyJsonStructure = (file: File): Promise<boolean> => {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(Math.random() > 0.5);
-    }, 1000);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string);
+
+        const isValid =
+          typeof jsonData.title === "string" &&
+          (jsonData.type === "SESSION" ||
+            jsonData.type === "WORKSHOP" ||
+            jsonData.type === "TUTORIAL") &&
+          Array.isArray(jsonData.tags) &&
+          jsonData.tags.every((tag) => typeof tag === "string") &&
+          typeof jsonData.description === "string" &&
+          Array.isArray(jsonData.presentations) &&
+          jsonData.presentations.every(
+            (presentation) =>
+              typeof presentation.title === "string" &&
+              typeof presentation.description === "string" &&
+              Array.isArray(presentation.presenters) &&
+              presentation.presenters.every(
+                (presenter) =>
+                  typeof presenter.orcid === "string" &&
+                  typeof presenter.email === "string" &&
+                  typeof presenter.isSpeaker === "boolean"
+              )
+          );
+        resolve(isValid);
+      } catch (error) {
+        resolve(false);
+      }
+    };
+    reader.onerror = () => resolve(false);
+    reader.readAsText(file);
   });
 };
 
@@ -92,6 +122,11 @@ const FileUpload = () => {
     setUploadedFile(null);
     setError(null);
     if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const handleUpload = () => {
+    setOpen(false);
+    setUploadedFile(null);
   };
 
   return (
@@ -165,7 +200,12 @@ const FileUpload = () => {
         )}
         {uploadedFile && uploadedFile.status === "success" && (
           <div className="flex justify-end mt-4 ">
-            <Button variant="default" size="sm" type="button">
+            <Button
+              onClick={handleUpload}
+              variant="default"
+              size="sm"
+              type="button"
+            >
               Upload
             </Button>
           </div>
