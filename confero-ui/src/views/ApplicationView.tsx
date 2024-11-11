@@ -65,7 +65,7 @@ const ApplicationView = () => {
                 <div className={"w-1/4"}></div>
                 <div className={"w-2/3 justify-around flex  gap-2 flex-row"}>
                     <div className='text-3xl font-bold w-full'>Applications:</div>
-                    <FileUpload/>
+                    <FileUpload />
                     <Button>
                         <Link to='/proposal'>Add application</Link>
                     </Button>
