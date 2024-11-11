@@ -569,7 +569,12 @@ paths:
       summary: Get session events
       operationId: getSessionEvents
       parameters:
-        - $ref: '#/components/parameters/SessionId'
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 5
+
       responses:
         '200':
           description: OK
@@ -821,18 +826,10 @@ paths:
         - Organizer
       summary: Find organizers
       description: |-
-        Get all organizers by first name, last name or orcid. It will return organizers from all conference editions.
+        Get all organizers by search query(first name, last name or orcid). It will return organizers from all conference editions.
       operationId: findOrganizers
       parameters:
-        - name: name
-          in: query
-          schema:
-            type: string
-        - name: surname
-          in: query
-          schema:
-            type: string
-        - name: orcid
+        - name: searchQuery
           in: query
           schema:
             type: string
