@@ -17,18 +17,22 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.email.UserEmailRepository;
+import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @Profile("prod")
 public class JwtAuthFilter extends OncePerRequestFilter {
+
     private final UserRepository userRepository;
     private final UserEmailRepository userEmailRepository;
+    private final SessionRepository sessionRepository;
 
     @Value("${supabase.jwt.secret}")
     private String jwtSecret;
@@ -63,11 +67,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 User user = userRepository.findByEmail(email)
                         .orElseGet(() -> {
-                            var newUser = userRepository.save(new User());
+                            var newUser = userRepository.save(new User(sessionRepository.findUsersParticipations(null, List.of(email))));
                             userEmailRepository.save(new UserEmail(email, true, newUser, null));
                             return newUser;
                         });
-
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         user.getId(), null, new ArrayList<>()
