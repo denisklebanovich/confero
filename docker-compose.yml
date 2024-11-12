@@ -1,9 +1,26 @@
 services:
-  postgres:
-    image: postgres:latest
+  confero-api:
+    container_name: confero-api
     environment:
-      POSTGRES_USER: "${DB_USER:-postgres}"
-      POSTGRES_PASSWORD: "${DB_PASS:-admin}"
-      POSTGRES_DB: confero
+        DB_HOST: ep-delicate-forest-a2lmfqry.eu-central-1.pg.koyeb.app
+        DB_USER: koyeb-adm
+        DB_PASSWORD: ${DB_PASSWORD}
+        MAIL_PASS: ${MAIL_PASS}
+        SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
+        S3_SECRET_KEY: ${S3_SECRET_KEY}
+        ORCID_CLIENT_SECRET: ${ORCID_CLIENT_SECRET}
+        SPRING_PROFILES_ACTIVE: dev
+    build:
+      context: ./confero-api
+      dockerfile: Dockerfile
+    restart: always
     ports:
-      - "5432:5432"
+      - "8080:8080"
+  confero-ui:
+    container_name: confero-ui
+    build:
+      context: ./
+      dockerfile: ./confero-ui/Dockerfile
+    restart: always
+    ports:
+      - "80:80"
