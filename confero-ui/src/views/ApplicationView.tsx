@@ -20,7 +20,11 @@ import {
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import FileUpload from "@/components/file-upload/FileUpload";
-import { ApplicationPreviewResponse, ApplicationStatus, SessionType } from "@/generated";
+import {
+  ApplicationPreviewResponse,
+  ApplicationStatus,
+  SessionType,
+} from "@/generated";
 
 const ApplicationView = () => {
   const navigate = useNavigate();
@@ -107,7 +111,7 @@ const ApplicationView = () => {
         },
       ],
       createdAt: "2024-02-20T09:00:00Z",
-      status: ApplicationStatus.PENDING,
+      status: ApplicationStatus.ACCEPTED,
       from_active_conference_edition: true,
     },
     {
@@ -170,6 +174,29 @@ const ApplicationView = () => {
   const yearValue = watch("year");
   const statusValue = watch("status");
   const orderValue = watch("order");
+
+  const filteredApplications = mockApplications
+    .filter((application) => {
+      if (yearValue !== "All") {
+        const applicationYear = new Date(application.createdAt).getFullYear();
+        if (applicationYear !== parseInt(yearValue)) {
+          return false;
+        }
+      }
+      if (statusValue !== "All" && application.status !== statusValue) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      if (orderValue === "Descending") {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
 
   useEffect(() => {
     console.log(yearValue, statusValue, orderValue);
@@ -237,10 +264,23 @@ const ApplicationView = () => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="All">All</SelectItem>
-                          <SelectItem value="Accepted">Accepted</SelectItem>
-                          <SelectItem value="Rejected">Rejected</SelectItem>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="Draft">Draft</SelectItem>
+                          <SelectItem value={ApplicationStatus.PENDING}>
+                            Pending
+                          </SelectItem>
+                          <SelectItem value={ApplicationStatus.DRAFT}>
+                            Draft
+                          </SelectItem>
+                          <SelectItem value={ApplicationStatus.REJECTED}>
+                            Rejected
+                          </SelectItem>
+                          <SelectItem value={ApplicationStatus.ACCEPTED}>
+                            Accepted
+                          </SelectItem>
+                          <SelectItem
+                            value={ApplicationStatus.CHANGE_REQUESTED}
+                          >
+                            Change Requested
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -281,7 +321,7 @@ const ApplicationView = () => {
             "grid grid-cols-2 mt-5 gap-y-4 gap-x-4 w-2/3 overflow-auto max-h-[55vh] px-2"
           }
         >
-          {mockApplications.map((application) => (
+          {filteredApplications.map((application) => (
             <ApplicationCard
               title={application.title}
               date={application.createdAt}

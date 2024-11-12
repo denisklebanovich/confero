@@ -1,7 +1,7 @@
 import { Calendar } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { PresenterRequest, PresenterResponse } from "@/generated";
+import { ApplicationStatus, PresenterResponse } from "@/generated";
 
 
 interface ApplicationCardProps {
@@ -15,10 +15,11 @@ interface ApplicationCardProps {
 export default function ApplicationCard({ title, organisers, onClick, date, status }: ApplicationCardProps) {
 
     const statusColors = {
-        Accepted: "bg-green-100 text-green-800 hover:bg-green-200",
-        Rejected: "bg-red-100 text-red-800 hover:bg-red-200",
-        Draft: "bg-blue-100 text-blue-800 hover:bg-blue-200",
-        Pending: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+        [ApplicationStatus.ACCEPTED]: "bg-green-100 text-green-800 hover:bg-green-200",
+        [ApplicationStatus.REJECTED]: "bg-red-100 text-red-800 hover:bg-red-200",
+        [ApplicationStatus.DRAFT]: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+        [ApplicationStatus.PENDING]: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+        [ApplicationStatus.CHANGE_REQUESTED]: "bg-orange-100 text-orange-800 hover:bg-orange-200",
     };
 
     return (
