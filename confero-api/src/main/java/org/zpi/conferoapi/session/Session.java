@@ -10,6 +10,7 @@ import org.openapitools.model.ApplicationStatus;
 import org.openapitools.model.SessionType;
 import org.zpi.conferoapi.application.ApplicationComment;
 import org.zpi.conferoapi.conference.ConferenceEdition;
+import org.zpi.conferoapi.presentation.Attachment;
 import org.zpi.conferoapi.presentation.Presentation;
 import org.zpi.conferoapi.user.User;
 
@@ -25,6 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
+@EqualsAndHashCode
 public class Session {
 
     @Id
@@ -49,7 +51,8 @@ public class Session {
 
     @Column(name = "tags")
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<String> tags;
+    @Builder.Default
+    private List<String> tags = new ArrayList<>();
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -71,12 +74,27 @@ public class Session {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @ManyToMany
+    @JoinTable(
+            name = "agenda",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "session_id")
+    )
+    @ToString.Exclude
+    @Builder.Default
+    private List<Session> agenda = new ArrayList<>();
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Presentation> presentations = new ArrayList<>();
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<ApplicationComment> comments = new ArrayList<>();
+
+    public List<Attachment> getAttachments() {
+        return presentations.stream()
+                .flatMap(presentation -> presentation.getAttachments().stream())
+                .toList();
+    }
 }

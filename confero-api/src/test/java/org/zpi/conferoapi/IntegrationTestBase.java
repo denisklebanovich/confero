@@ -4,25 +4,37 @@ package org.zpi.conferoapi;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.openapitools.model.ApplicationStatus;
+import org.openapitools.model.SessionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.configuration.S3Service;
 import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.email.UserEmailRepository;
-import org.zpi.conferoapi.presentation.PresentationRepository;
-import org.zpi.conferoapi.presentation.PresenterRepository;
+import org.zpi.conferoapi.presentation.*;
+import org.zpi.conferoapi.session.Session;
 import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
+
+import java.time.Instant;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @SpringBootTest(
@@ -48,6 +60,9 @@ public abstract class IntegrationTestBase {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine")
             .waitingFor(Wait.defaultWaitStrategy());
 
+    @MockBean
+    private S3Service s3Service;
+
     @Autowired
     protected UserRepository userRepository;
 
@@ -67,6 +82,9 @@ public abstract class IntegrationTestBase {
     protected UserEmailRepository userEmailRepository;
 
     @Autowired
+    protected AttachmentRepository attachmentRepository;
+
+    @Autowired
     protected TestTransactionalService tx;
 
     protected static final String ORCID = "0000-0002-5678-1234";
@@ -75,6 +93,8 @@ public abstract class IntegrationTestBase {
 
     protected static final String EMAIL = "example@gmail.com";
     protected static final String ADMIN_EMAIL = "admin@gmail.com";
+
+    private static final String S3_URL = "https://mock-s3-url.com/";
 
     @Autowired
     private EntityManager entityManager;
@@ -93,6 +113,9 @@ public abstract class IntegrationTestBase {
             entityManager.clear();
             return null;
         });
+
+        when(s3Service.uploadFile(any(String.class), any(MultipartFile.class)))
+                .thenAnswer(invocation -> S3_URL + invocation.getArgument(0));
     }
 
 
@@ -114,5 +137,103 @@ public abstract class IntegrationTestBase {
             userEmailRepository.save(new UserEmail(EMAIL, true, savedUser, null));
             return savedUser;
         });
+    }
+
+
+    protected User givenUser(String orcid, String accessToken, String avatarUrl, boolean isAdmin, List<String> emails) {
+        return tx.runInNewTransaction(() -> {
+            User user = User.builder()
+                    .orcid(orcid)
+                    .accessToken(accessToken)
+                    .avatarUrl(avatarUrl)
+                    .isAdmin(isAdmin)
+                    .build();
+            user.setEmails(emails.stream().map(email -> new UserEmail(email, true, user, null)).toList());
+            return userRepository.save(user);
+        });
+    }
+
+    protected ConferenceEdition givenConferenceEdition(Instant applicationDeadlineTime) {
+        return tx.runInNewTransaction(() -> {
+            ConferenceEdition conferenceEdition = ConferenceEdition.builder()
+                    .applicationDeadlineTime(applicationDeadlineTime)
+                    .createdAt(Instant.now())
+                    .build();
+            return conferenceEditionRepository.save(conferenceEdition);
+        });
+    }
+
+    protected Session givenSession(String title, SessionType type, User creator, ConferenceEdition edition, String description) {
+        return tx.runInNewTransaction(() -> {
+            Session session = Session.builder()
+                    .title(title)
+                    .type(type)
+                    .creator(creator)
+                    .edition(edition)
+                    .tags(List.of("Some", "default", "tags"))
+                    .description(description)
+                    .status(ApplicationStatus.ACCEPTED)
+                    .createdAt(Instant.now())
+                    .build();
+            return sessionRepository.save(session);
+        });
+    }
+
+
+    protected Presentation givenPresentation(String title, String description, Session session, Instant startTime, Instant endTime) {
+        return tx.runInNewTransaction(() -> {
+            Presentation presentation = Presentation.builder()
+                    .title(title)
+                    .description(description)
+                    .session(session)
+                    .startTime(startTime)
+                    .endTime(endTime)
+                    .build();
+            return presentationRepository.save(presentation);
+        });
+    }
+
+
+    protected Presenter givenPresenter(String email, String orcid, String name, String surname, String title, String organization, Boolean isSpeaker, Presentation presentation) {
+        return tx.runInNewTransaction(() -> {
+            Presenter presenter = Presenter.builder()
+                    .email(email)
+                    .orcid(orcid)
+                    .name(name)
+                    .surname(surname)
+                    .title(title)
+                    .organization(organization)
+                    .isSpeaker(isSpeaker)
+                    .presentation(presentation)
+                    .build();
+            return presenterRepository.save(presenter);
+        });
+    }
+
+    protected void givenAgendaForUser(User user, List<Session> sessions) {
+        tx.runInNewTransaction(() -> {
+            user.setAgenda(sessions);
+            userRepository.save(user);
+            return null;
+        });
+    }
+
+    protected Attachment givenAttachment(String url, String name, Presenter creator) {
+        return tx.runInNewTransaction(() -> {
+            Attachment attachment = Attachment.builder()
+                    .url(url)
+                    .name(name)
+                    .creator(creator)
+                    .build();
+            return attachmentRepository.save(attachment);
+        });
+    }
+
+    protected List<Attachment> sessionAttachments(Long id) {
+        return tx.runInNewTransaction(() -> sessionRepository.findById(id).map(Session::getAttachments).orElseThrow());
+    }
+
+    protected List<Attachment> findAllAttachments() {
+        return tx.runInNewTransaction(() -> attachmentRepository.findAll());
     }
 }

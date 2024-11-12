@@ -19,11 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import OrcidInput from "@/components/orcid/OrcidInput";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import {useEffect} from "react";
+import { useEffect } from "react";
+import PresentationForm from "@/components/presentations/PresentationForm";
+import { Plus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
   message:
@@ -32,17 +34,26 @@ const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
 
 const formSchema = z.object({
   title: z.string().min(2).max(50),
+  type: z.string().min(2).max(50),
   description: z.string().min(2).max(50),
-  organisers: z
+  tags: z.array(z.string()).optional(),
+  presentations: z
     .array(
       z.object({
-        orcid: orcidSchema,
-        name: z.string().optional(),
+        title: z.string().min(2).max(100),
+        description: z.string().min(2).max(500),
+        presenters: z
+          .array(
+            z.object({
+              orcid: orcidSchema,
+              email: z.string().email(),
+              isSpeaker: z.boolean(),
+            })
+          )
+          .min(1),
       })
     )
     .min(1),
-  type: z.string().min(2).max(50),
-  tags: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -52,66 +63,86 @@ interface ProposalFormProps {
   isDisabled?: boolean;
 }
 
-
 const ProposalForm = ({
   defaultValues,
   isDisabled = false,
 }: ProposalFormProps) => {
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    // resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       type: "SESSION",
-      organisers: [],
       description: "",
       tags: ["Ai", "Machine Learning", "Deep Learning"],
+      presentations: [],
       ...defaultValues,
     },
   });
 
   const navigate = useNavigate();
-    const { control, watch, setValue } = form;
+  const { control, watch, setValue, handleSubmit } = form;
 
-    const titleValue = watch("title");
-    const typeValue = watch("type");
-    const organisersValue = watch("organisers");
-    const descriptionValue = watch("description");
-    const tagsValue = watch("tags");
+  const titleValue = watch("title");
+  const typeValue = watch("type");
+  const descriptionValue = watch("description");
+  const tagsValue = watch("tags");
+  const presentationsValue = watch("presentations");
 
-    useEffect(() => {
-        console.log(titleValue, typeValue, organisersValue, descriptionValue, tagsValue)
-    }, [titleValue, typeValue, organisersValue, descriptionValue, tagsValue]);
+  useEffect(() => {
+    console.log(titleValue, typeValue, descriptionValue, tagsValue);
+  }, [titleValue, typeValue, descriptionValue, tagsValue, presentationsValue]);
 
-    function sendOnDraft(e) {
-        e.preventDefault();
-        console.log("Draft saved")
-    }
+  function sendOnDraft(e) {
+    e.preventDefault();
+    console.log("Draft saved");
+  }
 
-    function onSubmit(e) {
-        e.preventDefault();
-        console.log("Submit")
-    }
+  const onSubmit = (data: FormValues) => {
+    console.log("Form submitted with values:", data);
+  };
 
-    function onApprove(e) {
-        e.preventDefault();
-        console.log("Approved")
-    }
+  function onApprove(e) {
+    e.preventDefault();
+    console.log("Approved");
+  }
 
-    function onReject(e) {
-        e.preventDefault();
-        console.log("Rejected")
-    }
+  function onReject(e) {
+    e.preventDefault();
+    console.log("Rejected");
+  }
 
-    function updateTags(e){
-        e.preventDefault();
-        console.log("Tags updated")
-        setValue("tags", ["Computer Vision", "Artificial Intelligence", "Machine Learning"])
-    }
+  function updateTags(e) {
+    e.preventDefault();
+    console.log("Tags updated");
+    setValue("tags", [
+      "Computer Vision",
+      "Artificial Intelligence",
+      "Machine Learning",
+    ]);
+  }
 
+  const addPresentation = () => {
+    setValue("presentations", [
+      ...presentationsValue,
+      {
+        title: "",
+        description: "",
+        presenters: [{ orcid: "", email: "", isSpeaker: true }],
+      },
+    ]);
+  };
 
-    return (
+  const deletePresentation = (index: number) => {
+    const updatedPresentations = presentationsValue.filter(
+      (_, idx) => idx !== index
+    );
+    setValue("presentations", updatedPresentations);
+  };
+
+  return (
     <Form {...form}>
       <form
+        onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-2 w-1/2"
       >
         <FormField
@@ -159,24 +190,6 @@ const ProposalForm = ({
         />
         <FormField
           control={form.control}
-          name="organisers"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organisers</FormLabel>
-              <FormControl>
-                <OrcidInput
-                  value={field.value}
-                  onChange={field.onChange}
-                  isDisabled={isDisabled}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
@@ -203,7 +216,39 @@ const ProposalForm = ({
               ))}
             </div>
             {isDisabled ? null : (
-              <Button onClick={(e) => updateTags(e)} variant="secondary">Generate tags</Button>
+              <Button onClick={(e) => updateTags(e)} variant="secondary">
+                Generate tags
+              </Button>
+            )}
+          </div>
+        </FormItem>
+
+        <Separator orientation="horizontal" className="w-full my-8" />
+
+        <FormItem>
+          <FormLabel>Presentations</FormLabel>
+          <div className="flex flex-col gap-4">
+            {presentationsValue.map((presentation, index) => (
+              <div key={index}>
+                <PresentationForm
+                  index={index}
+                  onDelete={() => deletePresentation(index)}
+                  presentation={presentation}
+                  control={control}
+                />
+              </div>
+            ))}
+            {isDisabled ? null : (
+              <div className="w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addPresentation}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Presentation
+                </Button>
+              </div>
             )}
           </div>
         </FormItem>
@@ -213,14 +258,20 @@ const ProposalForm = ({
           </Button>
           {isDisabled ? (
             <div className="flex flex-row gap-4">
-              <Button variant="secondary" onClick={() => navigate("/comment")}>Add a comment</Button>
-              <Button variant="destructive" onClick={(e)=>onReject(e)} >Reject</Button>
-              <Button onClick={(e)=>onApprove(e)} >Approve</Button>
+              <Button variant="secondary" onClick={() => navigate("/comment")}>
+                Add a comment
+              </Button>
+              <Button variant="destructive" onClick={(e) => onReject(e)}>
+                Reject
+              </Button>
+              <Button onClick={(e) => onApprove(e)}>Approve</Button>
             </div>
           ) : (
             <div className="flex flex-row gap-4">
-              <Button variant="secondary" onClick={(e)=>sendOnDraft(e)}>Save as draft</Button>
-              <Button onClick={(e)=>onSubmit(e)}>Submit</Button>
+              <Button variant="secondary" onClick={(e) => sendOnDraft(e)}>
+                Save as draft
+              </Button>
+              <Button type="submit">Submit</Button>
             </div>
           )}
         </div>

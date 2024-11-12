@@ -2,9 +2,7 @@ package org.zpi.conferoapi.presentation;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import org.zpi.conferoapi.session.Session;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -12,19 +10,24 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "attachment")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "presentation_id", nullable = false)
-    private Presentation presentation;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "creator_id", nullable = false)
+    @ToString.Exclude
+    private Presenter creator;
 
     @NotNull
-    @Column(name = "title", nullable = false)
-    private String title;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @NotNull
     @Column(name = "url", nullable = false)
@@ -32,5 +35,6 @@ public class Attachment {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 }
