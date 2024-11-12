@@ -68,7 +68,7 @@ const ProposalForm = ({
   isDisabled = false,
 }: ProposalFormProps) => {
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    // resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       type: "SESSION",
@@ -80,7 +80,7 @@ const ProposalForm = ({
   });
 
   const navigate = useNavigate();
-  const { control, watch, setValue } = form;
+  const { control, watch, setValue, handleSubmit } = form;
 
   const titleValue = watch("title");
   const typeValue = watch("type");
@@ -97,10 +97,9 @@ const ProposalForm = ({
     console.log("Draft saved");
   }
 
-  function onSubmit(e) {
-    e.preventDefault();
-    console.log("Submit");
-  }
+  const onSubmit = (data: FormValues) => {
+    console.log("Form submitted with values:", data);
+  };
 
   function onApprove(e) {
     e.preventDefault();
@@ -142,7 +141,10 @@ const ProposalForm = ({
 
   return (
     <Form {...form}>
-      <form className="flex flex-col gap-2 w-1/2">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-2 w-1/2"
+      >
         <FormField
           control={form.control}
           name="title"
@@ -269,7 +271,7 @@ const ProposalForm = ({
               <Button variant="secondary" onClick={(e) => sendOnDraft(e)}>
                 Save as draft
               </Button>
-              <Button onClick={(e) => onSubmit(e)}>Submit</Button>
+              <Button type="submit">Submit</Button>
             </div>
           )}
         </div>
