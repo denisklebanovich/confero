@@ -1,17 +1,18 @@
 import { Calendar } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { PresenterRequest, PresenterResponse } from "@/generated";
+
 
 interface ApplicationCardProps {
     onClick?: () => void;
     title: string;
-    organisers: string[];
-    date: Date;
+    organisers: PresenterResponse[];
+    date: string;
     status: string;
 }
 
-export default function ApplicationCard({ title, organisers, onClick,date, status }: ApplicationCardProps) {
-    const formattedDate = date.toLocaleString('en-US', { year: 'numeric', month: 'long' });
+export default function ApplicationCard({ title, organisers, onClick, date, status }: ApplicationCardProps) {
 
     const statusColors = {
         Accepted: "bg-green-100 text-green-800 hover:bg-green-200",
@@ -27,12 +28,13 @@ export default function ApplicationCard({ title, organisers, onClick,date, statu
             </CardHeader>
             <CardContent className="grid gap-4">
                 <div className="text-sm">
-                    <span className="font-semibold">Organizers:</span> {organisers.join(", ")}
+                    <span className="font-semibold">Organizers:</span>
+                    {organisers.map(presenter => `${presenter.name} ${presenter.surname}`).join(", ")}
                 </div>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-muted-foreground">
                         <Calendar className="mr-1 h-4 w-4" />
-                        {formattedDate}
+                        {date}
                     </div>
                     <Badge variant="outline"  className={statusColors[status]}>
                         {status}
