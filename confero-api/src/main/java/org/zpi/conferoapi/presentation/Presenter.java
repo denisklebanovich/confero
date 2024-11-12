@@ -13,6 +13,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.session.Session;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -57,4 +59,7 @@ public class Presenter {
 
     @Builder.Default
     private Boolean isSpeaker = false;
+
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Attachment> attachments;
 }

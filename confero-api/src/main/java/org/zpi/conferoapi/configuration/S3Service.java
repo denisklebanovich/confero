@@ -18,17 +18,19 @@ public class S3Service {
     private String bucket;
     private final S3Client s3Client;
 
-    public void uploadFile(String key, MultipartFile file) {
+    public String uploadFile(String key, MultipartFile file) {
         try {
             s3Client.putObject(request ->
                             request.bucket(bucket).key(key),
                     RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+            return getFileUrl(key);
         } catch (IOException e) {
             throw new ServiceException(ErrorReason.S3_UPLOAD_ERROR);
         }
     }
 
-    public String getFileUrl(String key) {
+    private String getFileUrl(String key) {
         return String.format("https://yerxopcahxybrxkyxayf.supabase.co/storage/v1/object/public/%s/%s", bucket, key);
     }
 }

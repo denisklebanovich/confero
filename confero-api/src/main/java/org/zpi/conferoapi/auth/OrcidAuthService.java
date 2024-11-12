@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.zpi.conferoapi.security.SecurityUtils;
+import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 public class OrcidAuthService {
     private final UserRepository userRepository;
     private final SecurityUtils securityUtils;
+    private final SessionRepository sessionRepository;
 
     @Value("${orcid.client-id}")
     private String clientId;
@@ -72,7 +74,7 @@ public class OrcidAuthService {
             userRepository.save(currentUser);
         }
         return userRepository.findByOrcid(orcid).orElseGet(() -> {
-            User newUser = new User(orcid, accessToken);
+            User newUser = new User(orcid, accessToken, sessionRepository.findUsersParticipations(orcid, null));
             return userRepository.save(newUser);
         });
     }
