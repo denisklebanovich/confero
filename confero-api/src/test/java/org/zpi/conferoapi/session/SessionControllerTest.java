@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -22,7 +23,7 @@ class SessionControllerTest extends IntegrationTestBase {
     @Test
     void getSessions() {
         var user = givenUser("0000-0002-5678-1234", "access-token", "http://example.com/avatar.png", false, List.of("artsi@gmail.com"));
-        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
@@ -317,6 +318,105 @@ class SessionControllerTest extends IntegrationTestBase {
 
 
     @Test
+    void get_agenda_returns_session_only_from_active_conference_edition() {
+        var pastConferenceEdition = givenConferenceEdition(Instant.now().minus(2, DAYS));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
+
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+        var past_session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                pastConferenceEdition,
+                "This is a test session description."
+        );
+
+        var past_presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                past_session,
+                null,
+                null
+        );
+
+        givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                past_presentation
+        );
+
+
+
+
+        var current_session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+        var current_presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                current_session,
+                null,
+                null
+        );
+
+
+        givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                current_presentation
+        );
+
+
+        var agenda_requester = givenUser(
+                "0000-0002-5678-1235",
+                "access-token1",
+                "http://example.com/avatar.png",
+                false,
+                List.of("artsi@gmail.com")
+        );
+
+        givenAgendaForUser(agenda_requester, List.of(current_session, past_session));
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .get("/api/session/agenda")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SessionPreviewResponse[].class);
+
+        assertNotNull(response);
+        assertEquals(1, response.length, "Expected one session in the response");
+    }
+
+
+    @Test
     void addRemoveSessionToFromAgenda() {
 
         var session_creator_user = givenUser(
@@ -328,7 +428,7 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
@@ -525,7 +625,7 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
@@ -624,7 +724,7 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
@@ -821,7 +921,7 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
@@ -968,7 +1068,7 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
