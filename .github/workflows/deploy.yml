@@ -1,0 +1,31 @@
+name: Deploy to VPS
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install SSH client
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: SSH and Deploy
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "${SSH_PRIVATE_KEY}" > /tmp/private_key
+          chmod 600 /tmp/private_key
+          
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key ${VPS_USER}@${VPS_HOST} << 'EOF'
+            cd confero
+            git pull
+            docker compose up -d --build
+          EOF
