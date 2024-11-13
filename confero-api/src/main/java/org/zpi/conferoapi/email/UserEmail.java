@@ -3,6 +3,7 @@ package org.zpi.conferoapi.email;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import org.zpi.conferoapi.user.User;
 @Getter
 @Setter
 @ToString
+@Table(name = "user_emails")
 public class UserEmail {
     @Id
     private String email;
