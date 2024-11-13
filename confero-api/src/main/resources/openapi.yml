@@ -988,6 +988,7 @@ components:
         - START_TIME_MUST_BE_BEFORE_END_TIME
         - PRESENTER_NOT_FOUND
         - ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION
+        - ATTACHMENT_NOT_FOUND
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]

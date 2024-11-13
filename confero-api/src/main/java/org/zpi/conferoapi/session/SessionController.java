@@ -90,4 +90,13 @@ public class SessionController implements SessionApi {
         log.info("Responding with attachment: {}", attachment);
         return ResponseEntity.ok(attachment);
     }
+
+    @Override
+    public ResponseEntity<Void> deletePresentationAttachment(Long sessionId, Long attachmentId, Long presentationId) {
+        log.info("User {} requested to delete attachment with id {} from presentation with id {} in session with id {}",
+                securityUtils.getCurrentUser(), attachmentId, presentationId, sessionId);
+        sessionService.deletePresentationAttachment(sessionId, attachmentId, presentationId);
+        log.info("Attachment deleted successfully");
+        return ResponseEntity.noContent().build();
+    }
 }

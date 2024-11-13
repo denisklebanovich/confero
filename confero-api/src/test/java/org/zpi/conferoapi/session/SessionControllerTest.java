@@ -358,8 +358,6 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-
-
         var current_session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
@@ -844,8 +842,6 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals(response_3.getReason(), ErrorReason.PRESENTATION_NOT_FOUND);
 
 
-
-
         RestAssured
                 .given()
                 .contentType("application/json")
@@ -1160,4 +1156,69 @@ class SessionControllerTest extends IntegrationTestBase {
     }
 
 
+    @Test
+    void delete_session_attachment() {
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS)
+        );
+
+        var presenter = givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+        var attachment = givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
+        );
+
+        givenUser(
+                "0000-0002-5678-1235",
+                "access-token1",
+                "http://example.com/avatar.png",
+                false,
+                List.of("artsi@gmail.com")
+        );
+
+        assertThat(findAllAttachments().size()).isEqualTo(1);
+
+        RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .delete("api/session/" + session.getId() + "/presentation/" + presentation.getId() + "/attachment/" + attachment.getId())
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+        assertThat(findAllAttachments().size()).isEqualTo(0);
+    }
 }

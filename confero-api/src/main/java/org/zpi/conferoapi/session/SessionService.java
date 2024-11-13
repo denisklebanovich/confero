@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.openapitools.model.ErrorReason.*;
@@ -200,7 +201,7 @@ public class SessionService {
         var presenter = findPresenterByUser(presentation, user)
                 .orElseThrow(() -> new ServiceException(ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION));
 
-        String key = "attachments/" + file.getOriginalFilename();
+        String key = "attachments/" + presentationId + "/" + file.getOriginalFilename();
         String url = s3Service.uploadFile(key, file);
 
         var attachment = Attachment.builder()
@@ -217,6 +218,28 @@ public class SessionService {
                 .name(attachment.getName())
                 .url(attachment.getUrl());
     }
+
+
+    public void deletePresentationAttachment(Long sessionId, Long attachmentId, Long presentationId) {
+        var user = securityUtils.getCurrentUser();
+
+        var session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
+
+        var presentation = session.getPresentations().stream()
+                .filter(p -> p.getId().equals(presentationId))
+                .findFirst()
+                .orElseThrow(() -> new ServiceException(PRESENTATION_NOT_FOUND));
+
+        findPresenterByUser(presentation, user)
+                .orElseThrow(() -> new ServiceException(ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION));
+
+        var attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new ServiceException(ATTACHMENT_NOT_FOUND));
+
+        attachmentRepository.deleteById(attachment.getId());
+    }
+
 
     private boolean isFromActiveConference(Session session) {
         return conferenceEditionRepository.findActiveEditionConference()
