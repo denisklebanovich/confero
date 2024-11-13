@@ -833,7 +833,7 @@ paths:
         - Organizer
       summary: Find organizers
       description: |-
-        Get all organizers by search query(first name, last name or orcid). It will return organizers from all conference editions.
+        Get all organizers by search query(first name, last name or orcid). It will return organizers from only current conference edition.
       operationId: findOrganizers
       parameters:
         - name: searchQuery
@@ -1350,7 +1350,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         name:
           type: string
         surname:
