@@ -66,6 +66,36 @@ class OrganizerControllerTest extends IntegrationTestBase {
                 presentation
         );
 
+
+        var pastConferenceEdition = givenConferenceEdition(Instant.now().minus(1, ChronoUnit.DAYS));
+
+        var pastSession = givenSession(
+                "Past Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                pastConferenceEdition,
+                "This is a test session description."
+        );
+
+        var pastPresentation = givenPresentation(
+                "Past Test Presentation",
+                "Presentation Description",
+                pastSession,
+                Instant.now().minus(1, ChronoUnit.HOURS),
+                Instant.now().minus(1, ChronoUnit.MINUTES)
+        );
+
+        givenPresenter(
+                "bar@gmail.com",
+                "0000-0002-5678-1222",
+                "ArtsiFooBar",
+                "ShaFooBar",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                pastPresentation
+        );
+
         givenUser(
                 "0000-0002-5678-1239",
                 "access-token1",
@@ -96,5 +126,7 @@ class OrganizerControllerTest extends IntegrationTestBase {
 
         assertEquals(1, searchForQuery.apply("ShabFoo").length);
         assertEquals(2, searchForQuery.apply("Shab").length);
+
+        assertEquals(2, searchForQuery.apply(null).length);
     }
 }
