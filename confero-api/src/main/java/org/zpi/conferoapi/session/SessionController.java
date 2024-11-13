@@ -99,4 +99,13 @@ public class SessionController implements SessionApi {
         log.info("Attachment deleted successfully");
         return ResponseEntity.noContent().build();
     }
+
+
+    @Override
+    public ResponseEntity<List<SesssionEventResponse>> getSessionEvents(Integer pageSize) {
+        log.info("User {} requested session events with page size {}", securityUtils.getCurrentUser(), pageSize);
+        var events = sessionService.getSessionEvents(pageSize);
+        log.info("Responding with session events: {}", events);
+        return ResponseEntity.ok(events);
+    }
 }

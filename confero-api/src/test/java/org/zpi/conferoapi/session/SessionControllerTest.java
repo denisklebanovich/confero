@@ -223,7 +223,7 @@ class SessionControllerTest extends IntegrationTestBase {
         );
 
 
-        var conferenceEdition = givenConferenceEdition(Instant.now().plusSeconds(3600));
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, DAYS));
         var session = givenSession(
                 "Test Session",
                 SessionType.SESSION,
@@ -1150,7 +1150,7 @@ class SessionControllerTest extends IntegrationTestBase {
                 .as(AttachmentResponse.class);
 
         assertEquals("test.pdf", response.getName(), "Attachment name mismatch");
-        assertEquals("https://mock-s3-url.com/attachments/test.pdf", response.getUrl(), "Attachment URL mismatch");
+        assertEquals("https://mock-s3-url.com/attachments/" + presentation.getId() + "/test.pdf", response.getUrl(), "Attachment URL mismatch");
         assertNotNull(response.getId(), "Attachment ID missing");
         assertThat(findAllAttachments().size()).isEqualTo(1);
     }
@@ -1220,5 +1220,108 @@ class SessionControllerTest extends IntegrationTestBase {
                 .statusCode(HttpStatus.NO_CONTENT.value());
 
         assertThat(findAllAttachments().size()).isEqualTo(0);
+    }
+
+
+    @Test
+    void getSessionFileUploadEvents() {
+        var session_creator_user = givenUser(
+                "0000-0002-5678-1234",
+                "access-token",
+                "http://example.com/avatar.png",
+                false,
+                List.of("session-creator@gmail.com")
+        );
+
+        var conferenceEdition = givenConferenceEdition(Instant.now().plus(1, ChronoUnit.DAYS));
+        var session = givenSession(
+                "Test Session",
+                SessionType.SESSION,
+                session_creator_user,
+                conferenceEdition,
+                "This is a test session description."
+        );
+
+        var presentation = givenPresentation(
+                "Test Presentation",
+                "Presentation Description",
+                session,
+                Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS)
+        );
+
+        var presenter = givenPresenter(
+                "artsi@gmail.com",
+                "orcid1",
+                "name1",
+                "surname1",
+                "title 1",
+                "Politechnika Wrocławska",
+                true,
+                presentation
+        );
+
+        givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
+        );
+
+        givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
+        );
+
+        givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
+        );
+
+        givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
+        );
+
+        givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
+        );
+
+        givenAttachment(
+                "attachmentUrl",
+                "attachmentTitle",
+                presenter
+        );
+
+
+        assertThat(findAllAttachments().size()).isEqualTo(6);
+
+
+        var response = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "artsi@gmail.com")
+                .param("pageSize", 4)
+                .get("api/session/event")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(SesssionEventResponse[].class);
+
+        assertThat(response.length).isEqualTo(4);
+
+        var first_event = response[0];
+        assertThat(first_event.getId()).isNotNull();
+        assertThat(first_event.getType()).isEqualTo(SessionEventType.FILE_UPLOAD);
+        assertThat(first_event.getTimestamp()).isNotNull();
+        assertThat(first_event.getSessionId()).isEqualTo(session.getId());
+        assertThat(first_event.getUserFirstName()).isEqualTo(presenter.getName());
+        assertThat(first_event.getUserLastName()).isEqualTo(presenter.getSurname());
     }
 }

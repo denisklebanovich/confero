@@ -16,10 +16,12 @@ import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.openapitools.model.ErrorReason.*;
@@ -31,13 +33,21 @@ import static org.openapitools.model.ErrorReason.*;
 public class SessionService {
 
     SessionRepository sessionRepository;
+
     ConferenceEditionRepository conferenceEditionRepository;
+
     SessionMapper sessionMapper;
+
     SecurityUtils securityUtils;
+
     UserRepository userRepository;
+
     PresentationRepository presentationRepository;
+
     PresenterRepository presenterRepository;
+
     S3Service s3Service;
+
     AttachmentRepository attachmentRepository;
 
     public List<SessionPreviewResponse> getSessions() {
@@ -238,6 +248,26 @@ public class SessionService {
                 .orElseThrow(() -> new ServiceException(ATTACHMENT_NOT_FOUND));
 
         attachmentRepository.deleteById(attachment.getId());
+    }
+
+    public List<SesssionEventResponse> getSessionEvents(Integer pageSize) {
+        var attachments = getSessionsWithConfiguredTimeTable()
+                .filter(this::isFromActiveConference)
+                .flatMap(session -> session
+                        .getPresentations()
+                        .stream()
+                        .flatMap(presentation -> presentation.getAttachments().stream()))
+                .sorted(Comparator.comparing(Attachment::getCreatedAt).reversed())
+                .limit(pageSize);
+
+        return attachments.map(attachment -> new SesssionEventResponse()
+                .id(attachment.getId())
+                .type(SessionEventType.FILE_UPLOAD)
+                .timestamp(attachment.getCreatedAt())
+                .userFirstName(attachment.getCreator().getName())
+                .userLastName(attachment.getCreator().getSurname())
+                .sessionId(attachment.getCreator().getPresentation().getSession().getId())
+        ).toList();
     }
 
 

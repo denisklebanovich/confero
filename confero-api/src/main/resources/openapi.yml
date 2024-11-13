@@ -1402,7 +1402,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         type:
           $ref: '#/components/schemas/SessionEventType'
         userFirstName:
@@ -1413,4 +1414,5 @@ components:
           type: string
           format: date-time
         sessionId:
-          type: string
+          type: integer
+          format: int64
