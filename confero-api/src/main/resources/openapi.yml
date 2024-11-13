@@ -988,6 +988,7 @@ components:
         - START_TIME_MUST_BE_BEFORE_END_TIME
         - PRESENTER_NOT_FOUND
         - ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION
+        - ATTACHMENT_NOT_FOUND
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]
@@ -1401,7 +1402,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         type:
           $ref: '#/components/schemas/SessionEventType'
         userFirstName:
@@ -1412,4 +1414,5 @@ components:
           type: string
           format: date-time
         sessionId:
-          type: string
+          type: integer
+          format: int64
