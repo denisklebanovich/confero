@@ -80,6 +80,7 @@ public class SessionService {
     public List<SessionPreviewResponse> getPersonalAgenda() {
         var user = securityUtils.getCurrentUser();
         return user.getAgenda().stream()
+                .filter(this::isFromActiveConference)
                 .map(session -> sessionMapper.toPreviewDto(session)
                         .fromActiveConferenceEdition(isFromActiveConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
