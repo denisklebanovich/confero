@@ -9,6 +9,11 @@ services:
     restart: always
     ports:
       - "8080:8080"
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "localhost:24224"
+        tag: "confero-api"
   confero-ui:
     container_name: confero-ui
     build:
@@ -20,3 +25,10 @@ services:
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
+
+  fluentd:
+    container_name: fluentd
+    image: fluent/fluentd:v1.14-1
+    ports:
+      - "24224:24224"
+      - "24225:24225"
