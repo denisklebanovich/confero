@@ -86,8 +86,8 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals(session.getTags(), sessionResponse.getTags(), "Session tags mismatch");
         assertNotNull(sessionResponse.getStartTime(), "Start time missing");
         assertNotNull(sessionResponse.getEndTime(), "End time mismatch");
-        assertNotNull(sessionResponse.getFromActiveConferenceEdition(), "Active conference edition flag missing");
-        assertEquals(true, sessionResponse.getFromActiveConferenceEdition(), "Session is not from active conference edition");
+        assertNotNull(sessionResponse.getFromCurrentConferenceEdition(), "Current conference edition flag missing");
+        assertEquals(true, sessionResponse.getFromCurrentConferenceEdition(), "Session is not from current conference edition");
 
         var presenters = sessionResponse.getPresenters();
         assertNotNull(presenters, "Presenters should not be null");

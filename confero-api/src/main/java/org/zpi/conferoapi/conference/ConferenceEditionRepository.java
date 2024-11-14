@@ -13,7 +13,12 @@ public interface ConferenceEditionRepository extends JpaRepository<ConferenceEdi
     @Query(value = """
             SELECT * FROM conference_edition ce WHERE ce.application_deadline_time > CURRENT_TIMESTAMP LIMIT 1"""
             , nativeQuery = true)
-    Optional<ConferenceEdition> findActiveEditionConference();
+    Optional<ConferenceEdition> findConferenceEditionAcceptingApplications();
+
+    @Query(value = """
+        SELECT * FROM conference_edition ce ORDER BY ce.application_deadline_time DESC LIMIT 1
+    """, nativeQuery = true)
+    Optional<ConferenceEdition> findCurrentConferenceEdition();
 
     @NotNull Optional<ConferenceEdition> findById(@NotNull Long id);
 }

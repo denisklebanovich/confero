@@ -20,8 +20,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.openapitools.model.ErrorReason.*;
@@ -53,7 +51,7 @@ public class SessionService {
     public List<SessionPreviewResponse> getSessions() {
         return getSessionsWithConfiguredTimeTable()
                 .map(session -> sessionMapper.toPreviewDto(session)
-                        .fromActiveConferenceEdition(isFromActiveConference(session))
+                        .fromCurrentConferenceEdition(isFromCurrentConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
                         .isInCalendar(Try.of(() -> userHasSessionInAgenda(securityUtils.getCurrentUser(), session)).getOrElse(false))
@@ -76,7 +74,7 @@ public class SessionService {
 
         return participations.stream()
                 .map(session -> sessionMapper.toPreviewDto(session)
-                        .fromActiveConferenceEdition(isFromActiveConference(session))
+                        .fromCurrentConferenceEdition(isFromCurrentConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
                         .isInCalendar(userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
@@ -91,9 +89,9 @@ public class SessionService {
     public List<SessionPreviewResponse> getPersonalAgenda() {
         var user = securityUtils.getCurrentUser();
         return user.getAgenda().stream()
-                .filter(this::isFromActiveConference)
+                .filter(this::isFromCurrentConference)
                 .map(session -> sessionMapper.toPreviewDto(session)
-                        .fromActiveConferenceEdition(isFromActiveConference(session))
+                        .fromCurrentConferenceEdition(true)
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
                         .isInCalendar(true)
@@ -109,7 +107,7 @@ public class SessionService {
         var session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
 
-        if (!isFromActiveConference(session)) {
+        if (!isFromCurrentConference(session)) {
             throw new ServiceException(SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION);
         }
 
@@ -124,7 +122,7 @@ public class SessionService {
         var session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
 
-        if (!isFromActiveConference(session)) {
+        if (!isFromCurrentConference(session)) {
             throw new ServiceException(SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION);
         }
 
@@ -139,7 +137,7 @@ public class SessionService {
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
         var user = securityUtils.getCurrentUser();
         return sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
-                .fromActiveConferenceEdition(isFromActiveConference(session));
+                .fromCurrentConferenceEdition(isFromCurrentConference(session));
     }
 
 
@@ -148,6 +146,9 @@ public class SessionService {
         var session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
 
+        if (!isFromCurrentConference(session)) {
+            throw new ServiceException(SESSION_IS_NOT_FROM_CURRENT_CONFERENCE_EDITION);
+        }
 
         request.getPresentations().forEach(presentation -> {
             var presentationToUpdate = session.getPresentations().stream()
@@ -174,7 +175,7 @@ public class SessionService {
         });
 
         return sessionMapper.toDto(session, true)
-                .fromActiveConferenceEdition(isFromActiveConference(session));
+                .fromCurrentConferenceEdition(true);
     }
 
     public int addAllSessionsByOrganizerToAgenda(Long presenterId) {
@@ -186,7 +187,7 @@ public class SessionService {
         var presenterParticipations = sessionRepository.findParticipationsByOrganizerId(presenter.getId());
 
         var sessionsToAddToAgenda = presenterParticipations.stream()
-                .filter(this::isFromActiveConference)
+                .filter(this::isFromCurrentConference)
                 .filter(session -> !userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
                 .toList();
 
@@ -252,7 +253,7 @@ public class SessionService {
 
     public List<SesssionEventResponse> getSessionEvents(Integer pageSize) {
         var attachments = getSessionsWithConfiguredTimeTable()
-                .filter(this::isFromActiveConference)
+                .filter(this::isFromCurrentConference)
                 .flatMap(session -> session
                         .getPresentations()
                         .stream()
@@ -271,8 +272,8 @@ public class SessionService {
     }
 
 
-    private boolean isFromActiveConference(Session session) {
-        return conferenceEditionRepository.findActiveEditionConference()
+    private boolean isFromCurrentConference(Session session) {
+        return conferenceEditionRepository.findCurrentConferenceEdition()
                 .map(activeEdition -> activeEdition.getId().equals(session.getEdition().getId()))
                 .orElse(false);
     }

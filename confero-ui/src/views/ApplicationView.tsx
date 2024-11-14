@@ -54,7 +54,7 @@ const ApplicationView = () => {
       ],
       createdAt: "2023-05-01T10:30:00Z",
       status: ApplicationStatus.PENDING,
-      from_active_conference_edition: true,
+      from_current_conference_edition: true,
     },
     {
       id: 2,
@@ -71,7 +71,7 @@ const ApplicationView = () => {
       ],
       createdAt: "2023-09-15T15:00:00Z",
       status: ApplicationStatus.CHANGE_REQUESTED,
-      from_active_conference_edition: false,
+      from_current_conference_edition: false,
     },
     {
       id: 3,
@@ -95,7 +95,7 @@ const ApplicationView = () => {
       ],
       createdAt: "2023-11-10T12:00:00Z",
       status: ApplicationStatus.DRAFT,
-      from_active_conference_edition: true,
+      from_current_conference_edition: true,
     },
     {
       id: 4,
@@ -112,7 +112,7 @@ const ApplicationView = () => {
       ],
       createdAt: "2024-02-20T09:00:00Z",
       status: ApplicationStatus.ACCEPTED,
-      from_active_conference_edition: true,
+      from_current_conference_edition: true,
     },
     {
       id: 5,
@@ -136,7 +136,7 @@ const ApplicationView = () => {
       ],
       createdAt: "2024-06-15T14:00:00Z",
       status: ApplicationStatus.REJECTED,
-      from_active_conference_edition: false,
+      from_current_conference_edition: false,
     },
     {
       id: 6,
@@ -153,7 +153,7 @@ const ApplicationView = () => {
       ],
       createdAt: "2024-08-05T16:30:00Z",
       status: ApplicationStatus.PENDING,
-      from_active_conference_edition: true,
+      from_current_conference_edition: true,
     },
   ];
 
