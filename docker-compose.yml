@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   confero-api:
     container_name: confero-api
@@ -12,8 +14,9 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: "localhost:24224"
+        fluentd-address: "fluentd:24224" # Use Fluentd container name
         tag: "confero-api"
+
   confero-ui:
     container_name: confero-ui
     build:
@@ -25,10 +28,17 @@ services:
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "fluentd:24224" # Use Fluentd container name
+        tag: "confero-ui"
 
   fluentd:
     container_name: fluentd
     image: fluent/fluentd:v1.14-1
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
     ports:
-      - "24224:24224"
-      - "24225:24225"
+      - "24224:24224"  # Fluentd default port for incoming logs
+      - "24225:24225"  # Optional HTTP interface (if configured)
