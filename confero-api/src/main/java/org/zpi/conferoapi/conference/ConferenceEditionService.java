@@ -8,9 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.openapitools.model.ErrorReason;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.exception.ServiceException;
-import org.zpi.conferoapi.user.UserRepository;
 import org.zpi.conferoapi.util.CsvReader;
 
 import java.io.IOException;
@@ -28,9 +26,9 @@ public class ConferenceEditionService {
     ConferenceEditionRepository conferenceEditionRepository;
 
     public ConferenceEdition createConferenceEdition(CreateConferenceEdition createConferenceEditionRequest) {
-        var activeEdition = conferenceEditionRepository.findActiveEditionConference();
+        var editionAcceptingApplications = conferenceEditionRepository.findConferenceEditionAcceptingApplications();
 
-        if (activeEdition.isPresent()) {
+        if (editionAcceptingApplications.isPresent()) {
             throw new ServiceException(ErrorReason.ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS);
         }
 
@@ -48,8 +46,8 @@ public class ConferenceEditionService {
         return newConferenceEdition;
     }
 
-    public boolean isConferenceEditionActive() {
-        return conferenceEditionRepository.findActiveEditionConference().isPresent();
+    public boolean isConferenceEditionAcceptingApplications() {
+        return conferenceEditionRepository.findConferenceEditionAcceptingApplications().isPresent();
     }
 
 

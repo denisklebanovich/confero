@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ConferenceEditionRepositoryTest extends DataJpaTestBase {
 
     @Test
-    void findActiveEditionConference() {
+    void findConferenceEditionAcceptingApplications() {
         var now = Instant.now();
 
         var conferenceEdition = ConferenceEdition.builder()
@@ -23,13 +23,13 @@ class ConferenceEditionRepositoryTest extends DataJpaTestBase {
 
         conferenceEditionRepository.save(conferenceEdition);
 
-        var activeEditionConference = conferenceEditionRepository.findActiveEditionConference();
+        var activeEditionConference = conferenceEditionRepository.findConferenceEditionAcceptingApplications();
         assertTrue(activeEditionConference.isPresent());
     }
 
 
     @Test
-    void doNotFindActiveEditionConference() {
+    void doNotFindConferenceEditionAcceptingApplications() {
         var now = Instant.now();
 
         var conferenceEdition = ConferenceEdition.builder()
@@ -40,7 +40,7 @@ class ConferenceEditionRepositoryTest extends DataJpaTestBase {
 
         conferenceEditionRepository.save(conferenceEdition);
 
-        var activeEditionConference = conferenceEditionRepository.findActiveEditionConference();
+        var activeEditionConference = conferenceEditionRepository.findConferenceEditionAcceptingApplications();
         assertTrue(activeEditionConference.isEmpty());
     }
 

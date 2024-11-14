@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.model.*;
 import org.springframework.stereotype.Service;
+import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.orcid.OrcidService;
@@ -15,7 +16,6 @@ import org.zpi.conferoapi.security.SecurityUtils;
 import org.zpi.conferoapi.session.Session;
 import org.zpi.conferoapi.session.SessionRepository;
 import org.zpi.conferoapi.user.User;
-import org.zpi.conferoapi.user.UserRepository;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -42,16 +42,16 @@ public class ApplicationService {
 
     public ApplicationResponse getApplication(Long applicationId) {
         Session application = getApplicationForUser(applicationId);
-        boolean isFromActiveConference = isFromActiveConference(application);
+        boolean isFromActiveConference = isFromCurrentConference(application);
         return applicationMapper.sessionToApplicationResponse(application)
-                .fromActiveConferenceEdition(isFromActiveConference);
+                .fromCurrentConferenceEdition(isFromActiveConference);
     }
 
     public List<ApplicationPreviewResponse> getApplications() {
         List<Session> applications = getApplicationsForCurrentUser();
         return applications.stream()
                 .map(session -> applicationMapper.toPreviewDto(session)
-                        .fromActiveConferenceEdition(isFromActiveConference(session)))
+                        .fromCurrentConferenceEdition(isFromCurrentConference(session)))
                 .toList();
     }
 
@@ -78,8 +78,8 @@ public class ApplicationService {
 
     public Session createApplication(CreateApplicationRequest request) {
         validateApplicationRequest(request);
-        validateActiveConference();
-        Session session = createNewSession(request);
+        var edition = validateConferenceAcceptingApplications();
+        Session session = createNewSession(request, edition);
         sessionRepository.save(session);
         addPresentationsToSession(session, request.getPresentations());
         return session;
@@ -92,8 +92,8 @@ public class ApplicationService {
                 .orElseThrow(() -> new ServiceException(APPLICATION_NOT_FOUND));
     }
 
-    private boolean isFromActiveConference(Session session) {
-        return conferenceEditionRepository.findActiveEditionConference()
+    private boolean isFromCurrentConference(Session session) {
+        return conferenceEditionRepository.findCurrentConferenceEdition()
                 .map(activeEdition -> activeEdition.getId().equals(session.getEdition().getId()))
                 .orElse(false);
     }
@@ -159,20 +159,19 @@ public class ApplicationService {
         }
     }
 
-    private void validateActiveConference() {
-        if (conferenceEditionRepository.findActiveEditionConference().isEmpty()) {
-            throw new ServiceException(NO_ACTIVE_CONFERENCE_EDITION);
-        }
+    private ConferenceEdition validateConferenceAcceptingApplications() {
+        return conferenceEditionRepository.findConferenceEditionAcceptingApplications()
+                .orElseThrow(() -> new ServiceException(NO_ACTIVE_CONFERENCE_EDITION));
     }
 
-    private Session createNewSession(CreateApplicationRequest request) {
+    private Session createNewSession(CreateApplicationRequest request, ConferenceEdition edition) {
         User currentUser = securityUtils.getCurrentUser();
         return Session.builder()
                 .title(request.getTitle())
                 .type(request.getType())
                 .creator(currentUser)
                 .tags(request.getTags())
-                .edition(conferenceEditionRepository.findActiveEditionConference().get())
+                .edition(edition)
                 .description(request.getDescription())
                 .status(request.getSaveAsDraft() ? DRAFT : PENDING)
                 .createdAt(Instant.now())

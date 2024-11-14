@@ -112,10 +112,10 @@ public class ConferenceEditionController implements ConferenceEditionApi {
     @Override
     public ResponseEntity<ConferenceEditionSummaryResponse> getConferenceEditionSummary() {
         log.info("Got request from user to get conference edition summary");
-        var activeEdition = conferenceEditionService.isConferenceEditionActive();
+        var acceptingApplications = conferenceEditionService.isConferenceEditionAcceptingApplications();
 
         var summary = new ConferenceEditionSummaryResponse()
-                .acceptingNewApplications(activeEdition);
+                .acceptingNewApplications(acceptingApplications);
 
         log.info("Returning conference edition summary: {}", summary);
         return ResponseEntity.ok(summary);

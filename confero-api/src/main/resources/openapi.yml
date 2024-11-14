@@ -1239,7 +1239,7 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/ApplicationStatus'
-        from_active_conference_edition:
+        from_current_conference_edition:
           type: boolean
     ApplicationResponse:
       type: object
@@ -1269,7 +1269,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CommentResponse'
-        from_active_conference_edition:
+        from_current_conference_edition:
           type: boolean
     CommentResponse:
       type: object
@@ -1305,7 +1305,7 @@ components:
             $ref: '#/components/schemas/PresenterResponse'
         isInCalendar:
          type: boolean
-        from_active_conference_edition:
+        from_current_conference_edition:
           type: boolean
     SessionResponse:
       type: object
@@ -1327,7 +1327,7 @@ components:
           type: array
           items:
             type: string
-        from_active_conference_edition:
+        from_current_conference_edition:
           type: boolean
     AttachmentResponse:
       type: object
