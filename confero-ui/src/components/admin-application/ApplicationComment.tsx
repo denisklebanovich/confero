@@ -7,7 +7,7 @@ const ApplicationComment = ({content, createdAt}: CommentResponse) => {
     return (
         <Card className="w-64 shadow-lg">
             <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">{content}</p>
+                <p className="text-sm text-black">{content}</p>
                 <p className="text-xs text-gray-400 mt-2">{getFormattedDate(createdAt)}</p>
             </CardContent>
         </Card>
