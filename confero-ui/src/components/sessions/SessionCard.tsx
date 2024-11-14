@@ -3,7 +3,10 @@ import {CalendarIcon} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {SessionPreviewResponse} from "@/generated";
 import {Button} from "@/components/ui/button.tsx";
-import React, {useCallback, useMemo, useState} from "react";
+import React from "react";
+import {useApi} from "@/api/useApi.ts";
+import {useQueryClient} from "@tanstack/react-query";
+import {useCalendarStatus} from "@/hooks/useCalendarStatus.ts";
 
 const extractTime = (date: string) => {
     const d = new Date(date);
@@ -13,63 +16,73 @@ const extractTime = (date: string) => {
 const SessionCard = (session: SessionPreviewResponse) => {
     const navigate = useNavigate();
 
-    const [isAdded, setIsAdded] = useState(false);
-    const isLoggedIn = true;
-    
-    function onDeleteFromCalendar(e){
-        e.stopPropagation();
-        setIsAdded(false);
-    }
-    
-    function onAddToCalendar(e){
-        e.stopPropagation();
-        setIsAdded(true);
-    }
-    
+    const {apiClient, useApiMutation} = useApi();
 
-    function buttonNameAndFunction(){
-        const path = location.pathname;
+    const {changeCalendarStatus} = useCalendarStatus();
 
-        if (path === "/my-calendar") {
-            return { buttonName: "Delete", buttonFunction: (e) => onDeleteFromCalendar(e), variant: "danger"};
+    const {mutate: addToCalendar} = useApiMutation(
+        (sessionId: number) => apiClient.session.addSessionToAgenda({sessionId}),
+        {
+            onSuccess: () => {
+                changeCalendarStatus(session.id, true);
+            }
         }
-        if(isAdded){
-            return { buttonName: "Added", buttonFunction: (e) => onDeleteFromCalendar(e), variant: "secondary_grey"};
-        }
-        else {
-            return { buttonName: "Add to my calendar", buttonFunction: (e) => onAddToCalendar(e), variant: "default"};
-        }
-        
-    }
+    );
 
-    // eslint-disable-next-line
-    const buttonProps = useMemo(() => buttonNameAndFunction(),[isAdded, isLoggedIn]);
+    const {mutate: deleteFromCalendar} = useApiMutation(
+        (sessionId: number) => apiClient.session.removeSessionFromAgenda({sessionId}),
+        {
+            onSuccess: () => {
+                changeCalendarStatus(session.id, false);
+            }
+        }
+    );
 
 
     return (
-    <Card className="w-full cursor-pointer" onClick={() => navigate(`/session?sessionId=${session.id}`)}>
-        <CardHeader>
-            <div className="flex justify-between items-start">
-                <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
-                <Button onClick={buttonProps.buttonFunction} variant={buttonProps.variant as any}>{buttonProps.buttonName}</Button>
-            </div>
-        </CardHeader>
-        <CardContent>
+        <Card className="w-full cursor-pointer" onClick={() => navigate(`/session/${session.id}`)}>
+            <CardHeader>
+                <div className="flex justify-between items-start">
+                    <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
+                    {session.isInCalendar ? (
+                        <Button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                deleteFromCalendar(session.id);
+                            }}
+                            variant={"secondary_grey"}
+                        >
+                            Remove
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                addToCalendar(session.id);
+                            }}
+                            variant={"secondary_grey"}
+                        >
+                            Add to calendar
+                        </Button>
+                    )}
+                </div>
+            </CardHeader>
+            <CardContent>
 
-            <div className="h-full w-2/3">
-            <p className="text-sm text-muted-foreground mb-4">
-                Topics: {session.tags?.map((topic) => topic).join(", ")}
-            </p>
-            <div className="flex items-center text-sm text-muted-foreground">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                <time>
-                    {extractTime(session.startTime!)} - {extractTime(session.endTime!)}
-                </time>
-            </div>
-          </div>
+                <div className="h-full w-2/3">
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Topics: {session.tags?.map((topic) => topic).join(", ")}
+                    </p>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                        <CalendarIcon className="mr-2 h-4 w-4"/>
+                        <time>
+                            {extractTime(session.startTime!)} - {extractTime(session.endTime!)}
+                        </time>
+                    </div>
+                </div>
 
-        </CardContent>
-    </Card>
+            </CardContent>
+        </Card>
     );
 };
 

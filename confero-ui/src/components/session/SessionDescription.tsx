@@ -1,7 +1,13 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {Organisers} from "@/utils/Organisers.tsx";
+import {PresenterResponse} from "@/generated";
+import Organiser from "@/utils/Organiser.tsx";
 
-const SessionDescription = ({title, description, organisers}) => {
+type SessionDescriptionProps = {
+    title: string;
+    description: string;
+    organisers: PresenterResponse[];
+}
+const SessionDescription = ({title, description, organisers}: SessionDescriptionProps) => {
 
     return (
         <Card className="w-1/3">
@@ -13,7 +19,9 @@ const SessionDescription = ({title, description, organisers}) => {
             </CardHeader>
             <CardContent>
                 <h3 className="font-semibold mb-2">Organizers</h3>
-                <Organisers organisers={organisers}/>
+                {organisers.map((organiser) => (
+                    <Organiser key={organiser.id} {...organiser}/>
+                ))}
             </CardContent>
         </Card>
     );

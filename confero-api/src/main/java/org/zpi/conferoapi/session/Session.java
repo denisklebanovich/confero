@@ -74,16 +74,6 @@ public class Session {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @ManyToMany
-    @JoinTable(
-            name = "agenda",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "session_id")
-    )
-    @ToString.Exclude
-    @Builder.Default
-    private List<Session> agenda = new ArrayList<>();
-
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Presentation> presentations = new ArrayList<>();

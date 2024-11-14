@@ -1,12 +1,12 @@
 import {Button} from "@/components/ui/button.tsx";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import Timetable from "@/components/timetable/Timetable.tsx";
 import {useState} from "react";
 
 const TimetableSessionView = () => {
     const navigate = useNavigate();
-    const params = new URLSearchParams(location.search);
-    const sessionID = params.get("sessionID");
+    const params = useParams();
+    const sessionID = params.sessionID;
 
     const mock = {
         "id": "abc123",
@@ -47,7 +47,7 @@ const TimetableSessionView = () => {
                 ],
                 "startTime": "2024-11-10T14:28:09.508Z",
                 "endTime": "2024-11-10T16:00:00.000Z",
-                "isMine" : true
+                "isMine": true
             },
             {
                 "id": "gdfdggdf",
@@ -78,7 +78,7 @@ const TimetableSessionView = () => {
                 ],
                 "startTime": "2024-11-10T10:10:00.000Z",
                 "endTime": "2024-11-10T12:40:00.000Z",
-                "isMine" : false
+                "isMine": false
             }
         ],
         "tags": [
@@ -93,9 +93,8 @@ const TimetableSessionView = () => {
     const [presentations, setPresentations] = useState(transformPresentations())
 
 
-
     function transformPresentations() {
-        return mock.presentations.map((presentation,index) => {
+        return mock.presentations.map((presentation, index) => {
             return {
                 id: index,
                 internal_id: presentation.id,
@@ -110,19 +109,16 @@ const TimetableSessionView = () => {
     }
 
 
-
-
     function onSave() {
         navigate("/my-sessions")
     }
-
 
 
     return (
         <div className='flex flex-col items-center'>
             <div className='text-3xl font-bold'>Timetable of session</div>
             <div className='text-xl font-semibold pt-2'>{mock.title}</div>
-            <Timetable presentations={presentations} setPresentations={setPresentations} />
+            <Timetable presentations={presentations} setPresentations={setPresentations}/>
             <div className='w-full fixed bottom-16 left-0 pb-3 flex flex-row justify-between items-center px-[20vw]'>
                 <Button onClick={() => navigate("/my-sessions")} variant='secondary'>Back</Button>
                 <Button onClick={() => onSave()}>Save</Button>
