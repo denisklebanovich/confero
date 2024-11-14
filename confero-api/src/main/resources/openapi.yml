@@ -989,6 +989,7 @@ components:
         - PRESENTER_NOT_FOUND
         - ONLY_PARTICIPANT_CAN_UPDATE_PRESENTATION
         - ATTACHMENT_NOT_FOUND
+        - CONFERENCE_EDITION_CANNOT_HAVE_DEADLINE_IN_THE_PAST
     SessionEventType:
       type: string
       enum: [ FILE_UPLOAD]

@@ -34,6 +34,10 @@ public class ConferenceEditionService {
             throw new ServiceException(ErrorReason.ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS);
         }
 
+        if (createConferenceEditionRequest.applicationDeadlineTime.isBefore(Instant.now())) {
+            throw new ServiceException(ErrorReason.CONFERENCE_EDITION_CANNOT_HAVE_DEADLINE_IN_THE_PAST);
+        }
+
         var newConferenceEdition = conferenceEditionRepository.save(ConferenceEdition.builder()
                 .applicationDeadlineTime(createConferenceEditionRequest.getApplicationDeadlineTime())
                 .createdAt(Instant.now())
@@ -54,7 +58,12 @@ public class ConferenceEditionService {
                 .orElseThrow(() -> new ServiceException(ErrorReason.NOT_FOUND));
 
         updateConferenceEdition.getApplicationDeadlineTime()
-                .ifPresent(conferenceEdition::setApplicationDeadlineTime);
+                .ifPresent(deadline -> {
+                    if (deadline.isBefore(Instant.now())) {
+                        throw new ServiceException(ErrorReason.CONFERENCE_EDITION_CANNOT_HAVE_DEADLINE_IN_THE_PAST);
+                    }
+                    conferenceEdition.setApplicationDeadlineTime(deadline);
+                });
 
         updateConferenceEdition.getInvitationList().ifPresent(file -> {
             List<ConferenceInvitee> newInvitees = getInviteesFromInvitationList(conferenceEdition, Optional.of(file));
