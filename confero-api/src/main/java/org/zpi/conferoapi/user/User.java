@@ -45,18 +45,7 @@ public class User {
     @Builder.Default
     private List<Session> agenda = new ArrayList<>();
 
-    public User(String orcid, String accessToken, List<Session> agenda) {
-        this.orcid = orcid;
-        this.accessToken = accessToken;
-        this.agenda.addAll(agenda);
-    }
-
-    public User(List<Session> agenda) {
-        this.agenda.addAll(agenda);
-    }
-
     public List<String> getEmailList() {
         return emails.stream().map(UserEmail::getEmail).toList();
     }
-
 }

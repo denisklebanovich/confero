@@ -102,7 +102,11 @@ public class AuthFilter extends OncePerRequestFilter {
 
             User user = userRepository.findByEmail(email)
                     .orElseGet(() -> {
-                        var newUser = userRepository.save(new User(sessionRepository.findUsersParticipations(null, List.of(email))));
+                        var newUser = userRepository.save(
+                                User.builder()
+                                        .agenda(sessionRepository.findUsersParticipations(null, List.of(email)))
+                                        .build()
+                        );
                         userEmailRepository.save(new UserEmail(email, true, newUser, null));
                         return newUser;
                     });

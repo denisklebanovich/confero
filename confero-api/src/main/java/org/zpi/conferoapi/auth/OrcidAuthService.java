@@ -67,14 +67,13 @@ public class OrcidAuthService {
 
         String orcid = (String) response.getBody().get("orcid");
         String accessToken = (String) response.getBody().get("access_token");
-        if (SecurityUtils.getCurrentUserId() != null) {
-            User currentUser = securityUtils.getCurrentUser();
-            currentUser.setOrcid(orcid);
-            currentUser.setAccessToken(accessToken);
-            userRepository.save(currentUser);
-        }
+
         return userRepository.findByOrcid(orcid).orElseGet(() -> {
-            User newUser = new User(orcid, accessToken, sessionRepository.findUsersParticipations(orcid, null));
+            User newUser = User.builder()
+                    .orcid(orcid)
+                    .accessToken(accessToken)
+                    .agenda(sessionRepository.findUsersParticipations(orcid, null))
+                    .build();
             return userRepository.save(newUser);
         });
     }

@@ -38,6 +38,7 @@ public class OrcidAuthController {
         log.info("Received ORCID callback with code {}", code);
         try {
             User user = orcidAuthService.authorizeUser(code);
+            log.info("User {} authorized", user);
             SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getId(),
                     null, Collections.emptyList()));
 
