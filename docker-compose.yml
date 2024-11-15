@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   confero-api:
     container_name: confero-api
@@ -9,6 +11,7 @@ services:
     restart: always
     ports:
       - "8080:8080"
+
   confero-ui:
     container_name: confero-ui
     build:
@@ -20,3 +23,17 @@ services:
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
+
+
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
