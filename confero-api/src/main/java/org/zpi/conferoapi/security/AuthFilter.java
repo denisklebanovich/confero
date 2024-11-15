@@ -40,7 +40,8 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getRequestURI().equals("/api/session");
+        return request.getRequestURI().equals("/api/session") ||
+               request.getRequestURI().equals("/api/auth/orcid/login");
     }
 
     @Override
