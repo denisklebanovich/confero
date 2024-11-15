@@ -1,6 +1,7 @@
 package org.zpi.conferoapi.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,9 @@ import java.util.Collections;
 public class OrcidAuthController {
     private final OrcidAuthService orcidAuthService;
 
+    @Value("${redirect.base-url}")
+    private String baseUrl;
+
     @GetMapping("/login")
     public RedirectView loginWithOrcid() {
         String authorizationUrl = orcidAuthService.getAuthorizationUrl();
@@ -35,8 +39,8 @@ public class OrcidAuthController {
                     null, Collections.emptyList()));
 
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create(String.format("http://localhost:5173/login?orcid_access_token=%s",
-                            user.getAccessToken())))
+                    .location(URI.create(String.format("%s/login?orcid_access_token=%s",
+                            baseUrl, user.getAccessToken())))
                     .build();
         } catch (Exception e) {
             return ResponseEntity.status(403).build();

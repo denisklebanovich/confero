@@ -1379,6 +1379,8 @@ components:
             $ref: '#/components/schemas/EmailResponse'
         orcid:
           type: string
+        isAdmin:
+          type: boolean
         avatarUrl:
           type: string
     EmailResponse:
