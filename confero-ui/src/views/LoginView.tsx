@@ -17,6 +17,7 @@ import {z} from "zod";
 import {useToast} from "@/hooks/use-toast.ts";
 
 
+
 const ORCID_AUTH_URL = '/api/auth/orcid/login'
 
 const formSchema = z.object({
@@ -30,6 +31,10 @@ export default function LoginView() {
     const navigate = useNavigate()
     const {user} = useAuth()
     const {toast} = useToast()
+
+
+    console.log("import.meta.env", import.meta.env)
+    console.log('Redirect URL:', import.meta.env.PROD ? 'https://confero.club' : 'http://localhost:5173');
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -68,7 +73,7 @@ export default function LoginView() {
             const {error} = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: '/'
+                    redirectTo: import.meta.env.PROD ? 'https://confero.club' : 'http://localhost:5173'
                 },
             })
             if (error) throw error
@@ -83,10 +88,11 @@ export default function LoginView() {
     const handleLinkedInLogin = async () => {
         try {
             setLoading(true)
+            console.log("import.meta.env", import.meta.env)
             const {error} = await supabase.auth.signInWithOAuth({
                 provider: 'linkedin_oidc',
                 options: {
-                    redirectTo: '/'
+                    redirectTo: import.meta.env.PROD ? 'https://confero.club' : 'http://localhost:5173'
                 },
             })
             if (error) throw error
