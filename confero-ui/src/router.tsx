@@ -3,12 +3,11 @@ import Layout from "@/components/layout/Layout.tsx";
 import SessionsView from "@/views/SessionsView.tsx";
 import ProposalView from "@/views/ProposalView.tsx";
 import LoginView from "@/views/LoginView.tsx";
-import ApplicationView from "@/views/ApplicationView.tsx";
+import ApplicationsView from "@/views/ApplicationsView.tsx";
 import SessionView from "@/views/SessionView.tsx";
 import AdminSessionView from "@/views/AdminSessionView.tsx";
 import TimetableSessionView from "@/views/TimetableSessionView.tsx";
 import {AuthProvider} from "@/auth/AuthProvider.tsx";
-import CommentView from "@/views/CommentView";
 import ProposalEditView from "./views/ProposalEditView";
 import ProposalAdminView from "./views/ProposalAdminView";
 import MyCalendarView from "@/views/MyCalendarView.tsx";
@@ -40,15 +39,15 @@ export const router = createBrowserRouter([
                 element: <ProposalView/>
             },
             {
-                path: 'proposal-edit',
+                path: 'proposal-edit/:id',
                 element: <ProposalEditView/>
             },
             {
                 path: 'applications',
-                element: <ApplicationView/>
+                element: <ApplicationsView/>
             },
             {
-                path: 'session',
+                path: `session/:id`,
                 element: <SessionView/>
             },
             {
@@ -56,16 +55,12 @@ export const router = createBrowserRouter([
                 element: <AdminSessionView/>
             },
             {
-                path: 'admin-proposal',
+                path: `proposal-admin/:id`,
                 element: <ProposalAdminView/>
             },
             {
                 path: 'timetable',
                 element: <TimetableSessionView/>
-            },
-            {
-                path: 'comment',
-                element: <CommentView/>
             },
             {
                 path: 'my-calendar',

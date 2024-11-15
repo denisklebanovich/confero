@@ -1,9 +1,12 @@
 import React from 'react';
+import {PresenterResponse} from "@/generated";
+import {any} from "zod";
 
-const Organiser = ({ organiser}) => {
+const Organiser = ({name, surname, orcid, isSpeaker}: PresenterResponse|any) => {
     return (
-        <span className={`cursor-pointer ${organiser.isSpeaker ? 'font-medium' : ''}`} onClick={()=> window.open(`https://orcid.org/${organiser.orcid}`, "_blank", "noopener,noreferrer")}>
-             {organiser.name} {organiser.surname}
+        <span className={`cursor-pointer ${isSpeaker ? 'font-light' : ''}`}
+              onClick={() => window.open(`https://orcid.org/${orcid}`, "_blank", "noopener,noreferrer")}>
+             {name} {surname}
         </span>
     );
 };

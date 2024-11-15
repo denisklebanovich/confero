@@ -1162,6 +1162,8 @@ components:
       properties:
         title:
           type: string
+          required:
+            - title
         description:
           type: string
         presenters:
@@ -1276,7 +1278,7 @@ components:
       properties:
         id:
           type: string
-        message:
+        content:
           type: string
         createdAt:
           type: string

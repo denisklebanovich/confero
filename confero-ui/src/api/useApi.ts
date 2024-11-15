@@ -1,5 +1,6 @@
 import {useApiClient} from "@/api/useApiClient.ts";
 import {useMutation, UseMutationOptions, useQuery, UseQueryOptions} from "@tanstack/react-query";
+import {CancelablePromise} from "@/generated";
 
 export function useApi() {
     const apiClient = useApiClient()
@@ -17,7 +18,7 @@ export function useApi() {
     }
 
     function useApiMutation<T, V>(
-        method: (variables: V) => Promise<T>,
+        method: (variables: V) => CancelablePromise<T>,
         options?: UseMutationOptions<T, Error, V>
     ) {
         return useMutation({
