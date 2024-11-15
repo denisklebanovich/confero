@@ -2,6 +2,7 @@ import React, {createContext, useContext, useEffect, useState} from 'react'
 import {Session, User} from '@supabase/supabase-js'
 import {useNavigate} from "react-router-dom"
 import {supabase} from "@/auth/supabaseClient.ts";
+import {useApi} from "@/api/useApi.ts";
 
 interface AuthContextType {
     user: User | null
@@ -79,7 +80,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
     )
 }
 
- 
+
 export function useAuth() {
     const context = useContext(AuthContext)
     if (context === undefined) {

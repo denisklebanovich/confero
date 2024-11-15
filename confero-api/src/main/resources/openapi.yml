@@ -48,7 +48,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProfileResponse'
-
+  /profile/info:
+    put:
+      tags:
+        - Profile
+        - User
+      summary: Update user info.
+      description: |-
+        Update user info.
+      operationId: updateUserInfo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileInfoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /profile/email:
     put:
       tags:
@@ -1396,6 +1423,13 @@ components:
         email:
           type: string
           format: email
+    UpdateProfileInfoRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
     UpdateAvatarRequest:
       type: object
       properties:

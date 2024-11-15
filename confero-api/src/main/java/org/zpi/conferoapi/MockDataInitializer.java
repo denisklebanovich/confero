@@ -42,12 +42,14 @@ public class MockDataInitializer implements CommandLineRunner {
                 .setAuthentication(new UsernamePasswordAuthenticationToken(admin.getId(), null, null));
         var edition = saveCurrentEdition();
         var users = saveMockUsers();
-        saveMockSessions(users, edition);
+        saveMockSessions(users, edition,admin);
     }
 
     private User initAdmin() {
         User user = User
                 .builder()
+                .name("Dzianis")
+                .surname("Klebanovich")
                 .orcid("0009-0005-9044-6202")
                 .isAdmin(true)
                 .build();
@@ -98,12 +100,12 @@ public class MockDataInitializer implements CommandLineRunner {
 
     }
 
-    public List<Session> saveMockSessions(List<User> users, ConferenceEdition edition) {
+    public List<Session> saveMockSessions(List<User> users, ConferenceEdition edition,User admin) {
         var sessions = List.of(
                 Session.builder()
                         .title("Innovative Approaches in Quantum Computing")
                         .description("This session will cover the latest innovative approaches in quantum computing.")
-                        .creator(users.get(0))
+                        .creator(admin)
                         .type(SessionType.SESSION)
                         .presentations(
                                 List.of(Presentation.builder()
@@ -116,7 +118,8 @@ public class MockDataInitializer implements CommandLineRunner {
                                                         Presenter.builder()
                                                                 .name("Dr. Alice")
                                                                 .surname("Smith")
-                                                                .orcid("0000-0001-2345-6789")
+                                                                .email("denis.klebanovich@gmail.com")
+                                                                .orcid("0009-0005-9044-6202")
                                                                 .isSpeaker(true)
                                                                 .build(),
                                                         Presenter.builder()

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ProfileResponse;
 import org.openapitools.model.UpdateEmailRequest;
+import org.openapitools.model.UpdateProfileInfoRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.zpi.conferoapi.configuration.S3Service;
@@ -27,6 +28,13 @@ public class ProfileService {
 
     public ProfileResponse getUserProfile() {
         return userMapper.toDto(securityUtils.getCurrentUser());
+    }
+
+    public ProfileResponse updateUserInfo(UpdateProfileInfoRequest updateProfileInfoRequest) {
+        User user = securityUtils.getCurrentUser();
+        user.setName(updateProfileInfoRequest.getName());
+        user.setSurname(updateProfileInfoRequest.getSurname());
+        return userMapper.toDto(userRepository.save(user));
     }
 
 

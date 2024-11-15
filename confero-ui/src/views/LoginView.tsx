@@ -17,8 +17,14 @@ import {z} from "zod";
 import {useToast} from "@/hooks/use-toast.ts";
 
 
-
-const ORCID_AUTH_URL = '/api/auth/orcid/login'
+export const handleOrcidLogin = async () => {
+    try {
+        window.location.href = '/api/auth/orcid/login';
+    } catch (error) {
+        console.error('Error logging in with ORCID:', error)
+        alert('Error logging in with ORCID. Please try again.')
+    }
+}
 
 const formSchema = z.object({
     email: z.string().email({message: "Invalid email address"}),
@@ -55,17 +61,6 @@ export default function LoginView() {
             navigate('/')
         }
     }, [user, navigate])
-
-    const handleOrcidLogin = async () => {
-        try {
-            window.location.href = ORCID_AUTH_URL
-        } catch (error) {
-            console.error('Error logging in with ORCID:', error)
-            alert('Error logging in with ORCID. Please try again.')
-        } finally {
-            setLoading(false)
-        }
-    }
 
     const handleGoogleLogin = async () => {
         try {

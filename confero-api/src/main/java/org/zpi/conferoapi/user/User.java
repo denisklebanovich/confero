@@ -23,6 +23,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String orcid;
+    private String name;
+    private String surname;
     private String accessToken;
     private String avatarUrl;
 

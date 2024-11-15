@@ -1,8 +1,6 @@
-import {Link, useParams} from "react-router-dom";
-import {Button} from "@/components/ui/button.tsx";
+import {useParams} from "react-router-dom";
 import SessionDescription from "@/components/session/SessionDescription.tsx";
 import Room from "@/components/session/Room.tsx";
-import SessionFiles from "@/components/session/SessionFiles";
 import {useApi} from "@/api/useApi.ts";
 import {useAuth} from "@/auth/AuthProvider.tsx";
 import {Spinner} from "@/components/ui/spiner.tsx";
@@ -42,11 +40,11 @@ export default function SessionView() {
                                         organisers={getOrganisers()}/>
                 </div>
                 <div className='flex flex-col items-center w-full'>
-                {
-                    session.presentations.map(presentation => (
-                        <PresentationCard key={presentation.id} {...presentation}/>
-                    ))
-                }
+                    {
+                        session.presentations.map(presentation => (
+                            <PresentationCard key={presentation.id} presentation={presentation} sessionId={session.id}/>
+                        ))
+                    }
                 </div>
             </>
     );

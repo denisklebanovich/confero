@@ -17,6 +17,7 @@ import ConferenceEditionsView from "@/views/ConferenceEditionsView.tsx";
 import {Toaster} from "@/components/ui/toaster.tsx";
 import React from "react";
 import SignUpView from "@/views/SignUpView.tsx";
+import ProfileView from "@/views/ProfileView.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -59,7 +60,7 @@ export const router = createBrowserRouter([
                 element: <ProposalAdminView/>
             },
             {
-                path: 'timetable',
+                path: `sessions/:id/timetable`,
                 element: <TimetableSessionView/>
             },
             {
@@ -78,6 +79,10 @@ export const router = createBrowserRouter([
             {
                 path: 'conference-editions',
                 element: <ConferenceEditionsView/>
+            },
+            {
+                path: 'profile',
+                element: <ProfileView/>
             }
         ]
     },

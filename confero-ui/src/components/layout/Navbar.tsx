@@ -28,6 +28,10 @@ const Navbar = () => {
         {
             name: "My Calendar",
             to: "/my-calendar",
+        },
+        {
+            name: "Profile",
+            to: "/profile",
         }
     ]
     return (
