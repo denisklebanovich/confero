@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS users
 (
     id           BIGSERIAL PRIMARY KEY,
-    name         VARCHAR(255) NOT NULL,
-    surname      VARCHAR(255) NOT NULL,
+    name         VARCHAR(255),
+    surname      VARCHAR(255),
     orcid        VARCHAR(255),
     access_token VARCHAR(255),
     avatar_url   TEXT,

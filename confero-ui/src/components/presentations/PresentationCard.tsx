@@ -84,7 +84,7 @@ export default function PresentationCard({
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
         if (files) {
-            uploadFile(sessionId, presentationId, {file: files[0]})
+            // uploadFile(sessionId, presentationId, {file: files[0]})
         }
     }
 
@@ -153,7 +153,7 @@ export default function PresentationCard({
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => deleteFile({sessionId, presentationId, attachmentId: file.id})}
+                                        // onClick={() => deleteFile({sessionId, presentationId, attachmentId: file.id})}
                                         aria-label={`Remove ${file.name}`}
                                     >
                                         <X className="h-4 w-4"/>
