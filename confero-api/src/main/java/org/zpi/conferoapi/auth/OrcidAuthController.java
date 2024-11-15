@@ -1,6 +1,7 @@
 package org.zpi.conferoapi.auth;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.zpi.conferoapi.user.User;
 import java.net.URI;
 import java.util.Collections;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth/orcid")
 @RequiredArgsConstructor
@@ -33,6 +35,7 @@ public class OrcidAuthController {
 
     @GetMapping("/callback")
     public ResponseEntity<Void> orcidCallback(@RequestParam String code) {
+        log.info("Received ORCID callback with code {}", code);
         try {
             User user = orcidAuthService.authorizeUser(code);
             SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getId(),
@@ -43,6 +46,7 @@ public class OrcidAuthController {
                             baseUrl, user.getAccessToken())))
                     .build();
         } catch (Exception e) {
+            log.info("Error while orcid callback", e);
             return ResponseEntity.status(403).build();
         }
     }

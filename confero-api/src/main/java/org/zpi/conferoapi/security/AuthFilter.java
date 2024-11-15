@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,6 +29,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Profile("prod")
+@Slf4j
 public class AuthFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
@@ -61,6 +63,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
         if (!authenticated) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            log.info("Unauthorized request from {}", request.getRemoteAddr());
             return;
         }
 
@@ -69,9 +72,12 @@ public class AuthFilter extends OncePerRequestFilter {
 
 
     private boolean handleOrcidAccessToken(String orcidAccessToken) {
+        log.info("Handling ORCID access token: {}", orcidAccessToken);
         Long userId = userRepository.findByAccessToken(orcidAccessToken)
                 .map(User::getId)
                 .orElse(null);
+
+        log.info("User ID: {}", userId);
 
         if (userId != null) {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
