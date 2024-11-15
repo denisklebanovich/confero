@@ -12,7 +12,13 @@ import {useEffect} from "react";
 import PresentationForm from "@/components/presentations/PresentationForm";
 import {Plus} from "lucide-react";
 import {Separator} from "@/components/ui/separator";
-import {ApplicationPreviewResponse, ApplicationResponse, CreateApplicationRequest, SessionType} from "@/generated";
+import {
+    ApplicationPreviewResponse,
+    ApplicationResponse,
+    CreateApplicationRequest,
+    PresentationRequest,
+    SessionType
+} from "@/generated";
 import {useApi} from "@/api/useApi.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -116,7 +122,7 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
             type: data.type as SessionType,
             description: data.description,
             tags: data.tags,
-            presentations: data.presentations,
+            presentations: data.presentations as PresentationRequest[],
             saveAsDraft: !!asDraft,
         });
     };
