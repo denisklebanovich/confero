@@ -22,6 +22,7 @@ import {
 import {useApi} from "@/api/useApi.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
+import useTags from "@/hooks/useTags.ts";
 
 const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
     message:
@@ -70,6 +71,8 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
             presentations: proposal?.presentations || [],
         },
     });
+
+    const { analyzeText, generateTags } = useTags();
     const {toast} = useToast();
 
     const {apiClient, useApiMutation} = useApi();
@@ -127,14 +130,24 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
         });
     };
 
-    function updateTags(e) {
+    async function updateTags(e) {
         e.preventDefault();
         console.log("Tags updated");
-        setValue("tags", [
-            "Computer Vision",
-            "Artificial Intelligence",
-            "Machine Learning",
-        ]);
+        if (descriptionValue) {
+            try {
+                await analyzeText(descriptionValue);
+                const tags = generateTags();
+                setValue("tags", tags);
+            } catch (error) {
+                console.error("Error analyzing text:", error);
+            }
+        } else {
+            toast({
+                title: "Description is required",
+                description: "Please enter a description to generate tags.",
+                variant: "info",
+            })
+        }
     }
 
     const addPresentation = () => {
