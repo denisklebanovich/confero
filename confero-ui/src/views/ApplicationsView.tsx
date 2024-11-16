@@ -32,7 +32,7 @@ const ApplicationsView = () => {
     const orderValue = watch("order");
 
 
-    const {filteredApplications, isLoading} = useFilteredApplications(yearValue, statusValue, orderValue);
+    const {filteredApplications, years, isLoading} = useFilteredApplications(yearValue, statusValue, orderValue);
 
     useEffect(() => {
         setTotalPages(Math.ceil(filteredApplications.length / ITEMS_PER_PAGE));
@@ -85,8 +85,11 @@ const ApplicationsView = () => {
                                                 </FormControl>
                                                 <SelectContent>
                                                     <SelectItem value="All">All</SelectItem>
-                                                    <SelectItem value="2024">2024</SelectItem>
-                                                    <SelectItem value="2023">2023</SelectItem>
+                                                    {years.map((year) => (
+                                                        <SelectItem key={year} value={year.toString()}>
+                                                            {year}
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage/>

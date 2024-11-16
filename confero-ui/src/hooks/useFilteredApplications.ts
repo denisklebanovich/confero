@@ -1,15 +1,24 @@
-import { useState, useEffect } from "react";
-import { useApi } from "@/api/useApi.ts";
-import { ApplicationPreviewResponse, ApplicationStatus } from "@/generated";
+import {useState, useEffect} from "react";
+import {useApi} from "@/api/useApi.ts";
+import {ApplicationPreviewResponse, ApplicationStatus} from "@/generated";
 
 const useFilteredApplications = (year, status, order) => {
-    const { apiClient, useApiQuery } = useApi();
+    const {apiClient, useApiQuery} = useApi();
     const [filteredApplications, setFilteredApplications] = useState([]);
+    const [years, setYears] = useState([]);
 
-    const { data: applications, isLoading } = useApiQuery<ApplicationPreviewResponse[]>(
+    const {data: applications, isLoading} = useApiQuery<ApplicationPreviewResponse[]>(
         ["applications"],
         () => apiClient.application.getApplications()
     );
+
+    useEffect(() => {
+        if (!applications) return;
+        const years = Array.from(
+            new Set(applications.map((application) => new Date(application.createdAt).getFullYear()))
+        ).sort((a, b) => b - a);
+        setYears([...years]);
+    }, [applications]);
 
     useEffect(() => {
         console.log("useFilteredApplications", applications);
@@ -37,7 +46,7 @@ const useFilteredApplications = (year, status, order) => {
         setFilteredApplications(filtered);
     }, [applications, year, status, order]);
 
-    return { filteredApplications, isLoading };
+    return {filteredApplications, years, isLoading};
 };
 
 export default useFilteredApplications;
