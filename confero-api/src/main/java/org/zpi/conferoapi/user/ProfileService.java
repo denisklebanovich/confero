@@ -1,12 +1,15 @@
 package org.zpi.conferoapi.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ProfileResponse;
 import org.openapitools.model.UpdateEmailRequest;
 import org.openapitools.model.UpdateProfileInfoRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.zpi.conferoapi.conference.ConferenceEdition;
+import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.configuration.S3Service;
 import org.zpi.conferoapi.email.EmailServiceImpl;
 import org.zpi.conferoapi.email.UserEmail;
@@ -14,27 +17,31 @@ import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.security.SecurityUtils;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class ProfileService {
-    private final UserRepository userRepository;
-    private final UserEmailRepository userEmailRepository;
-    private final S3Service s3Service;
-    private final SecurityUtils securityUtils;
-    private final UserMapper userMapper;
-    private final EmailServiceImpl emailService;
+    UserRepository userRepository;
+    UserEmailRepository userEmailRepository;
+    S3Service s3Service;
+    SecurityUtils securityUtils;
+    UserMapper userMapper;
+    EmailServiceImpl emailService;
+    ConferenceEditionRepository conferenceEditionRepository;
 
     public ProfileResponse getUserProfile() {
-        return userMapper.toDto(securityUtils.getCurrentUser());
+        User user = securityUtils.getCurrentUser();
+        return userMapper.toDto(securityUtils.getCurrentUser(), isUserInvitee(user));
     }
 
     public ProfileResponse updateUserInfo(UpdateProfileInfoRequest updateProfileInfoRequest) {
         User user = securityUtils.getCurrentUser();
         user.setName(updateProfileInfoRequest.getName());
         user.setSurname(updateProfileInfoRequest.getSurname());
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toDto(userRepository.save(user), isUserInvitee(user));
     }
 
 
@@ -43,7 +50,7 @@ public class ProfileService {
         String key = "avatars/" + user.getId() + "/" + file.getOriginalFilename();
         String url = s3Service.uploadFile(key, file);
         user.setAvatarUrl(url);
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toDto(userRepository.save(user), isUserInvitee(user));
     }
 
 
@@ -61,7 +68,7 @@ public class ProfileService {
             throw new ServiceException(ErrorReason.EMAIL_SENDING_ERROR);
         }
         userEmailRepository.save(userEmail);
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toDto(userRepository.save(user), isUserInvitee(user));
     }
 
     public void verifyEmail(String token) {
@@ -73,5 +80,11 @@ public class ProfileService {
 
     private String generateEmailVerificationLink(String token) {
         return "<a href=http://localhost:8080/api/profile/email/verify?token=" + token + ">Verify your email</a>";
+    }
+
+    private boolean isUserInvitee(User user) {
+        var edition = conferenceEditionRepository.findCurrentConferenceEdition();
+        return edition.map(conferenceEdition -> conferenceEdition.getInvitees().stream().anyMatch(i -> user.getEmailList().contains(i.getEmail())))
+                .orElse(false);
     }
 }

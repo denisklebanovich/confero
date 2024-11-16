@@ -8,7 +8,8 @@ public interface UserMapper {
 
     @Mapping(target = "firstName", source = "name")
     @Mapping(target = "lastName", source = "surname")
-    ProfileResponse toDto(User user);
+    @Mapping(target = "isInvitee", source = "isInvitee")
+    ProfileResponse toDto(User user, boolean isInvitee);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     User partialUpdate(UserDto userDto, @MappingTarget User user);

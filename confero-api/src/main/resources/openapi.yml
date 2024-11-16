@@ -1410,6 +1410,8 @@ components:
           type: boolean
         avatarUrl:
           type: string
+        isInvitee:
+          type: boolean
     EmailResponse:
       type: object
       properties:

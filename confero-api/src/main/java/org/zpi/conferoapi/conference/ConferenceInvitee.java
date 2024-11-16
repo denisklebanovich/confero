@@ -23,4 +23,9 @@ public class ConferenceInvitee {
     @JoinColumn(name = "edition_id", insertable = false, updatable = false)
     private ConferenceEdition edition;
 
+
+    public String getEmail() {
+        return id.getEmail();
+    }
+
 }
