@@ -3,7 +3,9 @@ import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
 import scheduler from "dhtmlx-scheduler";
 import TimeTableModal from "@/components/timetable/TimeTableModal.tsx";
 
-const Timetable = ({presentations, setPresentations}) => {
+const Timetable = ({presentations, setPresentations, date}) => {
+    console.log(date)
+    console.log(presentations)
     const schedulerContainer = useRef(null);
 
     const [open, setOpen] = useState(false)
@@ -89,6 +91,8 @@ const Timetable = ({presentations, setPresentations}) => {
         })
 
 
+
+
         scheduler.attachEvent("onBeforeEventMenu", function (id, menu) {
             const event = scheduler.getEvent(id);
             if (!event.toShow) {
@@ -116,6 +120,16 @@ const Timetable = ({presentations, setPresentations}) => {
             scheduler.clearAll();
         };
     }, []);
+
+
+    useEffect(() => {
+        scheduler.init(schedulerContainer.current, new Date(date), "day");
+        scheduler.clearAll();
+        scheduler.parse(presentations.map(presentation => ({
+            ...presentation,
+            onClick: () => onEventChange(presentation)
+        })), "json");
+    }, [date]);
 
     function onEventChange(event){
          setSelectedEvent(event);

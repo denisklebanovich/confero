@@ -9,6 +9,7 @@ const TimetableSessionView = () => {
     const navigate = useNavigate();
     const {id} = useParams();
     const {apiClient, useApiQuery} = useApi();
+    const [calendarDate, setCalendarDate] = useState(new Date());
 
     const {data: session, isLoading} = useApiQuery(
         ["session", id],
@@ -28,6 +29,7 @@ const TimetableSessionView = () => {
                 organisers_line: presentation.presenters.map(presenter => `${presenter.name} ${presenter.surname}`).join(", "),
                 start_date: presentation.startTime,
                 end_date: presentation.endTime,
+                toShow: false
             }
         });
     }
@@ -39,9 +41,10 @@ const TimetableSessionView = () => {
 
     useEffect(() => {
         if (session) {
+            setCalendarDate(new Date(session.presentations[0].startTime));
             setPresentations(getPresentations());
         }
-    }, []);
+    }, [session]);
 
 
     return (
@@ -53,7 +56,7 @@ const TimetableSessionView = () => {
             <div className='flex flex-col items-center'>
                 <div className='text-3xl font-bold'>Timetable of session</div>
                 <div className='text-xl font-semibold pt-2'>{session.title}</div>
-                <Timetable presentations={presentations} setPresentations={setPresentations}/>
+                <Timetable presentations={presentations} setPresentations={setPresentations} date={calendarDate}/>
                 <div
                     className='w-full fixed bottom-16 left-0 pb-3 flex flex-row justify-between items-center px-[20vw]'>
                     <Button onClick={() => navigate("/my-sessions")} variant='secondary'>Back</Button>
