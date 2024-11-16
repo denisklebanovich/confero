@@ -1,11 +1,13 @@
 import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardHeader} from "@/components/ui/card"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Clock, Download, Upload, X} from 'lucide-react'
 import {useState} from "react"
 import {AttachmentRequest, AttachmentResponse, PresentationSessionResponse} from "@/generated";
 import {getFormattedTime} from "@/utils/dateUtils.ts";
 import {useApi} from "@/api/useApi.ts";
 import {useToast} from "@/hooks/use-toast.ts";
+import {Organisers} from "@/utils/Organisers.tsx";
+import {useAuth} from "@/auth/AuthProvider.tsx";
 
 
 interface PresentationCardProps {
@@ -28,6 +30,7 @@ export default function PresentationCard({
     const [uploadedFiles, setUploadedFiles] = useState<AttachmentResponse[]>(attachments)
     const {apiClient, useApiMutation} = useApi()
     const {toast} = useToast()
+    const {authorized} = useAuth()
 
     const {mutate: uploadFile} = useApiMutation<AttachmentResponse, {
         sessionId: number,
@@ -92,78 +95,69 @@ export default function PresentationCard({
         window.open(file.url, '_blank')
     }
 
+    const files = [
+        { name: "IntelligentSystemsResearch.pdf", type: "pdf" },
+        { name: "IntelligentSystemsDemoCode.zip", type: "zip" }
+    ]
+
+
     return (
-        <Card className="w-full max-w-7xl">
+        <Card className={`${!authorized ? "min-w-[500px] max-w-[600px]" : "w-[95%] mb-3"} snap-start`}>
             <CardHeader>
-                <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">
-                        {presenters.map((presenter, index) => (
-                            <span key={presenter.id} className={presenter.isSpeaker ? "font-semibold" : ""}>
-                                {presenter.name}
-                                {index < presenters.length - 1 ? ", " : null}
-                            </span>
-                        ))}
+                <div className={"w-full flex flex-row justify-around"}>
+                    <div className="space-y-2 w-3/4">
+                        <div className="text-sm text-muted-foreground">
+                            <Organisers organisers={presenters} chunkSize={authorized ? 10 : 4}/>
+                        </div>
+                        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+                        <p className="text-muted-foreground">{description}</p>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                            <Clock className="mr-2 h-4 w-4"/>
+                            <span>{getFormattedTime(startTime)} - {getFormattedTime(endTime)}</span>
+                        </div>
                     </div>
-                    <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-                    <p className="text-muted-foreground">{description}</p>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <div className="flex flex-col gap-6">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="mr-2 h-4 w-4"/>
-                        <span>{getFormattedTime(startTime)} - {getFormattedTime(endTime)}</span>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">Files</h3>
-                            <div className="relative">
-                                <input
-                                    type="file"
-                                    id="file-upload"
-                                    className="hidden"
-                                    multiple
-                                    aria-label="Upload files"
-                                />
+                    <div className={"w-1/4"}>
+                        <Card className="w-full max-w-2x">
+                            <div className="flex flex-row items-center justify-between space-y-0 px-5 pt-4">
+                                <div className="text-xl font-semibold">Files</div>
                                 <Button
                                     variant="secondary"
-                                    size="sm"
-                                    onClick={() => document.getElementById("file-upload")?.click()}
+                                    className="text-sm font-medium"
+                                    onClick={() => {
+                                        // Handle file upload
+                                    }}
                                 >
-                                    <Upload className="mr-2 h-4 w-4"/>
                                     Upload files
                                 </Button>
                             </div>
-                        </div>
-                        <div className="space-y-2">
-                            {uploadedFiles.map((file) => (
-                                <div
-                                    key={file.id}
-                                    className="flex items-center justify-between rounded-lg border p-2"
-                                >
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-sm text-left"
-                                        onClick={() => handleFileDownload(file)}
-                                    >
-                                        <Download className="mr-2 h-4 w-4"/>
-                                        {file.name}
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        // onClick={() => deleteFile({sessionId, presentationId, attachmentId: file.id})}
-                                        aria-label={`Remove ${file.name}`}
-                                    >
-                                        <X className="h-4 w-4"/>
-                                    </Button>
+                            <CardContent >
+                                <div>
+                                    {files.map((file) => (
+                                        <div
+                                            key={file.name}
+                                            className="flex items-center justify-between py-2"
+                                        >
+                                            <span className="text-sm">{file.name}</span>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8"
+                                                onClick={() => {
+                                                    // Handle file removal
+                                                }}
+                                            >
+                                                <X className="h-4 w-4" />
+                                                <span className="sr-only">Remove file</span>
+                                            </Button>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
-            </CardContent>
+
+            </CardHeader>
         </Card>
     )
 }

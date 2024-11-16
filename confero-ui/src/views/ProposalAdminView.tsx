@@ -13,12 +13,12 @@ import {
 import {useApi} from "@/api/useApi.ts";
 import {useState} from "react";
 import {Spinner} from "@/components/ui/spiner.tsx";
-import Organiser from "@/utils/Organiser.tsx";
 import CommentModal from "@/components/proposal/CommentModal.tsx";
 import {useToast} from "@/hooks/use-toast.ts";
 import {useQueryClient} from "@tanstack/react-query";
 import {STATUS_COLORS} from "@/components/application/ApplicationCard.tsx";
 import {ApplicationComments} from "@/components/proposal/ApplicationComments.tsx";
+import {Organisers} from "@/utils/Organisers.tsx";
 
 const ProposalAdminView = () => {
     const navigate = useNavigate();
@@ -125,11 +125,7 @@ const ProposalAdminView = () => {
                                         <p className="text-sm text-muted-foreground mb-2">{presentation.description}</p>
                                         <div className="text-sm">
                                             <strong>Presenters:</strong>
-                                            {presentation.presenters.map(presenter => (
-                                                <div key={presenter.id}>
-                                                    <Organiser {...presenter} />
-                                                </div>
-                                            ))}
+                                            <Organisers organisers={presentation.presenters} chunkSize={5}/>
                                         </div>
                                     </CardContent>
                                 </Card>

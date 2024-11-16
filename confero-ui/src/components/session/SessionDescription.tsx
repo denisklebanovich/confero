@@ -1,6 +1,7 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {PresenterResponse} from "@/generated";
-import Organiser from "@/utils/Organiser.tsx";
+import {useAuth} from "@/auth/AuthProvider.tsx";
+import {Organisers} from "@/utils/Organisers.tsx";
 
 type SessionDescriptionProps = {
     title: string;
@@ -9,8 +10,10 @@ type SessionDescriptionProps = {
 }
 const SessionDescription = ({title, description, organisers}: SessionDescriptionProps) => {
 
+    const {authorized} = useAuth()
+
     return (
-        <Card className="w-1/3">
+        <Card className={`${authorized ? "w-1/3 h-[300px]" : "w-4/5"} mb-8`}>
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>
@@ -18,10 +21,8 @@ const SessionDescription = ({title, description, organisers}: SessionDescription
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <h3 className="font-semibold mb-2">Organizers</h3>
-                {organisers.map((organiser) => (
-                    <Organiser key={organiser.id} organiser={organiser}/>
-                ))}
+                <h3 className="font-semibold">Organizers</h3>
+                <Organisers organisers={organisers} chunkSize={authorized ?  3 : 10}/>
             </CardContent>
         </Card>
     );
