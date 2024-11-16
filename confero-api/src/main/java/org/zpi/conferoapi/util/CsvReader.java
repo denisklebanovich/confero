@@ -34,9 +34,10 @@ public class CsvReader {
 
                 String email = record.get(0).trim();
                 if (!email.isEmpty()) {
-                    if (!EMAIL_PATTERN.matcher(email).matches()) {
-                        throw new IOException("Invalid email format: " + email);
-                    }
+                    //TODO: ADD REGEXP VALIDATION
+//                    if (!EMAIL_PATTERN.matcher(email).matches()) {
+//                        throw new IOException("Invalid email format: " + email);
+//                    }
                     emails.add(email);
                 }
             }

@@ -1,8 +1,9 @@
 import React from 'react';
-import {PresenterResponse} from "@/generated";
-import {any} from "zod";
 
-const Organiser = ({name, surname, orcid, isSpeaker}: PresenterResponse|any) => {
+
+const Organiser = ({ organiser} : any) => {
+
+    const { name, surname, orcid, isSpeaker } = organiser;
     return (
         <span className={`cursor-pointer ${isSpeaker ? 'font-light' : ''}`}
               onClick={() => window.open(`https://orcid.org/${orcid}`, "_blank", "noopener,noreferrer")}>

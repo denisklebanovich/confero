@@ -9,6 +9,8 @@ export const getFormattedDate = (dateString: string) => {
 }
 
 export const getInputDate = (dateString: string) => {
+    console.log(dateString, 101)
     const date = new Date(dateString);
+    console.log(date.toISOString().split("T")[0], 1234)
     return date.toISOString().split("T")[0];
 }

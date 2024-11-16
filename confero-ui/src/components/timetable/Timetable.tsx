@@ -2,8 +2,18 @@ import React, {useEffect, useRef, useState} from "react";
 import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
 import scheduler from "dhtmlx-scheduler";
 import TimeTableModal from "@/components/timetable/TimeTableModal.tsx";
+import {
+    ApiError,
+    ConferenceEditionResponse,
+    CreateConferenceEditionRequest,
+    SessionResponse, UpdateConferenceEditionRequest,
+    UpdateSessionRequest
+} from "@/generated";
+import {useApi} from "@/api/useApi.ts";
+import {useQueryClient} from "@tanstack/react-query";
+import {useToast} from "@/hooks/use-toast.ts";
 
-const Timetable = ({presentations, setPresentations}) => {
+const Timetable = ({presentations, setPresentations, date}) => {
     const schedulerContainer = useRef(null);
 
     const [open, setOpen] = useState(false)
@@ -89,6 +99,8 @@ const Timetable = ({presentations, setPresentations}) => {
         })
 
 
+
+
         scheduler.attachEvent("onBeforeEventMenu", function (id, menu) {
             const event = scheduler.getEvent(id);
             if (!event.toShow) {
@@ -117,10 +129,22 @@ const Timetable = ({presentations, setPresentations}) => {
         };
     }, []);
 
+
+    useEffect(() => {
+        scheduler.init(schedulerContainer.current, new Date(date), "day");
+        scheduler.clearAll();
+        scheduler.parse(presentations.map(presentation => ({
+            ...presentation,
+            onClick: () => onEventChange(presentation)
+        })), "json");
+    }, [date]);
+
     function onEventChange(event){
          setSelectedEvent(event);
         setOpen(true)
     }
+
+
 
 
     const getAllEvents = () => {
@@ -152,7 +176,7 @@ const Timetable = ({presentations, setPresentations}) => {
                 `}
             </style>
             <TimeTableModal open={open} setOpen={setOpen} selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setPresentations={setPresentations} />
-            <div ref={schedulerContainer} style={{ width: "70%", height: "450px", paddingTop: "5px" }} />
+            <div ref={schedulerContainer} style={{ width: "70%", height: "375px", paddingTop: "5px" }} />
         </>
     )
 
