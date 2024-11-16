@@ -1,3 +1,8 @@
 redirect:
   base-url:
     https://confero.club
+
+
+email:
+  verification:
+    base-url: https://confero.club

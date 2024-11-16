@@ -6,6 +6,7 @@ import org.openapitools.model.ErrorReason;
 import org.openapitools.model.ProfileResponse;
 import org.openapitools.model.UpdateEmailRequest;
 import org.openapitools.model.UpdateProfileInfoRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.zpi.conferoapi.conference.ConferenceEdition;
@@ -31,6 +32,9 @@ public class ProfileService {
     UserMapper userMapper;
     EmailServiceImpl emailService;
     ConferenceEditionRepository conferenceEditionRepository;
+
+    @Value("${email.verification.base-url}")
+    String emailVerificationBaseUrl;
 
     public ProfileResponse getUserProfile() {
         User user = securityUtils.getCurrentUser();
@@ -79,7 +83,7 @@ public class ProfileService {
     }
 
     private String generateEmailVerificationLink(String token) {
-        return "<a href=http://localhost:8080/api/profile/email/verify?token=" + token + ">Verify your email</a>";
+        return "<a href=" + emailVerificationBaseUrl + "/api/profile/email/verify?token=" + token + ">Verify your email</a>";
     }
 
     private boolean isUserInvitee(User user) {

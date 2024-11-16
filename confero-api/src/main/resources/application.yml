@@ -66,3 +66,8 @@ orcid:
 redirect:
   base-url:
     http://localhost:5173
+
+
+email:
+  verification:
+    base-url: http://localhost:8080
