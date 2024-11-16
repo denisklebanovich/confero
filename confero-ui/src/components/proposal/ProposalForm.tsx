@@ -22,6 +22,7 @@ import {
 import {useApi} from "@/api/useApi.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
+import useTags from "@/hooks/useTags.ts";
 
 const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
     message:
@@ -70,8 +71,9 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
             presentations: proposal?.presentations || [],
         },
     });
-    const {toast} = useToast();
 
+    const {loading: loadingTags, analyzeText} = useTags();
+    const {toast} = useToast();
     const {apiClient, useApiMutation} = useApi();
 
     const {mutate: createProposal} = useApiMutation<ApplicationPreviewResponse, CreateApplicationRequest>(
@@ -127,14 +129,23 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
         });
     };
 
-    function updateTags(e) {
+    async function updateTags(e) {
         e.preventDefault();
         console.log("Tags updated");
-        setValue("tags", [
-            "Computer Vision",
-            "Artificial Intelligence",
-            "Machine Learning",
-        ]);
+        if (descriptionValue) {
+            try {
+                const tags = await analyzeText(descriptionValue);
+                setValue("tags", tags);
+            } catch (error) {
+                console.error("Error analyzing text:", error);
+            }
+        } else {
+            toast({
+                title: "Description is required",
+                description: "Please enter a description to generate tags.",
+                variant: "info",
+            })
+        }
     }
 
     const addPresentation = () => {
@@ -232,8 +243,28 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
                             ))}
                         </div>
                         {isDisabled ? null : (
-                            <Button onClick={(e) => updateTags(e)} variant="secondary">
-                                Generate tags
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={updateTags}
+                                disabled={loadingTags}
+                            >
+                                {loadingTags ? (
+                                    <>
+                                        <span className="mr-2">
+                                            <svg className="animate-spin h-4 w-4 text-primary"
+                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor"
+                                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </span>
+                                        Generating tags...
+                                    </>
+                                ) : (
+                                    'Generate tags'
+                                )}
                             </Button>
                         )}
                     </div>
