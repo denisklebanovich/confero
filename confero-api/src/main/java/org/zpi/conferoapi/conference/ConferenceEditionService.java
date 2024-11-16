@@ -105,6 +105,7 @@ public class ConferenceEditionService {
                         )
                         .toList();
             } catch (IOException e) {
+                log.info("Failed to read emails from the invitation list", e);
                 throw new ServiceException(ErrorReason.INVALID_FILE_FORMAT);
             }
         }).orElseGet(List::of);

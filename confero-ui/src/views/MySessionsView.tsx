@@ -3,7 +3,7 @@ import SessionTimeSetter from "@/components/admin-session/SessionTimeSetter.tsx"
 import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router-dom";
 import {useApi} from "@/api/useApi.ts";
-import {SessionPreviewResponse} from "@/generated";
+import {ApiError, ConferenceEditionResponse, CreateConferenceEditionRequest, SessionPreviewResponse} from "@/generated";
 
 const MySessionsView = () => {
     const navigate = useNavigate();
@@ -13,6 +13,8 @@ const MySessionsView = () => {
         ["managable-sessions"],
         () => apiClient.session.getManagableSessions()
     );
+
+
 
 
     return (

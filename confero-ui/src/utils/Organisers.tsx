@@ -1,4 +1,5 @@
 import Organiser from "@/utils/Organiser.tsx";
+import {useEffect, useState} from "react";
 
 export function Organisers({organisers, chunkSize = 2}){
 
@@ -10,12 +11,22 @@ export function Organisers({organisers, chunkSize = 2}){
         return pairs;
     };
 
-    const pairs = createPairs(organisers);
+    const [pairs, setPairs] = useState(createPairs(organisers));
+
+    useEffect(() => {
+        setPairs(createPairs(organisers));
+    }, [organisers]);
+
+    useEffect(() => {
+        setPairs(createPairs(organisers));
+    }, []);
+
 
     return (
         <>
             <ul className="space-y-1 text-sm text-muted-foreground">
             {pairs.map((pair, index) => {
+
                     if (index === pairs.length - 1 && pair.length === 2) {
                         return (
                             <li key={index}>

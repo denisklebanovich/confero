@@ -2,10 +2,18 @@ import React, {useEffect, useRef, useState} from "react";
 import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
 import scheduler from "dhtmlx-scheduler";
 import TimeTableModal from "@/components/timetable/TimeTableModal.tsx";
+import {
+    ApiError,
+    ConferenceEditionResponse,
+    CreateConferenceEditionRequest,
+    SessionResponse, UpdateConferenceEditionRequest,
+    UpdateSessionRequest
+} from "@/generated";
+import {useApi} from "@/api/useApi.ts";
+import {useQueryClient} from "@tanstack/react-query";
+import {useToast} from "@/hooks/use-toast.ts";
 
 const Timetable = ({presentations, setPresentations, date}) => {
-    console.log(date)
-    console.log(presentations)
     const schedulerContainer = useRef(null);
 
     const [open, setOpen] = useState(false)
@@ -137,6 +145,8 @@ const Timetable = ({presentations, setPresentations, date}) => {
     }
 
 
+
+
     const getAllEvents = () => {
         return scheduler.getEvents();
     };
@@ -166,7 +176,7 @@ const Timetable = ({presentations, setPresentations, date}) => {
                 `}
             </style>
             <TimeTableModal open={open} setOpen={setOpen} selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setPresentations={setPresentations} />
-            <div ref={schedulerContainer} style={{ width: "70%", height: "450px", paddingTop: "5px" }} />
+            <div ref={schedulerContainer} style={{ width: "70%", height: "375px", paddingTop: "5px" }} />
         </>
     )
 

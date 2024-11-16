@@ -4,12 +4,17 @@ import Timetable from "@/components/timetable/Timetable.tsx";
 import {useEffect, useState} from "react";
 import {useApi} from "@/api/useApi.ts";
 import {Spinner} from "@/components/ui/spiner.tsx";
+import {ApiError, SessionResponse, UpdatePresentationRequest, UpdateSessionRequest} from "@/generated";
+import {useToast} from "@/hooks/use-toast.ts";
+import {useQueryClient} from "@tanstack/react-query";
 
 const TimetableSessionView = () => {
     const navigate = useNavigate();
     const {id} = useParams();
-    const {apiClient, useApiQuery} = useApi();
+    const {apiClient, useApiQuery, useApiMutation} = useApi();
     const [calendarDate, setCalendarDate] = useState(new Date());
+    const {toast} = useToast()
+    const queryClient = useQueryClient()
 
     const {data: session, isLoading} = useApiQuery(
         ["session", id],
@@ -17,6 +22,32 @@ const TimetableSessionView = () => {
     )
 
     const [presentations, setPresentations] = useState([]);
+
+    const saveMutation = useApiMutation<SessionResponse, { sessionId: number; request: UpdateSessionRequest }>(
+        ({sessionId, request}) => apiClient.session.updateSession(sessionId, request),
+        {
+            onSuccess: (newSessions) => {
+                queryClient.setQueryData<SessionResponse[]>(
+                    ["sessions"],
+                    (oldSessions) => {
+                        if (!oldSessions) return [newSessions]
+                        return [...oldSessions, newSessions]
+                    }
+                )
+                toast({
+                    title: "Success!",
+                    description: "Session timetable updated",
+                })
+            },
+            onError: (error: ApiError) => {
+                toast({
+                    title: "Error occurred",
+                    description: "Failed to update session timetable",
+                    variant: "destructive"
+                })
+            },
+        }
+    )
 
 
     function getPresentations() {
@@ -29,7 +60,7 @@ const TimetableSessionView = () => {
                 organisers_line: presentation.presenters.map(presenter => `${presenter.name} ${presenter.surname}`).join(", "),
                 start_date: presentation.startTime,
                 end_date: presentation.endTime,
-                toShow: false
+                toShow: true
             }
         });
     }
@@ -37,7 +68,26 @@ const TimetableSessionView = () => {
 
     function onSave() {
         navigate("/my-sessions")
+        const formattedPresentations =
+            presentations.map(presentation => {
+            return {
+                id: presentation.internal_id,
+                title: presentation.title,
+                description: presentation.description,
+                startTime: presentation.start_date,
+                endTime: presentation.end_date,
+            } as UpdatePresentationRequest
+        })
+        const request : UpdateSessionRequest = {
+            presentations: formattedPresentations
+        }
+
+        saveMutation.mutate({
+            request: request,
+            sessionId: Number(id)
+        });
     }
+
 
     useEffect(() => {
         if (session) {

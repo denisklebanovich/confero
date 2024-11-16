@@ -17,6 +17,7 @@ import type {
     UpdateConferenceEditionRequest
 } from "@/generated";
 import {getInputDate} from "@/utils/dateUtils.ts";
+import {ApiError} from "@/generated";
 
 interface EditionModalProps {
     open: boolean
@@ -28,6 +29,8 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
     const [dragActive, setDragActive] = useState(false)
     const [file, setFile] = useState<File | null>(null)
     const [date, setDate] = useState<string | undefined>(edition ? getInputDate(edition.applicationDeadlineTime) : undefined)
+
+
 
     const {toast} = useToast()
     const {apiClient, useApiMutation} = useApi()
@@ -68,6 +71,18 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
     }, [edition])
 
 
+    function reasonToDescription(reason:string){
+        switch (reason){
+            case "ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS":
+                return "Active edition already exists"
+            case "CONFERENCE_EDITION_CANNOT_HAVE_DEADLINE_IN_THE_PAST":
+                return "Edition cannot have deadline in the past"
+            default:
+                return "Unable to update conference editions"
+        }
+    }
+
+
     const createMutation = useApiMutation<ConferenceEditionResponse, CreateConferenceEditionRequest>(
         (request) => apiClient.conferenceEdition.createConferenceEdition(request),
         {
@@ -84,11 +99,11 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
                     description: "New conference edition created",
                 })
             },
-            onError: () => {
+            onError: (error:ApiError) => {
                 toast({
                     title: "Error occurred",
-                    description: "Failed to create new conference edition",
-                    variant: "destructive",
+                    description: reasonToDescription(error.body['reason']),
+                    variant: "destructive"
                 })
             },
         }
@@ -120,10 +135,10 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
                     description: "Conference edition updated",
                 })
             },
-            onError: () => {
+            onError: (error: ApiError) => {
                 toast({
                     title: "Error occurred",
-                    description: "Failed to update conference edition",
+                    description: reasonToDescription(error.body['reason']),
                     variant: "destructive",
                 })
             },
@@ -131,17 +146,18 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
     )
 
     const handleSave = () => {
+        const formattedDate = new Date(date).toISOString()
         if (edition) {
             updateMutation.mutate({
                 id: edition.id,
                 request: {
-                    applicationDeadlineTime: date,
+                    applicationDeadlineTime: formattedDate,
                     invitationList: file,
                 },
             })
         } else {
             createMutation.mutate({
-                applicationDeadlineTime: date,
+                applicationDeadlineTime: formattedDate,
                 invitationList: file,
             })
         }
@@ -196,7 +212,6 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
                                     size="sm"
                                     onClick={() => document.getElementById("file-upload")?.click()}
                                 >
-                                    Browse for .csv file
                                     Browse for .csv file
                                 </Button>
                                 <input

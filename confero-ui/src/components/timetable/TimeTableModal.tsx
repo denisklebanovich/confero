@@ -13,7 +13,7 @@ export default function TimeTableModal({open, setOpen, selectedEvent, setSelecte
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-[625px] h-1/2">
+            <DialogContent className="max-w-[625px] h-3/5">
                 <DialogHeader>
                     <DialogTitle className="text-left">Title</DialogTitle>
                 </DialogHeader>
