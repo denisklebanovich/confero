@@ -1,9 +1,10 @@
 import Organiser from "@/utils/Organiser.tsx";
 import {useEffect, useState} from "react";
+import {PresenterResponse} from "@/generated";
 
-export function Organisers({organisers, chunkSize = 2}){
+export function Organisers({organisers, chunkSize = 2}: {organisers: PresenterResponse[], chunkSize?: number}){
 
-    const createPairs = (organisers) => {
+    const createPairs = (organisers: PresenterResponse[]): PresenterResponse[][] => {
         const pairs = [];
         for (let i = 0; i < organisers.length; i += chunkSize) {
             pairs.push(organisers.slice(i, i + chunkSize));

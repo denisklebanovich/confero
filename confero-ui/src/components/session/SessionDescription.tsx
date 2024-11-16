@@ -20,7 +20,7 @@ const SessionDescription = ({title, description, organisers}: SessionDescription
             <CardContent>
                 <h3 className="font-semibold mb-2">Organizers</h3>
                 {organisers.map((organiser) => (
-                    <Organiser key={organiser.id} {...organiser}/>
+                    <Organiser key={organiser.id} organiser={organiser}/>
                 ))}
             </CardContent>
         </Card>

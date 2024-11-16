@@ -1,15 +1,7 @@
 import React from 'react';
 
-interface OrganiserProps {
-    organiser: {
-        name: string;
-        surname: string;
-        orcid: string;
-        isSpeaker: boolean;
-    };
-}
 
-const Organiser = ({ organiser }: OrganiserProps) => {
+const Organiser = ({ organiser} : any) => {
 
     const { name, surname, orcid, isSpeaker } = organiser;
     return (
