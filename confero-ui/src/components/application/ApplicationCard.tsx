@@ -31,7 +31,7 @@ export default function ApplicationCard({ title, organisers, onClick, date, stat
             <CardContent className="grid gap-4">
                 <div className="text-sm">
                     <span className="font-semibold">Organizers:</span>
-                    {organisers.map(presenter => `${presenter.name} ${presenter.surname}`).join(", ")}
+                    {organisers.map(presenter => ` ${presenter.name} ${presenter.surname}`).join(", ")}
                 </div>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-muted-foreground">

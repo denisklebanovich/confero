@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users
     name         VARCHAR(255),
     surname      VARCHAR(255),
     orcid        VARCHAR(255),
-    access_token VARCHAR(255),
+    access_token text,
     avatar_url   TEXT,
     is_admin     BOOLEAN NOT NULL DEFAULT FALSE
 );
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS user_emails
 (
     email              VARCHAR(255) PRIMARY KEY,
     confirmed          BOOLEAN NOT NULL DEFAULT FALSE,
-    verification_token VARCHAR(255),
+    verification_token text,
     user_id            BIGINT  NOT NULL,
     CONSTRAINT fk_user_emails_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
