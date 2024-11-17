@@ -8,9 +8,9 @@ export default function Event({userFirstName, userLastName, sessionId}) {
         <Card className="w-full max-w-md p-4 flex items-start justify-between gap-4 mb-2">
             <div className="space-y-1">
                 <h3 className="font-semibold text-lg">{userFirstName} {userLastName}</h3>
-                <p className="text-muted-foreground">Added new file.</p>
+                <p className="text-muted-foreground text-sm">Added new file.</p>
             </div>
-            <Button variant="secondary_grey" size="sm" onClick={() => navigate(`/session?sessionId=${sessionId}`)}>
+            <Button variant="secondary_grey" size="sm" onClick={() => navigate(`/session/${sessionId}`)}>
                 Go to session
             </Button>
         </Card>

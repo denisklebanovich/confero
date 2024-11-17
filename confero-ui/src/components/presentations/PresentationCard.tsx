@@ -1,7 +1,7 @@
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Clock, Download, Upload, X} from 'lucide-react'
-import {useState} from "react"
+import {useRef, useState} from "react"
 import {AttachmentRequest, AttachmentResponse, PresentationSessionResponse} from "@/generated";
 import {getFormattedTime} from "@/utils/dateUtils.ts";
 import {useApi} from "@/api/useApi.ts";
@@ -31,6 +31,7 @@ export default function PresentationCard({
     const {apiClient, useApiMutation} = useApi()
     const {toast} = useToast()
     const {authorized} = useAuth()
+    const fileInputRef = useRef(null);
 
     const {mutate: uploadFile} = useApiMutation<AttachmentResponse, {
         sessionId: number,
@@ -86,8 +87,9 @@ export default function PresentationCard({
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
+        console.log(event.target.files[0])
         if (files) {
-            // uploadFile(sessionId, presentationId, {file: files[0]})
+            uploadFile({sessionId: Number(sessionId), presentationId: Number(presentationId), formData: {file: files[0]}})
         }
     }
 
@@ -95,17 +97,18 @@ export default function PresentationCard({
         window.open(file.url, '_blank')
     }
 
-    const files = [
-        { name: "IntelligentSystemsResearch.pdf", type: "pdf" },
-        { name: "IntelligentSystemsDemoCode.zip", type: "zip" }
-    ]
+    const handleFileDelete = (file: AttachmentResponse) => {
+        deleteFile({sessionId: Number(sessionId), presentationId: Number(presentationId), attachmentId: file.id})
+    }
+
+
 
 
     return (
         <Card className={`${!authorized ? "min-w-[500px] max-w-[600px]" : "w-[95%] mb-3"} snap-start`}>
             <CardHeader>
                 <div className={"w-full flex flex-row justify-around"}>
-                    <div className="space-y-2 w-3/4">
+                    <div className={`space-y-2 ${authorized ? "w-3/4" : "w-full" } `}>
                         <div className="text-sm text-muted-foreground">
                             <Organisers organisers={presenters} chunkSize={authorized ? 10 : 4}/>
                         </div>
@@ -116,6 +119,7 @@ export default function PresentationCard({
                             <span>{getFormattedTime(startTime)} - {getFormattedTime(endTime)}</span>
                         </div>
                     </div>
+                    {authorized && (
                     <div className={"w-1/4"}>
                         <Card className="w-full max-w-2x">
                             <div className="flex flex-row items-center justify-between space-y-0 px-5 pt-4">
@@ -124,30 +128,34 @@ export default function PresentationCard({
                                     variant="secondary"
                                     className="text-sm font-medium"
                                     onClick={() => {
-                                        // Handle file upload
+                                        fileInputRef.current.click();
                                     }}
                                 >
                                     Upload files
                                 </Button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    style={{display: 'none'}}
+                                    onChange={handleFileUpload}
+                                />
                             </div>
-                            <CardContent >
+                            <CardContent>
                                 <div>
-                                    {files.map((file) => (
+                                    {uploadedFiles.map((file) => (
                                         <div
                                             key={file.name}
                                             className="flex items-center justify-between py-2"
                                         >
-                                            <span className="text-sm">{file.name}</span>
+                                            <span className="text-sm cursor-pointer" onClick={()=>handleFileDownload(file)}>{file.name}</span>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8"
-                                                onClick={() => {
-                                                    // Handle file removal
-                                                }}
+                                                onClick={() => handleFileDelete(file)}
                                             >
-                                                <X className="h-4 w-4" />
-                                                <span className="sr-only">Remove file</span>
+                                                <X className="h-4 w-4 cursor-pointer" />
+                                                <span className="sr-only cursor-pointer">Remove file</span>
                                             </Button>
                                         </div>
                                     ))}
@@ -155,6 +163,7 @@ export default function PresentationCard({
                             </CardContent>
                         </Card>
                     </div>
+                        )}
                 </div>
 
             </CardHeader>
