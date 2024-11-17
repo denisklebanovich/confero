@@ -1,9 +1,9 @@
-import {useEffect, useState} from 'react'
+import { useState} from 'react'
 import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button"
 import {Badge} from "@/components/ui/badge"
 import {X, Star} from 'lucide-react'
-import {OrcidInfoResponse, PresenterRequest, PresenterResponse} from "@/generated"
+import {OrcidInfoResponse, PresenterResponse} from "@/generated"
 import {useApi} from "@/api/useApi.ts"
 import {useToast} from "@/hooks/use-toast.ts";
 

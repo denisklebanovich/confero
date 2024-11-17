@@ -10,7 +10,7 @@ import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
 import OrcidInput from "@/components/orcid/OrcidInput";
 
-const PresentationForm = ({index, onDelete, presentation, control}) => {
+const PresentationForm = ({index, onDelete, control}) => {
     return (
         <div className="flex flex-col border p-6 border-gray-300 rounded-md gap-4">
             <FormField

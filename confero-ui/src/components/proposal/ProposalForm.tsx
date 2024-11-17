@@ -15,7 +15,7 @@ import {
     ApplicationPreviewResponse,
     ApplicationResponse,
     CreateApplicationRequest,
-    PresentationRequest, PresenterResponse,
+    PresentationRequest,
     SessionType, UpdateApplicationRequest
 } from "@/generated";
 import {useApi} from "@/api/useApi.ts";
@@ -79,6 +79,18 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             presentations: proposal?.presentations || [],
         },
     });
+
+    useEffect(() => {
+        if (proposal) {
+            form.reset({
+                title: proposal.title,
+                type: proposal.type,
+                description: proposal.description,
+                tags: proposal.tags || [],
+                presentations: proposal.presentations || [],
+            });
+        }
+    }, [proposal, form]);
 
     const {loading: loadingTags, analyzeText} = useTags();
     const {toast} = useToast();
@@ -366,7 +378,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                                 <PresentationForm
                                     index={index}
                                     onDelete={() => deletePresentation(index)}
-                                    presentation={presentation}
                                     control={control}
                                 />
                             </div>
