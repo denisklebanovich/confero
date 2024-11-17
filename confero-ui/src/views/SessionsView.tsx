@@ -6,10 +6,12 @@ import {useNavigate} from "react-router-dom";
 import Event from "@/components/sessions/Event.tsx";
 import {Spinner} from "@/components/ui/spiner.tsx";
 import {useUser} from "@/state/UserContext.tsx";
+import {useAuth} from "@/auth/AuthProvider.tsx";
 
 const SessionsView = () => {
     const {apiClient, useApiQuery, useApiMutation} = useApi();
     const navigate = useNavigate();
+    const {authorized} = useAuth();
 
     const {data: sessions, isLoading} = useApiQuery<SessionPreviewResponse[]>(
         ["sessions"],
@@ -37,9 +39,11 @@ const SessionsView = () => {
                     <div className={"w-2/3 items-center gap-5 flex flex-col"}>
                         <div className="flex w-full">
                             <div className="text-3xl font-bold w-full">All Sessions:</div>
-                            <Button onClick={() => navigate("/my-calendar")}>
-                                View my calendar
-                            </Button>
+                            {authorized &&
+                                <Button onClick={() => navigate("/my-calendar")}>
+                                    View my calendar
+                                </Button>
+                            }
                         </div>
                         {sessions?.map((session) => (
                             <SessionCard key={session.id} {...session} />

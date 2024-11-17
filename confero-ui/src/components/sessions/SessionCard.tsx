@@ -7,6 +7,7 @@ import React from "react";
 import {useApi} from "@/api/useApi.ts";
 import {useQueryClient} from "@tanstack/react-query";
 import {useCalendarStatus} from "@/hooks/useCalendarStatus.ts";
+import {useAuth} from "@/auth/AuthProvider.tsx";
 
 const extractTime = (date: string) => {
     const d = new Date(date);
@@ -14,6 +15,7 @@ const extractTime = (date: string) => {
 }
 
 const SessionCard = (session: SessionPreviewResponse) => {
+    const {authorized} = useAuth();
     const navigate = useNavigate();
 
     const {apiClient, useApiMutation} = useApi();
@@ -44,7 +46,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
-                    {session.isInCalendar ? (
+                    {authorized && session.isInCalendar ? (
                         <Button
                             onClick={(e) => {
                                 e.stopPropagation();
