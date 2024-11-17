@@ -20,7 +20,7 @@ const Navbar = () => {
             setRoutes(updateRoutes(profileData))
         }
 
-    },[profileData,isLoading])
+    },[authorized, profileData,isLoading])
 
 
     function updateRoutes(profileData: ProfileResponse){
@@ -103,27 +103,31 @@ const Navbar = () => {
                 </a>
                 {!isLoading && profileData && (
                     <>
-                <NavigationMenu>
-                    <NavigationMenuList className="flex items-center gap-4 justify-start w-full">
-                        {routes.map((route, index) => (
-                            <NavigationMenuItem
-                                key={index}
-                            >
-                                <NavLink to={route.to}
-                                         className={({isActive}) => isActive ?
-                                             "px-3 py-2 rounded-lg bg-gray-100 text-black"
-                                             : "px-3 py-2 rounded-lg text-muted-foreground"}>
-                                    {route.name}
-                                </NavLink>
-                            </NavigationMenuItem>
-                        ))}
-                    </NavigationMenuList>
-                </NavigationMenu>
-                <div className="flex gap-3 ml-16">
+                        <NavigationMenu>
+                            <NavigationMenuList className="flex items-center gap-4 justify-start w-full">
+                                {routes.map((route, index) => (
+                                    <NavigationMenuItem
+                                        key={index}
+                                    >
+                                        <NavLink to={route.to}
+                                                 className={({isActive}) => isActive ?
+                                                     "px-3 py-2 rounded-lg bg-gray-100 text-black"
+                                                     : "px-3 py-2 rounded-lg text-muted-foreground"}>
+                                            {route.name}
+                                        </NavLink>
+                                    </NavigationMenuItem>
+                                ))}
+                            </NavigationMenuList>
+                        </NavigationMenu>
 
-                        <Avatar>
-                            <AvatarImage src={profileData.avatarUrl}/>
-                        </Avatar>
+                    </>
+                )}
+                <div className="flex gap-3 ml-16">
+                    {!isLoading && profileData && (
+                    <Avatar>
+                        <AvatarImage src={profileData?.avatarUrl}/>
+                    </Avatar>
+                    )}
 
                     {authorized ? (
                         <Button onClick={signOut} variant={"secondary_grey"}>Logout</Button>
@@ -133,8 +137,6 @@ const Navbar = () => {
                         </Button>
                     )}
                 </div>
-                    </>
-)}
 
             </div>
 
