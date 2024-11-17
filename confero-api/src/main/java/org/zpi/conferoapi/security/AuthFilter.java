@@ -101,6 +101,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         log.info("Handling JWT token: {}", token);
         try {
+            log.info("Decoding JWT token with secret: {}", jwtSecret);
             Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
             JWTVerifier verifier = JWT.require(algorithm).build();
             DecodedJWT jwt = verifier.verify(token);
