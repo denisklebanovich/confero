@@ -70,7 +70,7 @@ const Navbar = () => {
                         <Avatar>
                             <AvatarImage src={profileData.avatarUrl}/>
                             <AvatarFallback>
-                                {profileData.firstName[0] + profileData.lastName[0]}
+                                {profileData.firstName + profileData.lastName}
                             </AvatarFallback>
                         </Avatar>)
                     }
