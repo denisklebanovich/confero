@@ -11,7 +11,12 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {authorized, signOut} = useAuth();
-    const {profileData, isLoading} = useUser();
+    const {profileData: {isAdmin, isInvitee}, isLoading} = useUser();
+
+
+    console.log(isAdmin, isInvitee, "vlad")
+
+
 
     const routes = [
         {
@@ -66,7 +71,7 @@ const Navbar = () => {
                     </NavigationMenuList>
                 </NavigationMenu>
                 <div className="flex gap-3 ml-16">
-                    {profileData && !isLoading && (
+                    { !isLoading && profileData && (
                         <Avatar>
                             <AvatarImage src={profileData.avatarUrl}/>
                         </Avatar>)

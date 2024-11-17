@@ -61,7 +61,7 @@ const TimetableSessionView = () => {
                 organisers_line: presentation.presenters.map(presenter => `${presenter.name} ${presenter.surname}`).join(", "),
                 start_date: presentation.startTime,
                 end_date: presentation.endTime,
-                toShow: true
+                toShow: presentation.isMine
             }
         });
     }
@@ -70,7 +70,7 @@ const TimetableSessionView = () => {
     function onSave() {
         navigate("/my-sessions")
         const formattedPresentations =
-            presentations.map(presentation => {
+            presentations.filter(presentations => presentations.toShow).map(presentation => {
             return {
                 id: presentation.internal_id,
                 title: presentation.title,
@@ -79,7 +79,7 @@ const TimetableSessionView = () => {
                 endTime: presentation.end_date,
             } as UpdatePresentationRequest
         })
-        // to-do filter by toShow
+
         const request : UpdateSessionRequest = {
             presentations: formattedPresentations
         }

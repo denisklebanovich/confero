@@ -52,7 +52,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
                             }}
                             variant={"secondary_grey"}
                         >
-                            Remove
+                            Remove from my calendar
                         </Button>
                     ) : (
                         <Button
@@ -62,7 +62,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
                             }}
                             variant={"secondary_grey"}
                         >
-                            Add to calendar
+                            Add to my calendar
                         </Button>
                     )}
                 </div>

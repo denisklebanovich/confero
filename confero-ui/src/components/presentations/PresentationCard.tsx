@@ -24,6 +24,7 @@ export default function PresentationCard({
                                                  attachments,
                                                  startTime,
                                                  endTime,
+                                                 isMine
                                              },
                                              sessionId,
                                          }: PresentationCardProps) {
@@ -32,6 +33,7 @@ export default function PresentationCard({
     const {toast} = useToast()
     const {authorized} = useAuth()
     const fileInputRef = useRef(null);
+    console.log(isMine, "vlad", title)
 
     const {mutate: uploadFile} = useApiMutation<AttachmentResponse, {
         sessionId: number,
@@ -124,7 +126,7 @@ export default function PresentationCard({
                         <Card className="w-full max-w-2x">
                             <div className="flex flex-row items-center justify-between space-y-0 px-5 pt-4">
                                 <div className="text-xl font-semibold">Files</div>
-                                <Button
+                                {isMine && <><Button
                                     variant="secondary"
                                     className="text-sm font-medium"
                                     onClick={() => {
@@ -133,12 +135,13 @@ export default function PresentationCard({
                                 >
                                     Upload files
                                 </Button>
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    style={{display: 'none'}}
-                                    onChange={handleFileUpload}
-                                />
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        style={{display: 'none'}}
+                                        onChange={handleFileUpload}
+                                    /></>}
+
                             </div>
                             <CardContent>
                                 <div>
@@ -148,15 +151,17 @@ export default function PresentationCard({
                                             className="flex items-center justify-between py-2"
                                         >
                                             <span className="text-sm cursor-pointer" onClick={()=>handleFileDownload(file)}>{file.name}</span>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8"
-                                                onClick={() => handleFileDelete(file)}
-                                            >
-                                                <X className="h-4 w-4 cursor-pointer" />
-                                                <span className="sr-only cursor-pointer">Remove file</span>
-                                            </Button>
+                                            {
+                                                isMine &&  <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                    onClick={() => handleFileDelete(file)}
+                                                >
+                                                    <X className="h-4 w-4 cursor-pointer" />
+                                                    <span className="sr-only cursor-pointer">Remove file</span>
+                                                </Button>
+                                            }
                                         </div>
                                     ))}
                                 </div>
