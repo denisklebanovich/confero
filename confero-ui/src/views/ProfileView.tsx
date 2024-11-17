@@ -15,8 +15,6 @@ import {Label} from "@/components/ui/label.tsx";
 
 const ProfileView = () => {
     const {profile, isLoading} = useProfile();
-    const [name, setName] = useState<string | undefined>();
-    const [surname, setSurname] = useState<string | undefined>();
     const [email, setEmail] = useState<string | undefined>();
     const {apiClient, useApiMutation} = useApi();
     const queryClient = useQueryClient();
@@ -74,8 +72,6 @@ const ProfileView = () => {
                     variant: "success",
                 })
                 queryClient.setQueryData<ProfileResponse>(["profile"], data);
-                setName(data.firstName);
-                setSurname(data.lastName);
             },
             onError: (error) => {
                 toast({
@@ -87,16 +83,6 @@ const ProfileView = () => {
         }
     );
 
-    const infoHasChanged = () => {
-        return profile?.firstName !== name || profile?.lastName !== surname;
-    }
-
-    useEffect(() => {
-        if (profile) {
-            setName(profile.firstName);
-            setSurname(profile.lastName);
-        }
-    }, [profile]);
 
     return (
         isLoading ?
@@ -124,31 +110,6 @@ const ProfileView = () => {
                             Change profile picture
                         </Button>
                     </div>
-                    <div className="flex flex-row space-x-4 w-full]">
-                        <div className="flex flex-col items-start w-1/4">
-                            <Label htmlFor="name" className="text-sm font-medium">
-                                Name
-                            </Label>
-                            <Input id="name"
-                                   value={name}
-                                   onChange={(e) => setName(e.target.value)}/>
-                        </div>
-                        <div className="flex flex-col items-start w-3/4">
-                            <Label htmlFor="surname" className="text-sm font-medium">
-                                Surname
-                            </Label>
-                            <Input id="surname"
-                                   value={surname}
-                                   onChange={(e) => setSurname(e.target.value)}/>
-                        </div>
-                    </div>
-                    {infoHasChanged() &&
-                        <Button
-                            onClick={() => updateProfile({name: name, surname: surname})}
-                        >
-                            Save
-                        </Button>
-                    }
                     <div className="space-y-2">
                         <label htmlFor="orcid" className="text-sm font-medium">
                             ORCID
