@@ -6,3 +6,9 @@ redirect:
 email:
   verification:
     base-url: https://confero.club
+
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
