@@ -31,23 +31,29 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
 
     useEffect(() => {
         const setData = async () => {
-            const {data: {session}, error} = await supabase.auth.getSession()
-            if (error) {
-                console.error(error)
-                return
+            try{
+                const {data: {session}, error} = await supabase.auth.getSession()
+                if (error) {
+                    console.error(error)
+                    return
+                }
+                setSession(session)
+                setUser(session?.user ?? null)
+                const token = localStorage.getItem('orcid_access_token') ?? getCookie('orcid_access_token')
+                setOrcidAccessToken(token);
+                setAuthorized(!!session?.user || !!token)
             }
-            setSession(session)
-            setUser(session?.user ?? null)
-            const token = localStorage.getItem('orcid_access_token') ?? getCookie('orcid_access_token')
-            setOrcidAccessToken(token);
-            setAuthorized(!!session?.user || !!token)
-            setLoading(false)
+            catch (error) {
+                console.error(error)
+            }
+            finally {
+                setLoading(false)
+            }
         }
 
         const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session)
             setUser(session?.user ?? null)
-            setLoading(false)
         })
 
         setData()
