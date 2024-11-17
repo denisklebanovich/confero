@@ -54,6 +54,7 @@ class ApplicationController implements ApplicationApi {
                                         .surname(presenter.getSurname())
                                         .orcid(presenter.getOrcid())
                                         .isSpeaker(presenter.getIsSpeaker())
+                                        .email(presenter.getEmail())
                                 )
                                 .collect(Collectors.toList()))
                 , HttpStatus.CREATED);
@@ -68,24 +69,29 @@ class ApplicationController implements ApplicationApi {
             throw new ServiceException(ErrorReason.ADMIN_CANNOT_DELETE_APPLICATION);
         }
         applicationService.deleteApplication(applicationId);
+        log.info("Application deleted successfully");
         return ResponseEntity.ok().build();
     }
 
     @Override
     public ResponseEntity<ApplicationResponse> getApplication(Long applicationId) {
         log.info("User requested to get an application with the following id: {}", applicationId);
-        return ResponseEntity.ok(applicationService.getApplication(applicationId));
+        var application = applicationService.getApplication(applicationId);
+        log.info("Application found: {}", application);
+        return ResponseEntity.ok(application);
     }
 
     @Override
     public ResponseEntity<List<ApplicationPreviewResponse>> getApplications() {
         log.info("User requested to get all applications");
-        return ResponseEntity.ok(applicationService.getApplications());
+        var applications = applicationService.getApplications();
+        log.info("Applications found: {}", applications);
+        return ResponseEntity.ok(applications);
     }
 
     @Override
     public ResponseEntity<ApplicationPreviewResponse> reviewApplication(Long applicationId, ReviewRequest reviewRequest) {
-        log.info("User requested to review an application with the following id: {}", applicationId);
+        log.info("User requested to review an application with the following id: {} and request {}", applicationId, reviewRequest);
         if (!securityUtils.isCurrentUserAdmin()) {
             throw new ServiceException(ErrorReason.UNAUTHORIZED);
         }

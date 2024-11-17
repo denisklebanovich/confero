@@ -1167,6 +1167,8 @@ components:
           type: string
         isSpeaker:
           type: boolean
+        email:
+          type: string
     
     PresentationRequest:
       type: object
