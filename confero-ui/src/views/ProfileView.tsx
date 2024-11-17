@@ -96,7 +96,6 @@ const ProfileView = () => {
                     <div className="flex flex-col items-center space-y-4">
                         <Avatar className="w-56 h-56 bg-[#8BA663]">
                             <AvatarImage alt="Profile picture" src={profile?.avatarUrl}/>
-                            <AvatarFallback>{profile.firstName[0] + profile.lastName[0]}</AvatarFallback>
                         </Avatar>
                         <Button variant="link" className="text-gray-600 relative">
                             <Input type="file" onChange={(e) => {
