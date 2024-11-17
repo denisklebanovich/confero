@@ -35,7 +35,7 @@ const formSchema = z.object({
 export default function LoginView() {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
-    const {user} = useAuth()
+    const {user,setData} = useAuth()
     const {toast} = useToast()
 
 
@@ -107,6 +107,7 @@ export default function LoginView() {
                 password,
             })
             if (error) throw error
+            await setData()
             navigate('/')
         } catch (error) {
             toast({

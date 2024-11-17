@@ -10,6 +10,7 @@ interface AuthContextType {
     orcidAccessToken: string | null,
     authorized: boolean
     signOut: () => Promise<void>
+    setData: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -22,28 +23,29 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
     const [authorized, setAuthorized] = useState(false)
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const setData = async () => {
-            try{
-                const {data: {session}, error} = await supabase.auth.getSession()
-                if (error) {
-                    console.error(error)
-                    return
-                }
-                setSession(session)
-                setUser(session?.user ?? null)
-                const token = localStorage.getItem('orcid_access_token')
-                setOrcidAccessToken(token);
-                setAuthorized(!!session?.user || !!token)
-            }
-            catch (error) {
+const setData = async () => {
+        try{
+            const {data: {session}, error} = await supabase.auth.getSession()
+            if (error) {
                 console.error(error)
+                return
             }
-            finally {
-                setLoading(false)
-            }
+            setSession(session)
+            setUser(session?.user ?? null)
+            // const token = localStorage.getItem('orcid_access_token') ?? getCookie('orcid_access_token')
+            const token = localStorage.getItem('orcid_access_token')
+            setOrcidAccessToken(token);
+            setAuthorized(!!session?.user || !!token)
         }
+        catch (error) {
+            console.error(error)
+        }
+        finally {
+            setLoading(false)
+        }
+    }
 
+    useEffect(() => {
         const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session)
             setUser(session?.user ?? null)
@@ -58,10 +60,12 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
 
     const signOut = async () => {
         const {error} = await supabase.auth.signOut()
-        if (error) throw error
+        if (error) console.error(error)
         setOrcidAccessToken(null);
         localStorage.removeItem('orcid_access_token')
         setAuthorized(false)
+        setUser(null)
+        localStorage.setItem('orcid_access_token', '')
         navigate('/login')
     }
 
@@ -70,7 +74,8 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
         session,
         orcidAccessToken,
         authorized,
-        signOut
+        signOut,
+        setData
     }
 
     return (
