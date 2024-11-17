@@ -128,6 +128,7 @@ public class AuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
             return true;
         } catch (Exception e) {
+            log.error("Error while handling JWT token", e);
             SecurityContextHolder.clearContext();
             return false;
         }
