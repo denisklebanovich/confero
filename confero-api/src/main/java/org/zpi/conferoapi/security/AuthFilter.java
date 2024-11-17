@@ -8,7 +8,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +30,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Profile("prod")
 @Slf4j
-@Transactional
 public class AuthFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
