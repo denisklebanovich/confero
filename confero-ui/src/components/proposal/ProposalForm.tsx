@@ -224,7 +224,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         setValue("presentations", updatedPresentations);
     };
 
-    console.log(currentPath);
     const showDeleteButton = currentPath.startsWith("/proposal-edit/") && (proposal?.status === "DRAFT" || proposal?.status === "PENDING");
     const showSaveAsDraftButton = currentPath === "/proposal";
 
@@ -375,7 +374,8 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                         {showDeleteButton && (
                             <Button
                                 variant="destructive"
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.preventDefault();
                                     deleteProposal({id: proposalId});
                                 }}
                             >
