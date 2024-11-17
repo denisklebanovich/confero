@@ -31,21 +31,13 @@ import static org.openapitools.model.ErrorReason.*;
 public class SessionService {
 
     SessionRepository sessionRepository;
-
     ConferenceEditionRepository conferenceEditionRepository;
-
     SessionMapper sessionMapper;
-
     SecurityUtils securityUtils;
-
     UserRepository userRepository;
-
     PresentationRepository presentationRepository;
-
     PresenterRepository presenterRepository;
-
     S3Service s3Service;
-
     AttachmentRepository attachmentRepository;
 
     public List<SessionPreviewResponse> getSessions() {
@@ -136,8 +128,15 @@ public class SessionService {
         var session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
         var user = securityUtils.getCurrentUser();
-        return sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
+        var presentationsUserParticipatesIn = presentationRepository.findUserParticipations(user);
+
+        var resp =  sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
                 .fromCurrentConferenceEdition(isFromCurrentConference(session));
+
+        var presentations = resp.getPresentations().stream()
+                .map(p -> p.isMine(presentationsUserParticipatesIn.contains(p.getId())));
+
+        return resp.presentations(presentations.toList());
     }
 
 
@@ -174,8 +173,15 @@ public class SessionService {
             presentationRepository.save(presentationToUpdate);
         });
 
-        return sessionMapper.toDto(session, true)
+        var presentationsUserParticipatesIn = presentationRepository.findUserParticipations(user);
+
+        var resp =  sessionMapper.toDto(session, true)
                 .fromCurrentConferenceEdition(true);
+
+        var presentations = resp.getPresentations().stream()
+                .map(p -> p.isMine(presentationsUserParticipatesIn.contains(p.getId())));
+
+        return resp.presentations(presentations.toList());
     }
 
     public int addAllSessionsByOrganizerToAgenda(Long presenterId) {

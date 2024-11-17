@@ -641,6 +641,14 @@ class SessionControllerTest extends IntegrationTestBase {
                 Instant.now().plus(2, ChronoUnit.HOURS)
         );
 
+        var presentation_1_2 = givenPresentation(
+                "Test Presentation 2",
+                "Presentation Description 2",
+                session,
+                Instant.now().plus(2, ChronoUnit.HOURS),
+                Instant.now().plus(3, ChronoUnit.HOURS)
+        );
+
         var presenter = givenPresenter(
                 "artsi@gmail.com",
                 "orcid1",
@@ -650,6 +658,17 @@ class SessionControllerTest extends IntegrationTestBase {
                 "Politechnika Wrocławska",
                 true,
                 presentation
+        );
+
+        givenPresenter(
+                "artsibar@gmail.com",
+                "orcid132",
+                "name123",
+                "surname114",
+                "title 14",
+                "Politechnika Wrocławska",
+                true,
+                presentation_1_2
         );
 
         givenAttachment(
@@ -690,6 +709,8 @@ class SessionControllerTest extends IntegrationTestBase {
         assertEquals(session.getTitle(), session_response_1.getTitle(), "Session title mismatch");
         assertEquals(true, session_response_1.getIsMine(), "Is mine mismatch");
         assertEquals(session.getDescription(), session_response_1.getDescription(), "Description mismatch");
+        assertEquals(true, session_response_1.getPresentations().get(0).getIsMine(), "presentation is mine mismatch");
+        assertEquals(false, session_response_1.getPresentations().get(1).getIsMine(), "presentation is mine mismatch");
         assertEquals(sessionAttachments(session.getId()).size(), session_response_1.getPresentations().get(0).getAttachments().size(), "Attachments mismatch");
 
         var session_response_2 = RestAssured

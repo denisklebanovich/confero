@@ -290,7 +290,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .log().ifError()
                 .statusCode(HttpStatus.OK.value());
 
-        RestAssured
+        var resp = RestAssured
                 .given()
                 .contentType("application/json")
                 .header("Authorization", EMAIL)
@@ -301,6 +301,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
                 .extract()
                 .response()
                 .as(ApplicationResponse.class);
+
+        assertEquals(EMAIL, resp.getPresentations().get(0).getPresenters().get(0).getEmail());
 
         tx.runInNewTransaction(() -> {
             var session = sessionRepository.findById(response.getId()).orElseThrow();

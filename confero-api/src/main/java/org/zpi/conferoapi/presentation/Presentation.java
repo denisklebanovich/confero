@@ -3,12 +3,7 @@ package org.zpi.conferoapi.presentation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.zpi.conferoapi.session.Session;
 
 import java.time.Instant;
@@ -24,6 +19,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @Builder
 @ToString
+@EqualsAndHashCode
 public class Presentation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
