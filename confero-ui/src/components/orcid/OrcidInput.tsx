@@ -145,22 +145,22 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
                 {presenterDetails.map((entry) => (
                     <Badge
                         key={entry.orcid}
                         variant={entry.isSpeaker ? "default" : "secondary"}
-                        className="flex items-center justify-between p-2 space-x-2"
+                        className="flex flex-row items-center justify-between px-4"
                     >
                         <div className="flex flex-col items-start overflow-hidden">
                             <span className="font-semibold truncate">{entry.name} {entry.surname}</span>
-                            <span className="text-xs text-muted-foreground truncate">ORCID: {entry.orcid}</span>
-                            {entry.isSpeaker && (
-                                <span className="text-xs text-muted-foreground truncate">Main Speaker</span>
-                            )}
+                            <span className="text-xs truncate">ORCID: {entry.orcid}</span>
                         </div>
                         {!isDisabled && (
-                            <div className="flex space-x-1">
+                            <div className="flex items-center space-x-1">
+                                {entry.isSpeaker && (
+                                    <span className="text-xs truncate">Main Speaker</span>
+                                )}
                                 <Button
                                     variant="ghost"
                                     size="sm"
