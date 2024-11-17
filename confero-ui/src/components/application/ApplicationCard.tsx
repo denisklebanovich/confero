@@ -2,6 +2,7 @@ import { Calendar } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ApplicationStatus, PresenterResponse } from "@/generated";
+import {getInputDate} from "@/utils/dateUtils.ts";
 
 
 interface ApplicationCardProps {
@@ -22,8 +23,6 @@ export const STATUS_COLORS = {
 
 export default function ApplicationCard({ title, organisers, onClick, date, status }: ApplicationCardProps) {
 
-    
-
     return (
         <Card onClick={onClick} className="max-w-md cursor-pointer">
             <CardHeader>
@@ -37,7 +36,7 @@ export default function ApplicationCard({ title, organisers, onClick, date, stat
                 <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-muted-foreground">
                         <Calendar className="mr-1 h-4 w-4" />
-                        {date}
+                        {getInputDate(date)}
                     </div>
                     <Badge variant="outline"  className={STATUS_COLORS[status]}>
                         {status}
