@@ -1202,7 +1202,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         title:
           type: string
         description:
@@ -1215,6 +1216,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PresenterResponse'
+        isMine:
+          type: boolean
         startTime:
           type: string
           format: date-time
