@@ -29,16 +29,23 @@ const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
         "Invalid ORCID format. It should be 16 digits with optional hyphens.",
 });
 
+const descriptionSchema = z.string().min(2, {
+    message: "Description must be at least 2 characters long"
+}).max(500, {
+    message: "Description must be at most 500 characters long"
+});
+
+
 const formSchema = z.object({
     title: z.string({message: "Title is required"}).min(2).max(100),
     type: z.string({message: "Type is required"}),
-    description: z.string().min(2).max(500),
+    description: descriptionSchema,
     tags: z.array(z.string()).optional(),
     presentations: z
         .array(
             z.object({
                 title: z.string().min(2).max(100),
-                description: z.string().min(2).max(500),
+                description: descriptionSchema,
                 presenters: z
                     .array(
                         z.object({
@@ -47,10 +54,10 @@ const formSchema = z.object({
                             isSpeaker: z.boolean(),
                         })
                     )
-                    .min(1),
+                    .min(1, {message: "At least one presenter is required"}),
             })
         )
-        .min(1),
+        .min(1, {message: "At least one presentation is required"}),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -163,10 +170,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
     const tagsValue = watch("tags");
     const presentationsValue = watch("presentations");
 
-    useEffect(() => {
-        console.log(titleValue, typeValue, descriptionValue, tagsValue);
-    }, [titleValue, typeValue, descriptionValue, tagsValue, presentationsValue]);
-
     const handleCreateProposal = (data: FormValues, asDraft?: boolean) => {
         createProposal({
             title: data.title,
@@ -237,7 +240,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                         formSchema.parse(data);
                         if (currentPath.startsWith("/proposal-edit/")) {
                             handleUpdateProposal(data);
-
                         } else if (currentPath === "/proposal") {
                             handleCreateProposal(data);
                         } else {

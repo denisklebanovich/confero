@@ -3,30 +3,23 @@ import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button"
 import {Badge} from "@/components/ui/badge"
 import {X, Star} from 'lucide-react'
-import {OrcidInfoResponse, PresenterRequest} from "@/generated"
+import {OrcidInfoResponse, PresenterRequest, PresenterResponse} from "@/generated"
 import {useApi} from "@/api/useApi.ts"
 import {useToast} from "@/hooks/use-toast.ts";
 
 interface OrcidInputProps {
-    value: PresenterRequest[];
-    onChange: (value: PresenterRequest[]) => void;
+    value: PresenterResponse[];
+    onChange: (value: PresenterResponse[]) => void;
     isDisabled?: boolean;
 }
-
-type PresenterDetails = PresenterRequest & OrcidInfoResponse;
 
 export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProps) {
     const [currentORCID, setCurrentORCID] = useState('')
     const [currentEmail, setCurrentEmail] = useState('')
-    const [presenterDetails, setPresenterDetails] = useState<PresenterDetails[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const {apiClient} = useApi()
     const {toast} = useToast()
-
-    useEffect(() => {
-        setPresenterDetails(value)
-    }, [value]);
 
     const validateORCID = async (orcid: string): Promise<{ valid: boolean; value?: OrcidInfoResponse }> => {
         try {
@@ -67,17 +60,11 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
             }
             const result = await validateORCID(currentORCID);
             if (result.valid && result.value) {
-                const newPresenter: PresenterRequest = {
-                    orcid: currentORCID,
-                    email: currentEmail,
-                    isSpeaker: value.length === 0
-                };
-                const newPresenterDetails: PresenterDetails = {
-                    ...newPresenter,
-                    ...result.value
+                const newPresenter: PresenterResponse = {
+                    ...result.value,
+                    isSpeaker: value.length === 0,
                 };
                 onChange([...value, newPresenter]);
-                setPresenterDetails([...presenterDetails, newPresenterDetails]);
                 setCurrentORCID("");
                 setCurrentEmail("");
                 toast({
@@ -96,12 +83,10 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
 
     const removeORCID = (orcid: string) => {
         const updatedPresenters = value.filter((entry) => entry.orcid !== orcid);
-        const updatedPresenterDetails = presenterDetails.filter((entry) => entry.orcid !== orcid);
         if (updatedPresenters.length > 0 && !updatedPresenters.some(p => p.isSpeaker)) {
             updatedPresenters[0].isSpeaker = true;
         }
         onChange(updatedPresenters);
-        setPresenterDetails(updatedPresenterDetails);
         toast({
             title: "Presenter removed",
             description: "The presenter has been removed from the list.",
@@ -114,12 +99,7 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
             ...presenter,
             isSpeaker: presenter.orcid === orcid
         }));
-        const updatedPresenterDetails = presenterDetails.map(presenter => ({
-            ...presenter,
-            isSpeaker: presenter.orcid === orcid
-        }));
         onChange(updatedPresenters);
-        setPresenterDetails(updatedPresenterDetails);
     };
 
     return (
@@ -150,7 +130,7 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
             )}
 
             <div className="grid grid-cols-1 gap-2">
-                {presenterDetails.map((entry) => (
+                {value.map((entry) => (
                     <Badge
                         key={entry.orcid}
                         variant={entry.isSpeaker ? "default" : "secondary"}
