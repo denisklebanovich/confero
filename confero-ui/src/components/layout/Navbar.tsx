@@ -17,16 +17,17 @@ const Navbar = () => {
 
     useEffect(() => {
         if(!isLoading){
-            setRoutes(updateRoutes(profileData as any))
+            setRoutes(updateRoutes(profileData))
         }
 
     },[profileData,isLoading])
 
 
-    function updateRoutes({isAdmin, isInvitee}){
+    function updateRoutes(profileData: ProfileResponse){
         if(!authorized){
             return []
         }
+        const {isAdmin, isInvitee} = profileData;
         const authorizedRoutes = [
             {
                 name: "Sessions",
