@@ -10,6 +10,7 @@ interface AuthContextType {
     orcidAccessToken: string | null,
     authorized: boolean
     signOut: () => Promise<void>
+    setData: () => Promise<void>
 }
 
 function getCookie(name: string) {
