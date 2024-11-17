@@ -69,9 +69,6 @@ const Navbar = () => {
                     {profileData && !isLoading && (
                         <Avatar>
                             <AvatarImage src={profileData.avatarUrl}/>
-                            <AvatarFallback>
-                                {profileData.firstName + profileData.lastName}
-                            </AvatarFallback>
                         </Avatar>)
                     }
                     {authorized ? (
