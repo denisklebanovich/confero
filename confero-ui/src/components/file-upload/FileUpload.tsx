@@ -98,8 +98,8 @@ const FileUpload = () => {
                 (oldApplications) => [...(oldApplications || []), newApplication]
             );
             toast({
-                title: "Proposal submitted",
-                description: "Your proposal has been submitted. Please wait for approval.",
+                title: "Application submitted",
+                description: "Your application has been submitted. Please wait for approval.",
                 variant: "success",
             });
         },

@@ -7,7 +7,6 @@ import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import {Textarea} from "@/components/ui/textarea";
 import {Badge} from "@/components/ui/badge";
-import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 import PresentationForm from "@/components/presentations/PresentationForm";
 import {Plus} from "lucide-react";
@@ -17,12 +16,13 @@ import {
     ApplicationResponse,
     CreateApplicationRequest,
     PresentationRequest,
-    SessionType
+    SessionType, UpdateApplicationRequest
 } from "@/generated";
 import {useApi} from "@/api/useApi.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import useTags from "@/hooks/useTags.ts";
+import {useLocation, useNavigate} from "react-router-dom";
 
 const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
     message:
@@ -32,7 +32,7 @@ const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
 const formSchema = z.object({
     title: z.string({message: "Title is required"}).min(2).max(100),
     type: z.string({message: "Type is required"}),
-    description: z.string().min(2).max(50),
+    description: z.string().min(2).max(500),
     tags: z.array(z.string()).optional(),
     presentations: z
         .array(
@@ -56,11 +56,12 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface ProposalFormProps {
+    proposalId?: string;
     proposal?: ApplicationResponse;
     isDisabled?: boolean;
 }
 
-const ProposalForm = ({proposal}: ProposalFormProps) => {
+const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -75,6 +76,10 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
     const {loading: loadingTags, analyzeText} = useTags();
     const {toast} = useToast();
     const {apiClient, useApiMutation} = useApi();
+    const navigate = useNavigate()
+    const location = useLocation();
+    const currentPath = location.pathname;
+
 
     const {mutate: createProposal} = useApiMutation<ApplicationPreviewResponse, CreateApplicationRequest>(
         (request) => apiClient.application.createApplication(request),
@@ -104,7 +109,50 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
         }
     );
 
-    const navigate = useNavigate();
+    const {mutate: updateProposal} = useApiMutation<ApplicationPreviewResponse, UpdateApplicationRequest>(
+        (request) => apiClient.application.updateApplication(Number(proposalId), request),
+        {
+            onSuccess: () => {
+                navigate("/applications");
+                toast({
+                    title: "Proposal edited",
+                    description: "Your proposal has been edited.",
+                    variant: "success",
+                });
+            },
+            onError: (error) => {
+                toast({
+                    title: "An error occurred",
+                    description: error.message,
+                    variant: "error",
+                });
+            },
+        }
+    );
+
+
+    const {mutate: deleteProposal} = useApiMutation<void, { id: string }>(
+        (args) => apiClient.application.deleteApplication(Number(args.id)),
+        {
+            onSuccess: () => {
+                navigate("/applications");
+                toast({
+                    title: "Proposal deleted",
+                    description: "Your proposal has been deleted.",
+                    variant: "success",
+                });
+                navigate("/applications");
+            },
+            onError: (error) => {
+                toast({
+                    title: "An error occurred",
+                    description: error.message,
+                    variant: "error",
+                });
+            },
+        }
+    );
+
     const {control, watch, setValue, handleSubmit} = form;
     const isDisabled = false;
 
@@ -128,6 +176,17 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
             saveAsDraft: !!asDraft,
         });
     };
+
+    const handleUpdateProposal = (data: FormValues) => {
+        updateProposal({
+            title: data.title,
+            type: data.type as SessionType,
+            description: data.description,
+            tags: data.tags,
+            presentations: data.presentations as PresentationRequest[],
+            saveAsDraft: false,
+        });
+    }
 
     async function updateTags(e) {
         e.preventDefault();
@@ -154,7 +213,6 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
             {
                 title: "",
                 description: "",
-                presenters: [{orcid: "", email: "", isSpeaker: true}],
             },
         ]);
     };
@@ -165,6 +223,9 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
         );
         setValue("presentations", updatedPresentations);
     };
+
+    const showDeleteButton = currentPath.startsWith("/proposal-edit/") && (proposal?.status === "DRAFT" || proposal?.status === "PENDING");
+    const showSaveAsDraftButton = currentPath === "/proposal";
 
     return (
         <Form {...form}>
@@ -300,11 +361,73 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
                     </div>
                 </FormItem>
                 <div className="flex flex-row justify-between items-center mt-4">
+                    <Button
+                        variant="secondary"
+                        onClick={() => {
+                            navigate("/applications")
+                        }}
+                    >
+                        Back
+                    </Button>
+
                     <div className="flex flex-row gap-4">
-                        <Button variant="secondary" onClick={() => handleCreateProposal(form.getValues(), true)}>
-                            Save as draft
-                        </Button>
-                        <Button onClick={() => handleCreateProposal(form.getValues())}>
+                        {showDeleteButton && (
+                            <Button
+                                variant="destructive"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    deleteProposal({id: proposalId});
+                                }}
+                            >
+                                Delete Application
+                            </Button>
+                        )}
+                        {showSaveAsDraftButton && (
+                            <Button
+                                variant="secondary"
+                                onClick={async () => {
+                                    const formData = form.getValues();
+                                    try {
+                                        formSchema.parse(formData);
+                                        handleCreateProposal(formData, true);
+                                    } catch (e) {
+                                        toast({
+                                            title: "Invalid form",
+                                            description: "Please fill in all required fields.",
+                                            variant: "error",
+                                        });
+                                    }
+                                }}
+                            >
+                                Save as draft
+                            </Button>
+                        )}
+                        <Button
+                            variant="default"
+                            onClick={async () => {
+                                const formData = form.getValues();
+                                try {
+                                    formSchema.parse(formData);
+                                    if (currentPath.startsWith("/proposal-edit/")) {
+                                        handleUpdateProposal(formData);
+                                    } else if (currentPath === "/proposal") {
+                                        handleCreateProposal(formData);
+                                    } else {
+                                        toast({
+                                            title: "Invalid path",
+                                            description: "The current path is not recognized.",
+                                            variant: "error",
+                                        });
+                                    }
+                                } catch (e) {
+                                    toast({
+                                        title: "Invalid form",
+                                        description: "Please fill in all required fields.",
+                                        variant: "error",
+                                    });
+                                }
+                            }}
+                        >
                             Submit
                         </Button>
                     </div>
