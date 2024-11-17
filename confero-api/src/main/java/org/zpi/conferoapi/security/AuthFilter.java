@@ -53,6 +53,11 @@ public class AuthFilter extends OncePerRequestFilter {
         String orcidAccessToken = request.getHeader("Orcid-Access-Token");
         String authHeader = request.getHeader("Authorization");
 
+        log.info("doFilterInternal: {}", request.getRequestURI());
+
+        log.info("Auth header: {}", authHeader);
+        log.info("Orcid access token: {}", orcidAccessToken);
+
         boolean authenticated = false;
 
         if (orcidAccessToken != null) {
@@ -94,11 +99,16 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private boolean handleJwtAuthentication(String authHeader) {
         String token = authHeader.substring(7);
+        log.info("Handling JWT token: {}", token);
         try {
+            log.info("Decoding JWT token with secret: {}", jwtSecret);
             Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
             JWTVerifier verifier = JWT.require(algorithm).build();
             DecodedJWT jwt = verifier.verify(token);
             String email = jwt.getClaim("email").asString();
+
+
+            log.info("Email: {}", email);
 
             User user = userRepository.findByEmail(email)
                     .orElseGet(() -> {
@@ -107,6 +117,7 @@ public class AuthFilter extends OncePerRequestFilter {
                                         .agenda(sessionRepository.findUsersParticipations(null, List.of(email)))
                                         .build()
                         );
+                        log.info("New user created: {}", newUser);
                         userEmailRepository.save(new UserEmail(email, true, newUser, null));
                         return newUser;
                     });
@@ -118,6 +129,7 @@ public class AuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
             return true;
         } catch (Exception e) {
+            log.error("Error while handling JWT token", e);
             SecurityContextHolder.clearContext();
             return false;
         }

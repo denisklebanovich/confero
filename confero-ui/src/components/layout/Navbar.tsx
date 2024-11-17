@@ -5,16 +5,13 @@ import {NavigationMenu, NavigationMenuItem, NavigationMenuList,} from "@/compone
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
 import {useApi} from "@/api/useApi.ts";
 import {ProfileResponse} from "@/generated";
+import {useUser} from "@/state/UserContext.tsx";
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {authorized, signOut} = useAuth();
-    const {apiClient, useApiQuery} = useApi();
-    const {data: profileData, isLoading} = useApiQuery<ProfileResponse>(
-        ["profile"],
-        () => apiClient.profile.getUserProfile()
-    );
+    const {profileData, isLoading} = useUser();
 
     const routes = [
         {
@@ -72,9 +69,6 @@ const Navbar = () => {
                     {profileData && !isLoading && (
                         <Avatar>
                             <AvatarImage src={profileData.avatarUrl}/>
-                            <AvatarFallback>
-                                {profileData.firstName[0] + profileData.lastName[0]}
-                            </AvatarFallback>
                         </Avatar>)
                     }
                     {authorized ? (
