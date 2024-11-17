@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 import { JitsiMeeting } from "@jitsi/react-sdk";
+import {useUser} from "@/state/UserContext.tsx";
 const Room = ({roomID, title}) => {
+    console.log(roomID, "roomID")
     const apiRef = useRef();
     const [logItems, updateLog] = useState([]);
     const [showNew, toggleShowNew] = useState(false);
     const [knockingParticipants, updateKnockingParticipants] = useState([]);
-
-    const username = "username";
-    const email = "example@gmail.com"
+    const {profileData: {firstName, lastName, emails}, isLoading: isLoadingProfile} = useUser();
 
     const handleKnockingParticipant = (payload) => {
         updateLog((items) => [...items, JSON.stringify(payload)]);
@@ -64,7 +64,6 @@ const Room = ({roomID, title}) => {
     };
 
     const handleReadyToClose = () => {
-         
         alert("Ready to close...");
     };
 
@@ -122,7 +121,10 @@ const Room = ({roomID, title}) => {
     };
 
     return (
-        <div className={"w-3/5 h-[55vh]"}>
+        <div className={"w-3/5"}>
+            {!isLoadingProfile
+                &&
+            <>
             <JitsiMeeting
                 roomName={roomID}
                 spinner={renderSpinner}
@@ -130,7 +132,7 @@ const Room = ({roomID, title}) => {
                     subject: title,
                     hideConferenceSubject: false,
                 }}
-                userInfo={{ displayName: username, email: email }}
+                userInfo={{ displayName: firstName + " " + lastName, email: emails[0].email }}
                 lang="en"
                 onApiReady={(externalApi) => handleApiReady(externalApi)}
                 onReadyToClose={handleReadyToClose}
@@ -144,7 +146,9 @@ const Room = ({roomID, title}) => {
                     SHOW_PROMOTIONAL_CLOSE_PAGE: true,
                 }}
             />
-            {renderNewInstance()}
+                {renderNewInstance()}
+            </>}
+
 
         </div>
     );

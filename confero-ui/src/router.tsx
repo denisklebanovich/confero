@@ -18,16 +18,21 @@ import {Toaster} from "@/components/ui/toaster.tsx";
 import React from "react";
 import SignUpView from "@/views/SignUpView.tsx";
 import ProfileView from "@/views/ProfileView.tsx";
+import {UserContextProvider} from "@/state/UserContext.tsx";
 
 export const router = createBrowserRouter([
     {
         path: '/',
         element: (
             <>
+
                 <AuthProvider>
+                    <UserContextProvider>
                     <Toaster/>
                     <Layout/>
+                </UserContextProvider>
                 </AuthProvider>
+
             </>
         ),
         children: [

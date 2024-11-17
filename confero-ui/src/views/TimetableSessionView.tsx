@@ -21,6 +21,7 @@ const TimetableSessionView = () => {
         () => apiClient.session.getSession(Number(id)),
     )
 
+
     const [presentations, setPresentations] = useState([]);
 
     const saveMutation = useApiMutation<SessionResponse, { sessionId: number; request: UpdateSessionRequest }>(
@@ -78,6 +79,7 @@ const TimetableSessionView = () => {
                 endTime: presentation.end_date,
             } as UpdatePresentationRequest
         })
+        // to-do filter by toShow
         const request : UpdateSessionRequest = {
             presentations: formattedPresentations
         }

@@ -124,12 +124,12 @@ export default function LoginView() {
             <div className="text-7xl font-bold text-center text-primary cursor-pointer"
                  onClick={() => navigate("/")}>Confero
             </div>
-            <div className="h-0.5 bg-gray-200 w-1/2 mx-auto mt-2 mb-20"/>
-            <Card className="w-[500px] mx-auto mt-32">
+            <div className="h-0.5 bg-gray-200 w-1/2 mx-auto mt-2 mb-5"/>
+            <Card className="w-[500px] mx-auto mt-2">
                 <CardHeader>
                     <CardTitle>Login</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                     <CardDescription>
                         Login to access your account
                     </CardDescription>
