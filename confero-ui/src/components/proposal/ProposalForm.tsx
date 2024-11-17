@@ -15,7 +15,7 @@ import {
     ApplicationPreviewResponse,
     ApplicationResponse,
     CreateApplicationRequest,
-    PresentationRequest,
+    PresentationRequest, PresenterResponse,
     SessionType, UpdateApplicationRequest
 } from "@/generated";
 import {useApi} from "@/api/useApi.ts";
@@ -85,6 +85,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         (request) => apiClient.application.createApplication(request),
         {
             onSuccess: (res) => {
+                navigate("/applications")
                 if (res.status === "DRAFT") {
                     toast({
                         title: "Draft saved",
@@ -231,7 +232,29 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         <Form {...form}>
             <form
                 className="flex flex-col gap-2 w-1/2"
-                onSubmit={handleSubmit((data) => handleCreateProposal(data))}
+                onSubmit={handleSubmit(async (data) => {
+                    try {
+                        formSchema.parse(data);
+                        if (currentPath.startsWith("/proposal-edit/")) {
+                            handleUpdateProposal(data);
+
+                        } else if (currentPath === "/proposal") {
+                            handleCreateProposal(data);
+                        } else {
+                            toast({
+                                title: "Invalid path",
+                                description: "The current path is not recognized.",
+                                variant: "error",
+                            });
+                        }
+                    } catch (e) {
+                        toast({
+                            title: "Invalid form",
+                            description: "Please fill in all required fields.",
+                            variant: "error",
+                        });
+                    }
+                })}
             >
                 <FormField
                     control={form.control}
@@ -404,29 +427,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                         )}
                         <Button
                             variant="default"
-                            onClick={async () => {
-                                const formData = form.getValues();
-                                try {
-                                    formSchema.parse(formData);
-                                    if (currentPath.startsWith("/proposal-edit/")) {
-                                        handleUpdateProposal(formData);
-                                    } else if (currentPath === "/proposal") {
-                                        handleCreateProposal(formData);
-                                    } else {
-                                        toast({
-                                            title: "Invalid path",
-                                            description: "The current path is not recognized.",
-                                            variant: "error",
-                                        });
-                                    }
-                                } catch (e) {
-                                    toast({
-                                        title: "Invalid form",
-                                        description: "Please fill in all required fields.",
-                                        variant: "error",
-                                    });
-                                }
-                            }}
+                            type="submit"
                         >
                             Submit
                         </Button>

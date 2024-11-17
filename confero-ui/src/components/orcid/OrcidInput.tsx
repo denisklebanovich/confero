@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button"
 import {Badge} from "@/components/ui/badge"
@@ -23,6 +23,10 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
     const [error, setError] = useState<string | null>(null)
     const {apiClient} = useApi()
     const {toast} = useToast()
+
+    useEffect(() => {
+        setPresenterDetails(value)
+    }, [value]);
 
     const validateORCID = async (orcid: string): Promise<{ valid: boolean; value?: OrcidInfoResponse }> => {
         try {
