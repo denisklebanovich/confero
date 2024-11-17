@@ -47,7 +47,7 @@ const SessionsView = () => {
                     </div>
                     <div className={"w-1/5 flex flex-col justify-center pl-8 ml-5 mt-12"}>
                         {
-                            !isLoadingProfileData && profileData.isInvitee && <>
+                            profileData?.isInvitee && !isLoadingProfileData  && <>
                             {events.map(event => <Event
                                     key={event.id}
                                     sessionId={event.sessionId} userFirstName={event.userFirstName}
