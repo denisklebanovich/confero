@@ -202,9 +202,9 @@ public class MockDataInitializer implements CommandLineRunner {
                                         .endTime(Instant.parse("2024-02-20T10:30:00Z"))
                                         .presenters(List.of(
                                                 Presenter.builder()
-                                                        .name("Dr. Frank")
-                                                        .surname("White")
-                                                        .orcid("0000-0006-2345-6789")
+                                                        .name("Dzianis")
+                                                        .surname("Klebanovich")
+                                                        .orcid("0009-0005-9044-6202")
                                                         .isSpeaker(true)
                                                         .build()
                                         ))
