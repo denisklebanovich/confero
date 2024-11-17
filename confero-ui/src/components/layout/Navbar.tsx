@@ -130,9 +130,9 @@ const Navbar = () => {
                     )}
 
                     {authorized ? (
-                        <Button onClick={signOut} variant={"secondary_grey"}>Logout</Button>
+                        <Button onClick={signOut} className={"mr-3"} variant={"secondary_grey"}>Logout</Button>
                     ) : (
-                        <Button>
+                        <Button className={"mr-3"}>
                             <Link to="/login">Login</Link>
                         </Button>
                     )}
