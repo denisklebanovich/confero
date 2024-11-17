@@ -1,5 +1,4 @@
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -10,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import OrcidInput from "@/components/orcid/OrcidInput";
-import { useWatch } from "react-hook-form";
 
 const PresentationForm = ({ index, onDelete, presentation, control }) => {
 
@@ -51,7 +49,7 @@ const PresentationForm = ({ index, onDelete, presentation, control }) => {
             <FormLabel>Organisers</FormLabel>
             <FormControl>
               <OrcidInput
-                value={field.value}
+                value={field.value || []}
                 onChange={field.onChange}
               />
             </FormControl>

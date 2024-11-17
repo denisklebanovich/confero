@@ -1,36 +1,39 @@
-import { useState } from 'react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { X } from 'lucide-react'
-import { OrcidInfoResponse } from "@/generated"
-import { useApi } from "@/api/useApi.ts"
+import {useState} from 'react'
+import {Input} from "@/components/ui/input"
+import {Button} from "@/components/ui/button"
+import {Badge} from "@/components/ui/badge"
+import {X, Star} from 'lucide-react'
+import {OrcidInfoResponse, PresenterRequest} from "@/generated"
+import {useApi} from "@/api/useApi.ts"
 import {useToast} from "@/hooks/use-toast.ts";
 
 interface OrcidInputProps {
-    value: OrcidInfoResponse[];
-    onChange: (value: OrcidInfoResponse[]) => void;
+    value: PresenterRequest[];
+    onChange: (value: PresenterRequest[]) => void;
     isDisabled?: boolean;
 }
 
-export default function OrcidInput({ value, onChange, isDisabled }: OrcidInputProps) {
+type PresenterDetails = PresenterRequest & OrcidInfoResponse;
+
+export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProps) {
     const [currentORCID, setCurrentORCID] = useState('')
     const [currentEmail, setCurrentEmail] = useState('')
+    const [presenterDetails, setPresenterDetails] = useState<PresenterDetails[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const { apiClient } = useApi()
-    const { toast } = useToast()
+    const {apiClient} = useApi()
+    const {toast} = useToast()
 
     const validateORCID = async (orcid: string): Promise<{ valid: boolean; value?: OrcidInfoResponse }> => {
         try {
             const presenter = await apiClient.orcid.getOrcidData(orcid);
             const isValid = /^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/.test(orcid)
             if (isValid) {
-                return { valid: true, value: presenter }
+                return {valid: true, value: presenter}
             }
-            return { valid: false }
+            return {valid: false}
         } catch (e) {
-            return { valid: false }
+            return {valid: false}
         }
     }
 
@@ -60,13 +63,22 @@ export default function OrcidInput({ value, onChange, isDisabled }: OrcidInputPr
             }
             const result = await validateORCID(currentORCID);
             if (result.valid && result.value) {
-                const newPresenter = { ...result.value, email: currentEmail };
+                const newPresenter: PresenterRequest = {
+                    orcid: currentORCID,
+                    email: currentEmail,
+                    isSpeaker: value.length === 0
+                };
+                const newPresenterDetails: PresenterDetails = {
+                    ...newPresenter,
+                    ...result.value
+                };
                 onChange([...value, newPresenter]);
+                setPresenterDetails([...presenterDetails, newPresenterDetails]);
                 setCurrentORCID("");
                 setCurrentEmail("");
                 toast({
                     title: "Presenter added",
-                    description: `${newPresenter.name} has been added as a presenter.`,
+                    description: `${result.value.name} has been added as a presenter.`,
                 });
             } else {
                 setError("Invalid ORCID. Please check and try again.");
@@ -79,11 +91,31 @@ export default function OrcidInput({ value, onChange, isDisabled }: OrcidInputPr
     };
 
     const removeORCID = (orcid: string) => {
-        onChange(value.filter((entry) => entry.orcid !== orcid));
+        const updatedPresenters = value.filter((entry) => entry.orcid !== orcid);
+        const updatedPresenterDetails = presenterDetails.filter((entry) => entry.orcid !== orcid);
+        if (updatedPresenters.length > 0 && !updatedPresenters.some(p => p.isSpeaker)) {
+            updatedPresenters[0].isSpeaker = true;
+        }
+        onChange(updatedPresenters);
+        setPresenterDetails(updatedPresenterDetails);
         toast({
             title: "Presenter removed",
             description: "The presenter has been removed from the list.",
         });
+    };
+
+    const toggleMainSpeaker = (e: React.MouseEvent, orcid: string) => {
+        e.preventDefault()
+        const updatedPresenters = value.map(presenter => ({
+            ...presenter,
+            isSpeaker: presenter.orcid === orcid
+        }));
+        const updatedPresenterDetails = presenterDetails.map(presenter => ({
+            ...presenter,
+            isSpeaker: presenter.orcid === orcid
+        }));
+        onChange(updatedPresenters);
+        setPresenterDetails(updatedPresenterDetails);
     };
 
     return (
@@ -114,27 +146,41 @@ export default function OrcidInput({ value, onChange, isDisabled }: OrcidInputPr
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {value.map((entry) => (
+                {presenterDetails.map((entry) => (
                     <Badge
                         key={entry.orcid}
-                        variant="secondary"
+                        variant={entry.isSpeaker ? "default" : "secondary"}
                         className="flex items-center justify-between p-2 space-x-2"
                     >
                         <div className="flex flex-col items-start overflow-hidden">
-                            <span className="font-semibold truncate">{entry.name}</span>
-                            <span className="text-xs text-muted-foreground truncate">{entry.surname}</span>
+                            <span className="font-semibold truncate">{entry.name} {entry.surname}</span>
                             <span className="text-xs text-muted-foreground truncate">ORCID: {entry.orcid}</span>
+                            {entry.isSpeaker && (
+                                <span className="text-xs text-muted-foreground truncate">Main Speaker</span>
+                            )}
                         </div>
                         {!isDisabled && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeORCID(entry.orcid)}
-                                className="shrink-0"
-                            >
-                                <X className="h-4 w-4" />
-                                <span className="sr-only">Remove</span>
-                            </Button>
+                            <div className="flex space-x-1">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => toggleMainSpeaker(e, entry.orcid)}
+                                    className="shrink-0"
+                                    disabled={entry.isSpeaker}
+                                >
+                                    <Star className={`h-4 w-4 ${entry.isSpeaker ? 'fill-current' : ''}`}/>
+                                    <span className="sr-only">Set as Main Speaker</span>
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeORCID(entry.orcid)}
+                                    className="shrink-0"
+                                >
+                                    <X className="h-4 w-4"/>
+                                    <span className="sr-only">Remove</span>
+                                </Button>
+                            </div>
                         )}
                     </Badge>
                 ))}

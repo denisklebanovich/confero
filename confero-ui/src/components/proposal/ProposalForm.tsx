@@ -7,7 +7,6 @@ import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import {Textarea} from "@/components/ui/textarea";
 import {Badge} from "@/components/ui/badge";
-import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 import PresentationForm from "@/components/presentations/PresentationForm";
 import {Plus} from "lucide-react";
@@ -32,7 +31,7 @@ const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
 const formSchema = z.object({
     title: z.string({message: "Title is required"}).min(2).max(100),
     type: z.string({message: "Type is required"}),
-    description: z.string().min(2).max(50),
+    description: z.string().min(2).max(500),
     tags: z.array(z.string()).optional(),
     presentations: z
         .array(
@@ -104,7 +103,6 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
         }
     );
 
-    const navigate = useNavigate();
     const {control, watch, setValue, handleSubmit} = form;
     const isDisabled = false;
 
@@ -154,7 +152,6 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
             {
                 title: "",
                 description: "",
-                presenters: [{orcid: "", email: "", isSpeaker: true}],
             },
         ]);
     };
@@ -301,10 +298,40 @@ const ProposalForm = ({proposal}: ProposalFormProps) => {
                 </FormItem>
                 <div className="flex flex-row justify-between items-center mt-4">
                     <div className="flex flex-row gap-4">
-                        <Button variant="secondary" onClick={() => handleCreateProposal(form.getValues(), true)}>
+                        <Button
+                            variant="secondary"
+                            onClick={async () => {
+                                const formData = form.getValues();
+                                try {
+                                    formSchema.parse(formData);
+                                    handleCreateProposal(formData, true);
+                                } catch (e) {
+                                    toast({
+                                        title: "Invalid form",
+                                        description: "Please fill in all required fields.",
+                                        variant: "error",
+                                    });
+                                }
+                            }}
+                        >
                             Save as draft
                         </Button>
-                        <Button onClick={() => handleCreateProposal(form.getValues())}>
+                        <Button
+                            variant="default"
+                            onClick={async () => {
+                                const formData = form.getValues();
+                                try {
+                                    formSchema.parse(formData);
+                                    handleCreateProposal(formData);
+                                } catch (e) {
+                                    toast({
+                                        title: "Invalid form",
+                                        description: "Please fill in all required fields.",
+                                        variant: "error",
+                                    });
+                                }
+                            }}
+                        >
                             Submit
                         </Button>
                     </div>
