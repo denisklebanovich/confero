@@ -6,39 +6,90 @@ import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
 import {useApi} from "@/api/useApi.ts";
 import {ProfileResponse} from "@/generated";
 import {useUser} from "@/state/UserContext.tsx";
+import {useEffect, useState} from "react";
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {authorized, signOut} = useAuth();
     const {profileData, isLoading} = useUser();
+    const [routes, setRoutes] = useState([])
 
-    const routes = [
-        {
-            name: "Sessions",
-            to: "/",
-        },
-        {
-            name: "Applications",
-            to: "/applications",
-        },
-        {
-            name: "Organizers",
-            to: "/organizers",
-        },
-        {
-            name: "Conference Editions",
-            to: "/conference-editions",
-        },
-        {
-            name: "My Calendar",
-            to: "/my-calendar",
-        },
-        {
-            name: "Profile",
-            to: "/profile",
+    useEffect(() => {
+        if(!isLoading){
+            setRoutes(updateRoutes(profileData as any))
         }
-    ]
+
+    },[profileData,isLoading])
+
+
+    function updateRoutes({isAdmin, isInvitee}){
+        if(!authorized){
+            return []
+        }
+        const authorizedRoutes = [
+            {
+                name: "Sessions",
+                to: "/",
+            },
+            {
+                name: "Applications",
+                to: "/applications",
+            },
+            {
+                name: "Profile",
+                to: "/profile",
+            }
+        ]
+        const invitee = [
+            {
+                name: "Sessions",
+                to: "/",
+            },
+            {
+                name: "Applications",
+                to: "/applications",
+            },
+            {
+                name: "Organizers",
+                to: "/organizers",
+            },
+            {
+                name: "Profile",
+                to: "/profile",
+            }
+        ]
+        const admin = [
+            {
+                name: "Sessions",
+                to: "/",
+            },
+            {
+                name: "Applications",
+                to: "/applications",
+            },
+            {
+                name: "Conference Editions",
+                to: "/conference-editions",
+            },
+            {
+                name: "Profile",
+                to: "/profile",
+            }
+        ]
+
+        if(isAdmin){
+            return admin;
+        }
+        if(isInvitee){
+            return invitee;
+        }
+        if(authorized){
+            return authorizedRoutes;
+        }
+    }
+
+
     return (
         <div className="navbar bg-white fixed top-0 w-full z-50">
             <div className="container mx-auto my-1 flex items-center justify-between">
@@ -49,8 +100,10 @@ const Navbar = () => {
                 >
                     Confero
                 </a>
+                {!isLoading && profileData && (
+                    <>
                 <NavigationMenu>
-                    <NavigationMenuList className="flex items-center gap-4 justify-around">
+                    <NavigationMenuList className="flex items-center gap-4 justify-start w-full">
                         {routes.map((route, index) => (
                             <NavigationMenuItem
                                 key={index}
@@ -66,11 +119,11 @@ const Navbar = () => {
                     </NavigationMenuList>
                 </NavigationMenu>
                 <div className="flex gap-3 ml-16">
-                    {profileData && !isLoading && (
+
                         <Avatar>
                             <AvatarImage src={profileData.avatarUrl}/>
-                        </Avatar>)
-                    }
+                        </Avatar>
+
                     {authorized ? (
                         <Button onClick={signOut} variant={"secondary_grey"}>Logout</Button>
                     ) : (
@@ -79,7 +132,11 @@ const Navbar = () => {
                         </Button>
                     )}
                 </div>
+                    </>
+)}
+
             </div>
+
         </div>
     );
 };

@@ -15,6 +15,7 @@ export default function SessionView() {
     const {apiClient, useApiQuery} = useApi()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+
     const scroll = (direction: "left" | "right") => {
         if (scrollContainerRef.current) {
             const scrollAmount = 400
@@ -32,7 +33,6 @@ export default function SessionView() {
         () => apiClient.session.getSession(Number(id))
     )
 
-    console.log(session, "session")
 
     const {authorized} = useAuth()
 

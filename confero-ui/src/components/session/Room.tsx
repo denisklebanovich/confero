@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import { JitsiMeeting } from "@jitsi/react-sdk";
 import {useUser} from "@/state/UserContext.tsx";
 const Room = ({roomID, title}) => {
-    console.log(roomID, "roomID")
     const apiRef = useRef();
     const [logItems, updateLog] = useState([]);
     const [showNew, toggleShowNew] = useState(false);
@@ -132,7 +131,7 @@ const Room = ({roomID, title}) => {
                     subject: title,
                     hideConferenceSubject: false,
                 }}
-                userInfo={{ displayName: firstName + " " + lastName, email: emails[0].email }}
+                userInfo={{ displayName: "", email: emails[0].email }}
                 lang="en"
                 onApiReady={(externalApi) => handleApiReady(externalApi)}
                 onReadyToClose={handleReadyToClose}
