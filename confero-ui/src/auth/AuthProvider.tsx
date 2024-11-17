@@ -13,13 +13,6 @@ interface AuthContextType {
     setData: () => Promise<void>
 }
 
-function getCookie(name: string) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null;
-    return null;
-}
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({children}: { children: React.ReactNode }) {
@@ -30,7 +23,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
     const [authorized, setAuthorized] = useState(false)
     const navigate = useNavigate()
 
-    const setData = async () => {
+const setData = async () => {
         try{
             const {data: {session}, error} = await supabase.auth.getSession()
             if (error) {
@@ -69,6 +62,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
         const {error} = await supabase.auth.signOut()
         if (error) console.error(error)
         setOrcidAccessToken(null);
+        localStorage.removeItem('orcid_access_token')
         setAuthorized(false)
         setUser(null)
         localStorage.setItem('orcid_access_token', '')
