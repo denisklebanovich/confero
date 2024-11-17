@@ -5,6 +5,7 @@ import {Button} from "@/components/ui/button";
 import {useNavigate} from "react-router-dom";
 import Event from "@/components/sessions/Event.tsx";
 import {Spinner} from "@/components/ui/spiner.tsx";
+import {useUser} from "@/state/UserContext.tsx";
 
 const SessionsView = () => {
     const {apiClient, useApiQuery, useApiMutation} = useApi();
@@ -19,6 +20,8 @@ const SessionsView = () => {
         ["events"],
         () => apiClient.session.getSessionEvents()
     );
+
+    const {profileData, isLoading: isLoadingProfileData} = useUser();
 
 
     return (
@@ -43,10 +46,14 @@ const SessionsView = () => {
                         ))}
                     </div>
                     <div className={"w-1/5 flex flex-col justify-center pl-8 ml-5 mt-12"}>
-                        {events.map(event => <Event
-                            key={event.id}
-                            sessionId={event.sessionId} userFirstName={event.userFirstName}
-                            userLastName={event.userLastName}/>)}
+                        {
+                            !isLoadingProfileData && profileData.isInvitee && <>
+                            {events.map(event => <Event
+                                    key={event.id}
+                                    sessionId={event.sessionId} userFirstName={event.userFirstName}
+                                    userLastName={event.userLastName}/>)}</>
+                        }
+
                     </div>
                 </div>
             </div>

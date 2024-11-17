@@ -25,7 +25,7 @@ import useFilteredApplications from "@/hooks/useFilteredApplications.ts";
 import { useUser } from "@/state/UserContext.tsx";
 import { Spinner } from "@/components/ui/spiner.tsx";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 4;
 
 const ApplicationsView = () => {
   const navigate = useNavigate();
@@ -33,11 +33,8 @@ const ApplicationsView = () => {
   const [totalPages, setTotalPages] = useState(1);
   const { profileData, isLoading: isLoadingProfile } = useUser();
 
-  useEffect(() => {
-    if (!isLoadingProfile) {
-      console.log(profileData, "vlad");
-    }
-  }, [isLoadingProfile, profileData]);
+
+
 
   const form = useForm({
     defaultValues: {
@@ -83,14 +80,18 @@ const ApplicationsView = () => {
         <div className={"w-1/4"}></div>
         <div className={"w-2/3 justify-around flex  gap-2 flex-row"}>
           <div className="text-3xl font-bold w-full">Applications:</div>
-          <FileUpload />
-          <Button>
-            <Link to="/proposal">Add application</Link>
-          </Button>
+          { !isLoadingProfile && !profileData.isAdmin &&
+              <>
+                <FileUpload />
+                <Button>
+                  <Link to="/proposal">Add application</Link>
+                </Button>
+              </>
+
+          }
         </div>
         <div className={"w-1/4"}></div>
       </div>
-
       <div className={"w-full flex justify-around"}>
         <div className={"w-1/4"}>
           <div className={"w-full h-full pl-5"}>

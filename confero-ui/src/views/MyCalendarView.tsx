@@ -7,6 +7,7 @@ import {SessionPreviewResponse} from "@/generated";
 import {generateICSFile} from "@/utils/convertEventToISC.ts";
 import {Spinner} from "@/components/ui/spiner.tsx";
 import {useCalendarStatus} from "@/hooks/useCalendarStatus.ts";
+import {useUser} from "@/state/UserContext.tsx";
 
 
 const MyCalendarView = () => {
@@ -18,6 +19,8 @@ const MyCalendarView = () => {
         ["user-sessions"],
         () => apiClient.session.getPersonalAgenda()
     );
+
+    const {profileData, isLoading: isLoadingUserData} = useUser();
 
 
     return (
@@ -31,10 +34,12 @@ const MyCalendarView = () => {
                     <div className={"w-2/3 items-center gap-5 flex flex-col"}>
                         <div className="flex w-full">
                             <div className="text-3xl font-bold w-full">My calendar:</div>
-
+                            {
+                                !isLoadingUserData && !profileData.isAdmin &&
                             <Button onClick={() => navigate("/my-sessions")} variant={"secondary_grey" as any}>
                                 Manage sessions
                             </Button>
+                            }
                             <Button className={"ml-2"} onClick={() => navigate("/")}>
                                 View full calendar
                             </Button>
