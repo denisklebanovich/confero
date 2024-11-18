@@ -203,7 +203,7 @@ const ApplicationsView = () => {
                             date={application.createdAt}
                             status={application.status}
                             organisers={application.presenters}
-                            onClick={() => navigate(`/proposal-edit/${application.id}`)}
+                            onClick={() => navigate(`/${profileData.isAdmin ? "proposal-admin" : "proposal-edit"}/${application.id}`)}
                         />
                     ))}
                 </div>
