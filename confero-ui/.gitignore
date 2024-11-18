@@ -25,5 +25,3 @@ dist-ssr
 src/generated
 tsconfig.node.tsbuildinfo
 tsconfig.app.tsbuildinfo
-
-.env
