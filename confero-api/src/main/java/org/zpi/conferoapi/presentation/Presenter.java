@@ -5,13 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
-import org.zpi.conferoapi.user.User;
-import org.zpi.conferoapi.session.Session;
 
 import java.util.List;
 
@@ -21,6 +19,7 @@ import java.util.List;
 @Table(name = "presenter")
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true) // Use only explicitly included fields
 @Builder
 @ToString
 public class Presenter {
@@ -41,6 +40,7 @@ public class Presenter {
     @Size(max = 255)
     @NotNull
     @Column(name = "orcid", nullable = false)
+    @EqualsAndHashCode.Include
     private String orcid;
 
     @Size(max = 255)

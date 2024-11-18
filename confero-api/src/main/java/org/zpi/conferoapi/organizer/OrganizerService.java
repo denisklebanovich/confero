@@ -23,7 +23,6 @@ public class OrganizerService {
                         .name(organizer.getName())
                         .surname(organizer.getSurname())
                         .orcid(organizer.getOrcid())
-
                 )
                 .toList();
     }
