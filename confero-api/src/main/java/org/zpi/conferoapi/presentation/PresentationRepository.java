@@ -14,11 +14,12 @@ public interface PresentationRepository extends JpaRepository<Presentation, Long
     void deleteAllBySession(Session session);
 
     @Query("""
-            SELECT p.id FROM Presentation p
-            JOIN p.presenters pr
-            WHERE (:orcid IS NULL OR pr.orcid = :orcid)
-            OR (:emails IS NULL OR pr.email IN :emails)
-        """)
+        SELECT p.id FROM Presentation p
+        JOIN p.presenters pr
+        WHERE 
+            (:orcid IS NOT NULL AND pr.orcid = :orcid)
+            OR (:emails IS NOT NULL AND pr.email IN :emails)
+    """)
     Set<Long> findUserParticipations(@Param("orcid") String orcid, @Param("emails") List<String> emails);
 
 
