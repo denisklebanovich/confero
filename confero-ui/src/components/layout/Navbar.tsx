@@ -13,16 +13,16 @@ const Navbar = () => {
     const location = useLocation();
     const {authorized, signOut} = useAuth();
     const {profileData, isLoading} = useUser();
-    const [routes, setRoutes] = useState(updateRoutes(profileData))
+    const [routes, setRoutes] = useState(updateRoutes())
 
     console.log(authorized, profileData, isLoading)
 
     useEffect(() => {
-        setRoutes(updateRoutes(profileData))
+        setRoutes(updateRoutes())
     },[authorized, profileData, isLoading])
 
 
-    function updateRoutes(profileData: ProfileResponse){
+    function updateRoutes(){
         if(!authorized || isLoading){
             return []
         }
