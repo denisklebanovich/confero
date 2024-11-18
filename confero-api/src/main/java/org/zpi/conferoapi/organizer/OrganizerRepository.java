@@ -9,7 +9,7 @@ import java.util.List;
 public interface OrganizerRepository extends JpaRepository<Presenter, Long> {
 
     @Query("""
-        SELECT p
+        SELECT DISTINCT p
         FROM Presenter p
         JOIN Presentation pr ON p.presentation.id = pr.id
         JOIN Session s ON pr.session.id = s.id
