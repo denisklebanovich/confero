@@ -65,8 +65,8 @@ export default function SignUpView() {
             <div className="text-7xl font-bold text-center text-primary cursor-pointer"
                  onClick={() => navigate("/")}>Confero
             </div>
-            <div className="h-0.5 bg-gray-200 w-1/2 mx-auto mt-2 mb-20"/>
-            <Card className="w-[500px] mx-auto mt-32">
+            <div className="h-0.5 bg-gray-200 w-1/2 mx-auto mt-2"/>
+            <Card className="w-[500px] mx-auto mt-10">
                 <CardHeader>
                     <CardTitle>Sign Up</CardTitle>
                     <CardDescription>
