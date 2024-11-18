@@ -63,8 +63,8 @@ const TimetableSessionView = () => {
             if (!presentation.startTime || !presentation.endTime) {
                 startDate = new Date(currentStartTime);
                 endDate = new Date(currentStartTime);
-                endDate.setMinutes(currentStartTime.getMinutes() + timeInterval + 15);
-                currentStartTime = new Date(endDate);
+                endDate.setMinutes(currentStartTime.getMinutes() + timeInterval);
+                currentStartTime = new Date(endDate.getTime() + 15 * 60 * 1000);
             } else {
                 startDate = new Date(presentation.startTime);
                 endDate = new Date(presentation.endTime);
@@ -112,7 +112,7 @@ const TimetableSessionView = () => {
 
     useEffect(() => {
         if (session) {
-            setCalendarDate(new Date(session.presentations[0].startTime));
+            setCalendarDate(new Date(session.presentations[0].startTime|| Date.now()));
             setPresentations(getPresentations());
         }
     }, [session]);
