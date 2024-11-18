@@ -53,7 +53,7 @@ const TimetableSessionView = () => {
 
     function getPresentations() {
         const defaultStartHour = 9;
-        const timeInterval = 45;
+        const timeInterval = 70;
         let currentStartTime = new Date();
         currentStartTime.setHours(defaultStartHour, 0, 0, 0);
 
