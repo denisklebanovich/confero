@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     environment:
-        - MAIL_PASS="${MAIL_PASS}"
+        - MAIL_PASS=${MAIL_PASS}
     build:
       context: ./confero-api
       dockerfile: Dockerfile
