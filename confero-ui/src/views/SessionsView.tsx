@@ -16,11 +16,14 @@ const SessionsView = () => {
     const {data: sessions, isLoading} = useApiQuery<SessionPreviewResponse[]>(
         ["sessions"],
         () => apiClient.session.getSessions()
+
     );
 
     const {data: events, isLoading: isLoadingEvents} = useApiQuery<SesssionEventResponse[]>(
         ["events"],
-        () => apiClient.session.getSessionEvents()
+        () => {
+            if(authorized) return apiClient.session.getSessionEvents()
+        }
     );
 
     const {profileData, isLoading: isLoadingProfileData} = useUser();
