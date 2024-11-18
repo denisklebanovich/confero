@@ -104,6 +104,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /profile/orcid/verify:
+    get:
+      tags:
+        - Profile
+        - User
+      summary: Verify ORCID
+      description: |-
+        Verify ORCID.
+      operationId: verifyOrcid
+      parameters:
+        - name: orcid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /profile/email/verify:
     get:
       tags:
@@ -146,9 +179,9 @@ paths:
       requestBody:
         required: true
         content:
-            multipart/form-data:
-                schema:
-                  $ref: '#/components/schemas/UpdateAvatarRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateAvatarRequest'
       responses:
         '200':
           description: OK
@@ -364,7 +397,7 @@ paths:
       summary: Get all applications.
       description: |-
         Retrieve all applications:
-  
+        
         - Users will see only their own applications.
         - Admins will see all applications across the system, except those that are already "ACCEPTED" (Sessions).
       
@@ -389,7 +422,7 @@ paths:
       operationId: getApplication
       description: |-
         Retrieve full details of an application, including its comments.
-  
+        
         - Users can access their own applications.
         - Admins can access any application.
         - An error is returned if the application does not exist or is not accessible to the user.
@@ -415,7 +448,7 @@ paths:
       summary: Update an application
       description: |-
         Update an existing application:
-  
+        
         - Changes to the application can only be made if its status is not "RESOLVED".
         - If `saveAsDraft` is `true`, the application remains as "DRAFT".
         - If `saveAsDraft` is `false`, the application is sent for review, and its status is set to "PENDING".
@@ -455,10 +488,10 @@ paths:
         - User
       summary: Delete an application
       description: |-
-         Delete an application:
-          - Applications can only be deleted if their status is "DRAFT" or "PENDING".
-          - Admins are not allowed to delete applications and will receive an error.
-          - Once deleted, an application cannot be recovered.
+        Delete an application:
+         - Applications can only be deleted if their status is "DRAFT" or "PENDING".
+         - Admins are not allowed to delete applications and will receive an error.
+         - Once deleted, an application cannot be recovered.
       operationId: deleteApplication
       parameters:
         - $ref: '#/components/parameters/ApplicationId'
@@ -487,7 +520,7 @@ paths:
       summary: Review an application
       description: |-
         Admin-only endpoint to review an application.
-  
+        
         - Only applications with the status "PENDING" can be reviewed.
         - The `ReviewRequest` determines the action:
           - "ACCEPT": Marks the application as "ACCEPTED".
@@ -549,33 +582,33 @@ paths:
                   $ref: '#/components/schemas/SessionPreviewResponse'
 
     post:
-        tags:
-            - Session
-            - User
-        summary: Create test session
-        description: |-
-            Create test session.
-        operationId: createSession
-        deprecated: true
-        requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/CreateApplicationRequest'
-        responses:
-            '201':
-              description: Created
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/SessionPreviewResponse'
-            '400':
-              description: Bad request
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Session
+        - User
+      summary: Create test session
+      description: |-
+        Create test session.
+      operationId: createSession
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionPreviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
   /session/manage:
@@ -738,7 +771,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-          
+
 
   /session/{sessionId}:
     get:
@@ -795,7 +828,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-      
+
   /session/{sessionId}/preview:
     get:
       tags:
@@ -1044,7 +1077,7 @@ components:
         - CONFERENCE_EDITION_CANNOT_HAVE_DEADLINE_IN_THE_PAST
     SessionEventType:
       type: string
-      enum: [ FILE_UPLOAD]
+      enum: [ FILE_UPLOAD ]
     ReviewRequest:
       type: object
       required:
@@ -1210,7 +1243,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PresenterRequest'
-            
+
     ApplicationPresentationResponse:
       type: object
       properties:
@@ -1363,7 +1396,7 @@ components:
           items:
             $ref: '#/components/schemas/PresenterResponse'
         isInCalendar:
-         type: boolean
+          type: boolean
         from_current_conference_edition:
           type: boolean
     SessionResponse:
@@ -1422,7 +1455,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/SessionPreviewResponse'
-      
+
     ProfileResponse:
       type: object
       properties:

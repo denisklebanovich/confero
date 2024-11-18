@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+import {Avatar, AvatarImage} from "@/components/ui/avatar"
 import {useProfile} from "@/hooks/useProfile.ts";
 import {Spinner} from "@/components/ui/spiner.tsx";
 import {handleOrcidLogin} from "@/views/LoginView.tsx";
@@ -11,9 +11,11 @@ import {ProfileResponse, UpdateAvatarRequest, UpdateEmailRequest, type UpdatePro
 import {useToast} from "@/hooks/use-toast.ts";
 import {useQueryClient} from "@tanstack/react-query";
 import {Label} from "@/components/ui/label.tsx";
+import {useSearchParams} from "react-router-dom";
 
 
 const ProfileView = () => {
+    let [params, setSearchParams] = useSearchParams();
     const {profile, isLoading} = useProfile();
     const [email, setEmail] = useState<string | undefined>();
     const {apiClient, useApiMutation} = useApi();
@@ -30,6 +32,7 @@ const ProfileView = () => {
                     variant: "success",
                 })
                 queryClient.setQueryData<ProfileResponse>(["profile"], data);
+                setEmail(undefined);
             },
             onError: (error) => {
                 toast({
@@ -83,6 +86,40 @@ const ProfileView = () => {
         }
     );
 
+    const {mutate: verifyOrcid} = useApiMutation<ProfileResponse, { orcid: string, accessToken: string }>(
+        ({orcid, accessToken}) => apiClient.profile.verifyOrcid(orcid, accessToken),
+        {
+            onSuccess: (data) => {
+                toast({
+                    title: "ORCID verified",
+                    description: "Your ORCID has been verified",
+                    variant: "success",
+                })
+                queryClient.setQueryData<ProfileResponse>(["profile"], data);
+            },
+            onError: (error) => {
+                toast({
+                    title: "Error verifying ORCID",
+                    description: error.message,
+                    variant: "error",
+                })
+            }
+        }
+    );
+
+
+    useEffect(() => {
+        console.log("params", params);
+        if (params.has("orcid") && params.has("accessToken")) {
+            const orcid = params.get("orcid");
+            const accessToken = params.get("accessToken");
+            if (orcid && accessToken) {
+                verifyOrcid({orcid, accessToken});
+                setSearchParams({});
+            }
+        }
+    }, []);
+
 
     return (
         isLoading ?
@@ -122,7 +159,7 @@ const ProfileView = () => {
                                 <Button
                                     variant='secondary'
                                     className="w-full"
-                                    onClick={handleOrcidLogin}
+                                    onClick={() => handleOrcidLogin(true)}
                                 >
                                     <OrcidIcon/> Verify ORCID
                                 </Button>

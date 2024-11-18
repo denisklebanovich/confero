@@ -9,7 +9,6 @@ import org.openapitools.model.UpdateProfileInfoRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
 import org.zpi.conferoapi.configuration.S3Service;
 import org.zpi.conferoapi.email.EmailServiceImpl;
@@ -39,6 +38,13 @@ public class ProfileService {
     public ProfileResponse getUserProfile() {
         User user = securityUtils.getCurrentUser();
         return userMapper.toDto(securityUtils.getCurrentUser(), isUserInvitee(user));
+    }
+
+    public ProfileResponse verifyOrcid(String orcid,String accessToken) {
+        User user = securityUtils.getCurrentUser();
+        user.setOrcid(orcid);
+        user.setAccessToken(accessToken);
+        return userMapper.toDto(userRepository.save(user), isUserInvitee(user));
     }
 
     public ProfileResponse updateUserInfo(UpdateProfileInfoRequest updateProfileInfoRequest) {

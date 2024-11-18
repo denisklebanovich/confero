@@ -2,6 +2,7 @@ package org.zpi.conferoapi.auth;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +29,8 @@ public class OrcidAuthController {
     private String baseUrl;
 
     @GetMapping("/login")
-    public RedirectView loginWithOrcid() {
-        String authorizationUrl = orcidAuthService.getAuthorizationUrl();
+    public RedirectView loginWithOrcid(@RequestParam boolean verify) {
+        String authorizationUrl = orcidAuthService.getAuthorizationUrl(verify);
         return new RedirectView(authorizationUrl);
     }
 
@@ -48,6 +49,21 @@ public class OrcidAuthController {
                     .build();
         } catch (Exception e) {
             log.info("Error while orcid callback", e);
+            return ResponseEntity.status(403).build();
+        }
+    }
+
+    @GetMapping("/callback/verify")
+    public ResponseEntity<Void> verifyOrcid(@RequestParam String code) {
+        log.info("Received ORCID verify callback with code {}", code);
+        try {
+            Pair<String, String> response = orcidAuthService.verifyUser(code);
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(String.format("%s/profile?orcid=%s&accessToken=%s",
+                            baseUrl, response.a, response.b)))
+                    .build();
+        } catch (Exception e) {
+            log.info("Error while orcid verify callback", e);
             return ResponseEntity.status(403).build();
         }
     }

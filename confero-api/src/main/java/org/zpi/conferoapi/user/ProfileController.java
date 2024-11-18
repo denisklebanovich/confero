@@ -9,6 +9,7 @@ import org.openapitools.model.UpdateEmailRequest;
 import org.openapitools.model.UpdateProfileInfoRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.zpi.conferoapi.security.SecurityUtils;
@@ -55,4 +56,8 @@ public class ProfileController implements ProfileApi {
         return ResponseEntity.ok("redirect:" + redirectBaseUrl + "/login");
     }
 
+    @Override
+    public ResponseEntity<ProfileResponse> verifyOrcid(String orcid, String accessToken) {
+        return ResponseEntity.ok(profileService.verifyOrcid(orcid, accessToken));
+    }
 }

@@ -59,7 +59,7 @@ supabase:
 orcid:
   client-id: APP-O78NWU9RUK7WPFEH
   client-secret: ${ORCID_CLIENT_SECRET:secret}
-  redirect-uri: ${ORCID_REDIRECT_URI:http://localhost:8080/api/auth/orcid/callback}
+  redirect-uri: ${ORCID_REDIRECT_URI:https://627b-178-37-12-53.ngrok-free.app/api/auth/orcid/callback}
   auth-url: https://orcid.org/oauth/authorize
   token-url: https://orcid.org/oauth/token
 

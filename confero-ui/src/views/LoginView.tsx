@@ -17,9 +17,9 @@ import {z} from "zod";
 import {useToast} from "@/hooks/use-toast.ts";
 
 
-export const handleOrcidLogin = async () => {
+export const handleOrcidLogin = async (verify: boolean = false) => {
     try {
-        window.location.href = '/api/auth/orcid/login';
+        window.location.href = `/api/auth/orcid/login?verify=${verify}`
     } catch (error) {
         console.error('Error logging in with ORCID:', error)
         alert('Error logging in with ORCID. Please try again.')
@@ -35,7 +35,7 @@ const formSchema = z.object({
 export default function LoginView() {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
-    const {user,setData} = useAuth()
+    const {user, setData} = useAuth()
     const {toast} = useToast()
 
 
@@ -178,7 +178,7 @@ export default function LoginView() {
                         <Button
                             variant='secondary'
                             className="w-full"
-                            onClick={handleOrcidLogin}
+                            onClick={() => handleOrcidLogin()}
                         >
                             <OrcidIcon/> Login with ORCID
                         </Button>
