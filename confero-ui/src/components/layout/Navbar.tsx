@@ -98,7 +98,7 @@ const Navbar = () => {
                 >
                     Confero
                 </a>
-                {!isLoading && profileData && (
+                {authorized && !isLoading && profileData && (
                     <>
                         <NavigationMenu>
                             <NavigationMenuList className="flex items-center gap-4 justify-start w-full">
