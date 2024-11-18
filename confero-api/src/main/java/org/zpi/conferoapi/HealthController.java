@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/health")
 public class HealthController {
-    @Value("${MAIL_PASS}")
+    @Value("${spring.mail.password}")
     private String myEnvVar;
 
     @GetMapping
@@ -20,6 +20,6 @@ public class HealthController {
 
     @PostConstruct
     public void printEnvVar() {
-        System.out.println("MY_ENV_VAR: " + myEnvVar);
+        System.out.println("MAIL_PASS: " + myEnvVar);
     }
 }
