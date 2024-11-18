@@ -1,5 +1,5 @@
 export const fetchTextRazorAnalysis = async (text: string, extractors: string[] = ['entities', 'topics']): Promise<any> => {
-    const url = import.meta.env.VITE_TEXT_RAZOR_API_URL as string;
+    const url = "https://api.textrazor.com";
     const response = await fetch(url, {
         method: 'POST',
         headers: {
