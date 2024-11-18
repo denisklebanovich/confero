@@ -77,7 +77,7 @@ public class OrcidAuthService {
 
         Optional<User> existingUser = ofNullable(SecurityContextHolder.getContext().getAuthentication())
                 .map(Authentication::getPrincipal)
-                .map(principal -> (Long) principal)
+                .map(principal -> Long.parseLong(principal.toString()))
                 .map(id -> {
                     User user = userRepository.findById(id).orElseThrow(() -> new ServiceException(ErrorReason.USER_NOT_FOUND));
                     user.setOrcid(orcid);
