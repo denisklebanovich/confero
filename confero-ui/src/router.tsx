@@ -19,6 +19,7 @@ import React from "react";
 import SignUpView from "@/views/SignUpView.tsx";
 import ProfileView from "@/views/ProfileView.tsx";
 import {UserContextProvider} from "@/state/UserContext.tsx";
+import ErrorView from "@/components/ui/error-view.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -28,17 +29,18 @@ export const router = createBrowserRouter([
 
                 <AuthProvider>
                     <UserContextProvider>
-                    <Toaster/>
-                    <Layout/>
-                </UserContextProvider>
+                        <Toaster/>
+                        <Layout/>
+                    </UserContextProvider>
                 </AuthProvider>
 
             </>
         ),
+        errorElement: <ErrorView/>,
         children: [
             {
                 index: true,
-                element: <SessionsView/>
+                element: <SessionsView/>,
             },
             {
                 path: 'proposal',
