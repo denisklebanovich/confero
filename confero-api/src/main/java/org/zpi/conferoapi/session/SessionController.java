@@ -59,7 +59,7 @@ public class SessionController implements SessionApi {
 
     @Override
     public ResponseEntity<SessionResponse> getSession(Long sessionId) {
-        log.info("User {} requested session with id {}", securityUtils.getCurrentUser(), sessionId);
+        log.info("Requested session with id {}", sessionId);
         var session = sessionService.getSession(sessionId);
         log.info("Responding with session: {}", session);
         return ResponseEntity.ok(session);

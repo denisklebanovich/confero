@@ -4,12 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.zpi.conferoapi.presentation.Presenter;
 
-import java.util.List;
+import java.util.Set;
 
 public interface OrganizerRepository extends JpaRepository<Presenter, Long> {
 
     @Query("""
-        SELECT p
+        SELECT DISTINCT p
         FROM Presenter p
         JOIN Presentation pr ON p.presentation.id = pr.id
         JOIN Session s ON pr.session.id = s.id
@@ -21,5 +21,5 @@ public interface OrganizerRepository extends JpaRepository<Presenter, Long> {
               OR p.orcid LIKE %:searchQuery%
           )
         """)
-    List<Presenter> findOrganizers(String searchQuery);
+    Set<Presenter> findOrganizers(String searchQuery);
 }

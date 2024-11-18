@@ -100,7 +100,7 @@ public class ApplicationService {
 
     private List<Session> getApplicationsForCurrentUser() {
         return securityUtils.isCurrentUserAdmin()
-                ? sessionRepository.findAllByStatusNot(ACCEPTED)
+                ? sessionRepository.findAllByStatusNotIn(List.of(DRAFT))
                 : sessionRepository.findAllByCreatorIdAndStatusNot(securityUtils.getCurrentUser().getId(), ACCEPTED);
     }
 

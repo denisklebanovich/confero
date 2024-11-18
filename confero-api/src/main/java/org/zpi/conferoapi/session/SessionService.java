@@ -127,16 +127,21 @@ public class SessionService {
     public SessionResponse getSession(Long sessionId) {
         var session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
-        var user = securityUtils.getCurrentUser();
-        var presentationsUserParticipatesIn = presentationRepository.findUserParticipations(user);
+        try {
+            var user = securityUtils.getCurrentUser();
+            log.info("Getting session with id {} for user: {}", sessionId, user);
+            var presentationsUserParticipatesIn = presentationRepository.findUserParticipations(user);
 
-        var resp = sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
-                .fromCurrentConferenceEdition(isFromCurrentConference(session));
+            var resp = sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
+                    .fromCurrentConferenceEdition(isFromCurrentConference(session));
 
-        var presentations = resp.getPresentations().stream()
-                .map(p -> p.isMine(presentationsUserParticipatesIn.contains(p.getId())));
+            var presentations = resp.getPresentations().stream()
+                    .map(p -> p.isMine(presentationsUserParticipatesIn.contains(p.getId())));
 
-        return resp.presentations(presentations.toList());
+            return resp.presentations(presentations.toList());
+        } catch (Exception e) {
+            return sessionMapper.toDto(session, false);
+        }
     }
 
     public SessionResponse getSessionPreview(Long sessionId) {

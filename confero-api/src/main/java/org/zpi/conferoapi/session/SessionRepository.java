@@ -18,7 +18,7 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
 
     List<Session> findAllByCreatorIdAndStatusNot(Long creatorId, ApplicationStatus status);
 
-    List<Session> findAllByStatusNot(ApplicationStatus status);
+    List<Session> findAllByStatusNotIn(List<ApplicationStatus> statuses);
 
     List<Session> findAllByStatus(ApplicationStatus status);
 
