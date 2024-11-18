@@ -18,11 +18,6 @@ export default defineConfig({
                 target: 'http://localhost:8080/api',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, '')
-            },
-            '/textrazor': {
-                target: 'https://api.textrazor.com',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/textrazor/, ''),
             }
         },
     }
