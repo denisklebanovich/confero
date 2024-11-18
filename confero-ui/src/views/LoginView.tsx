@@ -37,10 +37,7 @@ export default function LoginView() {
     const navigate = useNavigate()
     const {user, setData} = useAuth()
     const {toast} = useToast()
-
-
-    console.log("import.meta.env", import.meta.env)
-    console.log('Redirect URL:', import.meta.env.PROD ? 'https://confero.club' : 'http://localhost:5173');
+    const [params, setParams] = useState(new URLSearchParams(window.location.search))
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -51,11 +48,11 @@ export default function LoginView() {
     })
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
         const accessToken = params.get('orcid_access_token');
         if (accessToken) {
             localStorage.setItem('orcid_access_token', accessToken);
             navigate('/');
+            window.location.reload();
         }
         if (user) {
             navigate('/')
