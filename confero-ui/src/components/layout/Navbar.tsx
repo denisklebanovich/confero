@@ -13,25 +13,15 @@ const Navbar = () => {
     const location = useLocation();
     const {authorized, signOut} = useAuth();
     const {profileData, isLoading} = useUser();
-    const [routes, setRoutes] = useState([])
+    const [routes, setRoutes] = useState(updateRoutes(profileData))
 
     useEffect(() => {
-        if(!isLoading){
-            setRoutes(updateRoutes(profileData))
-        }
-
-    },[authorized, profileData,isLoading])
-
-
-    useEffect(() => {
-        if(!isLoading){
-            setRoutes(updateRoutes(profileData))
-        }
-    }, []);
+        setRoutes(updateRoutes(profileData))
+    },[authorized, profileData, isLoading])
 
 
     function updateRoutes(profileData: ProfileResponse){
-        if(!authorized){
+        if(!authorized || isLoading){
             return []
         }
         const {isAdmin, isInvitee} = profileData;
