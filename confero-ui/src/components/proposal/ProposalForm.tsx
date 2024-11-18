@@ -16,6 +16,8 @@ import {
     ApplicationResponse,
     CreateApplicationRequest,
     PresentationRequest,
+    PresenterRequest,
+    PresenterResponse,
     SessionType, UpdateApplicationRequest
 } from "@/generated";
 import {useApi} from "@/api/useApi.ts";
@@ -49,9 +51,14 @@ const formSchema = z.object({
                 presenters: z
                     .array(
                         z.object({
-                            orcid: orcidSchema,
-                            email: z.string().email(),
+                            id: z.number().optional(),
                             isSpeaker: z.boolean(),
+                            name: z.string(),
+                            orcid: orcidSchema,
+                            organization: z.string().nullable().optional(),
+                            surname: z.string(),
+                            title: z.string().nullable().optional(),
+                            email: z.string().optional(),
                         })
                     )
                     .min(1, {message: "At least one presenter is required"}),
@@ -240,6 +247,20 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         setValue("presentations", updatedPresentations);
     };
 
+    const transformPresenters = (presenters: PresenterResponse[]): PresenterRequest[] =>
+        presenters.map(({orcid, email, isSpeaker}) => ({
+            orcid: orcid || "",
+            email: email || "",
+            isSpeaker: isSpeaker || false,
+        }));
+
+    const transformPresentations = (presentations: FormValues["presentations"]) =>
+        presentations.map((presentation) => ({
+            ...presentation,
+            presenters: transformPresenters(presentation.presenters),
+        }));
+
+
     const showDeleteButton = currentPath.startsWith("/proposal-edit/") && (proposal?.status === "DRAFT" || proposal?.status === "PENDING");
     const showSaveAsDraftButton = currentPath === "/proposal";
 
@@ -248,23 +269,18 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             <form
                 className="flex flex-col gap-2 w-1/2"
                 onSubmit={handleSubmit(async (data) => {
-                    try {
-                        formSchema.parse(data);
-                        if (currentPath.startsWith("/proposal-edit/")) {
-                            handleUpdateProposal(data);
-                        } else if (currentPath === "/proposal") {
-                            handleCreateProposal(data);
-                        } else {
-                            toast({
-                                title: "Invalid path",
-                                description: "The current path is not recognized.",
-                                variant: "error",
-                            });
-                        }
-                    } catch (e) {
+                    const transformedData = {
+                        ...data,
+                        presentations: transformPresentations(data.presentations),
+                    };
+                    if (currentPath.startsWith("/proposal-edit/")) {
+                        handleUpdateProposal(transformedData);
+                    } else if (currentPath === "/proposal") {
+                        handleCreateProposal(transformedData);
+                    } else {
                         toast({
-                            title: "Invalid form",
-                            description: "Please fill in all required fields.",
+                            title: "Invalid path",
+                            description: "The current path is not recognized.",
                             variant: "error",
                         });
                     }

@@ -33,9 +33,6 @@ const ApplicationsView = () => {
     const [totalPages, setTotalPages] = useState(1);
     const {profileData, isLoading: isLoadingProfile} = useUser();
 
-
-
-
     const form = useForm({
         defaultValues: {
             year: "All",
@@ -70,61 +67,61 @@ const ApplicationsView = () => {
         currentPage * ITEMS_PER_PAGE
     );
 
-  return isLoadingProfile ? (
-    <div className={"w-full flex justify-center mt-20"}>
-      <Spinner />
-    </div>
-  ) : (
-    <div>
-      <div className={"w-full flex justify-around"}>
-        <div className={"w-1/4"}></div>
-        <div className={"w-2/3 justify-around flex  gap-2 flex-row"}>
-          <div className="text-3xl font-bold w-full">Applications:</div>
-          { !isLoadingProfile && !profileData.isAdmin &&
-              <>
-                <FileUpload />
-                <Button>
-                  <Link to="/proposal">Add application</Link>
-                </Button>
-              </>
-
-          }
+    return isLoadingProfile ? (
+        <div className={"w-full flex justify-center mt-20"}>
+            <Spinner/>
         </div>
-        <div className={"w-1/4"}></div>
-      </div>
-      <div className={"w-full flex justify-around"}>
-        <div className={"w-1/4"}>
-          <div className={"w-full h-full pl-5"}>
-            <Form {...form}>
-              <form className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem className="w-40">
-                      <FormLabel>Year</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select year" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="All">All</SelectItem>
-                          {years.map((year) => (
-                            <SelectItem key={year} value={year.toString()}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+    ) : (
+        <div>
+            <div className={"w-full flex justify-around"}>
+                <div className={"w-1/4"}></div>
+                <div className={"w-2/3 justify-around flex  gap-2 flex-row"}>
+                    <div className="text-3xl font-bold w-full">Applications:</div>
+                    {!isLoadingProfile && !profileData.isAdmin &&
+                        <>
+                            <FileUpload/>
+                            <Button>
+                                <Link to="/proposal">Add application</Link>
+                            </Button>
+                        </>
+
+                    }
+                </div>
+                <div className={"w-1/4"}></div>
+            </div>
+            <div className={"w-full flex justify-around"}>
+                <div className={"w-1/4"}>
+                    <div className={"w-full h-full pl-5"}>
+                        <Form {...form}>
+                            <form className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="year"
+                                    render={({field}) => (
+                                        <FormItem className="w-40">
+                                            <FormLabel>Year</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select year"/>
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="All">All</SelectItem>
+                                                    {years.map((year) => (
+                                                        <SelectItem key={year} value={year.toString()}>
+                                                            {year}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}
+                                />
 
                                 <FormField
                                     control={form.control}
@@ -203,7 +200,15 @@ const ApplicationsView = () => {
                             date={application.createdAt}
                             status={application.status}
                             organisers={application.presenters}
-                            onClick={() => navigate(`/${profileData.isAdmin ? "proposal-admin" : "proposal-edit"}/${application.id}`)}
+                            onClick={() => {
+                                if (!isLoadingProfile) {
+                                    if (profileData.isAdmin) {
+                                        navigate(`/proposal-admin/${application.id}`);
+                                    } else {
+                                        navigate(`/proposal-edit/${application.id}`);
+                                    }
+                                }
+                            }}
                         />
                     ))}
                 </div>
