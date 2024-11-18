@@ -16,7 +16,9 @@ const Navbar = () => {
     const [routes, setRoutes] = useState(updateRoutes())
 
     console.log(authorized, profileData, isLoading)
-    setRoutes(updateRoutes())
+    useEffect(() => {
+        setRoutes(updateRoutes())
+    }, [authorized, isLoading, profileData]);
 
     function updateRoutes(){
         if(!authorized || isLoading){
