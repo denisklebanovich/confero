@@ -2,7 +2,6 @@ export const fetchTextRazorAnalysis = async (text: string, extractors: string[] 
     const url = "https://api.textrazor.com";
     const response = await fetch(url, {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
             'X-TextRazor-Key': "edcfed6fa2e08928dcf9e62563466eb4dea82257dfb35b35603e5645",
             'Content-Type': 'application/x-www-form-urlencoded',
