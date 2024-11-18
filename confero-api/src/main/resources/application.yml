@@ -11,9 +11,6 @@ spring:
       max-lifetime: 120000
       idle-timeout: 10000
       maximum-pool-size: 60
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
 
   mail:
     host: smtp.gmail.com
