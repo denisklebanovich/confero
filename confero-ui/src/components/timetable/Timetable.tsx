@@ -131,7 +131,7 @@ const Timetable = ({presentations, setPresentations, date}) => {
 
 
     useEffect(() => {
-        scheduler.init(schedulerContainer.current, new Date(date), "day");
+        scheduler.init(schedulerContainer.current, new Date(date || Date.now()), "day");
         scheduler.clearAll();
         scheduler.parse(presentations.map(presentation => ({
             ...presentation,

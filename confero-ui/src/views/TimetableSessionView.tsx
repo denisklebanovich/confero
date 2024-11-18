@@ -52,17 +52,36 @@ const TimetableSessionView = () => {
 
 
     function getPresentations() {
+        const defaultStartHour = 9;
+        const timeInterval = 45;
+        let currentStartTime = new Date();
+        currentStartTime.setHours(defaultStartHour, 0, 0, 0);
+
         return session.presentations.map((presentation, index) => {
+            let startDate, endDate;
+
+            if (!presentation.startTime || !presentation.endTime) {
+                startDate = new Date(currentStartTime);
+                endDate = new Date(currentStartTime);
+                endDate.setMinutes(currentStartTime.getMinutes() + timeInterval + 15);
+                currentStartTime = new Date(endDate);
+            } else {
+                startDate = new Date(presentation.startTime);
+                endDate = new Date(presentation.endTime);
+            }
+
             return {
                 id: index,
                 internal_id: presentation.id,
                 title: presentation.title,
                 description: presentation.description,
-                organisers_line: presentation.presenters.map(presenter => `${presenter.name} ${presenter.surname}`).join(", "),
-                start_date: presentation.startTime,
-                end_date: presentation.endTime,
+                organisers_line: presentation.presenters
+                    .map(presenter => `${presenter.name} ${presenter.surname}`)
+                    .join(", "),
+                start_date: startDate,
+                end_date: endDate,
                 toShow: presentation.isMine
-            }
+            };
         });
     }
 
