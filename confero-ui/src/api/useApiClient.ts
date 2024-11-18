@@ -11,9 +11,9 @@ export function useApiClient() {
     if (orcidAccessToken) {
         headers["Orcid-Access-Token"] = orcidAccessToken
     }
-    // if (process.env.NODE_ENV === "development") {
-    //     headers["Authorization"] = 'denis.klebanovich@gmail.com'
-    // }
+    if (process.env.NODE_ENV === "development") {
+        headers["Authorization"] = 'denis.klebanovich@gmail.com'
+    }
 
     return useMemo(() => new AppClient({
         HEADERS: headers,
