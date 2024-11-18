@@ -122,6 +122,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: string
         '400':
           description: Bad request
           content:
@@ -792,6 +796,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
       
+  /session/{sessionId}/preview:
+    get:
+      tags:
+        - Session
+      summary: Get a session for unauthenticated users
+      operationId: getSessionPreview
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /session/{sessionId}/presentation/{presentationId}/attachment:
     post:

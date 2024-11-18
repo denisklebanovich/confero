@@ -130,13 +130,19 @@ public class SessionService {
         var user = securityUtils.getCurrentUser();
         var presentationsUserParticipatesIn = presentationRepository.findUserParticipations(user);
 
-        var resp =  sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
+        var resp = sessionMapper.toDto(session, sessionRepository.isUserParticipantForSession(sessionId, user.getOrcid(), user.getEmailList()))
                 .fromCurrentConferenceEdition(isFromCurrentConference(session));
 
         var presentations = resp.getPresentations().stream()
                 .map(p -> p.isMine(presentationsUserParticipatesIn.contains(p.getId())));
 
         return resp.presentations(presentations.toList());
+    }
+
+    public SessionResponse getSessionPreview(Long sessionId) {
+        var session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ServiceException(SESSION_NOT_FOUND));
+        return sessionMapper.toDto(session, false);
     }
 
 
@@ -175,7 +181,7 @@ public class SessionService {
 
         var presentationsUserParticipatesIn = presentationRepository.findUserParticipations(user);
 
-        var resp =  sessionMapper.toDto(session, true)
+        var resp = sessionMapper.toDto(session, true)
                 .fromCurrentConferenceEdition(true);
 
         var presentations = resp.getPresentations().stream()

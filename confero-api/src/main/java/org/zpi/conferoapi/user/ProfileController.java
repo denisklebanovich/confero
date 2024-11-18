@@ -7,6 +7,7 @@ import org.openapitools.api.ProfileApi;
 import org.openapitools.model.ProfileResponse;
 import org.openapitools.model.UpdateEmailRequest;
 import org.openapitools.model.UpdateProfileInfoRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +20,9 @@ import org.zpi.conferoapi.security.SecurityUtils;
 public class ProfileController implements ProfileApi {
     ProfileService profileService;
     SecurityUtils securityUtils;
+
+    @Value("${redirect.base-url}")
+    String redirectBaseUrl;
 
     @Override
     public ResponseEntity<ProfileResponse> getUserProfile() {
@@ -45,9 +49,10 @@ public class ProfileController implements ProfileApi {
     }
 
     @Override
-    public ResponseEntity<Void> verifyUserEmail(String token) {
+    public ResponseEntity<String> verifyUserEmail(String token) {
         log.info("Got request to verify email with token: {}", token);
         profileService.verifyEmail(token);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("redirect:" + redirectBaseUrl + "/login");
     }
+
 }

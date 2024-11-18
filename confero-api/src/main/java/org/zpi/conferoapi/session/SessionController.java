@@ -65,6 +65,11 @@ public class SessionController implements SessionApi {
         return ResponseEntity.ok(session);
     }
 
+    @Override
+    public ResponseEntity<SessionResponse> getSessionPreview(Long sessionId) {
+        log.info("Unauthenticated user requested session preview with id {}", sessionId);
+        return ResponseEntity.ok(sessionService.getSessionPreview(sessionId));
+    }
 
     @Override
     public ResponseEntity<SessionResponse> updateSession(Long sessionId, UpdateSessionRequest updateSessionRequest) {
