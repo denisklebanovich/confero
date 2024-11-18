@@ -69,7 +69,7 @@ public class AuthFilter extends OncePerRequestFilter {
             authenticated = handleJwtAuthentication(authHeader);
         }
 
-        if (!authenticated) {
+        if (!authenticated && !request.getRequestURI().matches("^/api/session/\\d+$")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             log.info("Unauthorized request from {}", request.getRemoteAddr());
             return;
