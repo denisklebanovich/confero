@@ -10,7 +10,7 @@ spring:
     hikari:
       max-lifetime: 120000
       idle-timeout: 10000
-      maximum-pool-size: 60
+      maximum-pool-size: 40
 
   mail:
     host: smtp.gmail.com
