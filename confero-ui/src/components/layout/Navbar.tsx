@@ -23,6 +23,13 @@ const Navbar = () => {
     },[authorized, profileData,isLoading])
 
 
+    useEffect(() => {
+        if(!isLoading){
+            setRoutes(updateRoutes(profileData))
+        }
+    }, []);
+
+
     function updateRoutes(profileData: ProfileResponse){
         if(!authorized){
             return []
