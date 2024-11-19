@@ -1,7 +1,8 @@
-import { fetchTextRazorAnalysis } from "@/services/TextRazorService";
-import { useState } from "react";
+import {useState} from "react";
+import {useApi} from "@/api/useApi.ts";
 
 const useTags = () => {
+    const {apiClient} = useApi();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [data, setData] = useState<any>(null);
@@ -14,7 +15,7 @@ const useTags = () => {
         }
         setLoading(true);
         try {
-            const result = await fetchTextRazorAnalysis(text);
+            const result = await apiClient.tags.getTagsFromText(text);
             setData(result);
             setCachedText(text);
             return generateTags(result);
@@ -25,19 +26,17 @@ const useTags = () => {
         }
     };
 
-    const generateTags = (dataToUse = data) => {
-        if (dataToUse?.response?.topics) {
-            return dataToUse.response.topics
-                .filter((topic: any) => topic.score > 0.5)
+    const generateTags = (tags: string[]) => {
+        if (tags) {
+            return tags
                 .sort(() => Math.random() - 0.5)
-                .slice(0, 3)
-                .map((topic: any) => topic.label);
+                .slice(0, 5);
         }
         return [];
     };
 
 
-    return { error, data, loading, analyzeText, generateTags };
+    return {error, data, loading, analyzeText, generateTags};
 };
 
 export default useTags;

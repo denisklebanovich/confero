@@ -68,3 +68,5 @@ redirect:
 email:
   verification:
     base-url: http://localhost:8080
+
+textrazor.api.key: ${TEXTRAZOR_API_KEY:secret}

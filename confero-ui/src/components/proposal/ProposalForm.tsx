@@ -18,13 +18,15 @@ import {
     PresentationRequest,
     PresenterRequest,
     PresenterResponse,
-    SessionType, UpdateApplicationRequest
+    SessionType,
+    UpdateApplicationRequest
 } from "@/generated";
 import {useApi} from "@/api/useApi.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import useTags from "@/hooks/useTags.ts";
 import {useLocation, useNavigate} from "react-router-dom";
+import {useApiClient} from "@/api/useApiClient.ts";
 
 const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
     message:
