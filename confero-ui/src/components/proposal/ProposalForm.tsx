@@ -7,9 +7,9 @@ import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import {Textarea} from "@/components/ui/textarea";
 import {Badge} from "@/components/ui/badge";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import PresentationForm from "@/components/presentations/PresentationForm";
-import {Plus} from "lucide-react";
+import {Plus, X} from "lucide-react";
 import {Separator} from "@/components/ui/separator";
 import {
     ApplicationPreviewResponse,
@@ -26,7 +26,6 @@ import {useToast} from "@/hooks/use-toast.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import useTags from "@/hooks/useTags.ts";
 import {useLocation, useNavigate} from "react-router-dom";
-import {useApiClient} from "@/api/useApiClient.ts";
 
 const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
     message:
@@ -74,7 +73,6 @@ type FormValues = z.infer<typeof formSchema>;
 interface ProposalFormProps {
     proposalId?: string;
     proposal?: ApplicationResponse;
-    isDisabled?: boolean;
 }
 
 const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
@@ -101,6 +99,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         }
     }, [proposal, form]);
 
+    const [newTag, setNewTag] = useState<string>("")
     const {loading: loadingTags, analyzeText} = useTags();
     const {toast} = useToast();
     const {apiClient, useApiMutation} = useApi();
@@ -183,7 +182,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
     );
 
     const {control, watch, setValue, handleSubmit} = form;
-    const isDisabled = false;
 
     const titleValue = watch("title");
     const typeValue = watch("type");
@@ -219,7 +217,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         if (descriptionValue) {
             try {
                 const tags = await analyzeText(descriptionValue);
-                setValue("tags", tags);
+                setValue("tags", [...tagsValue, ...tags]);
             } catch (error) {
                 console.error("Error analyzing text:", error);
             }
@@ -231,6 +229,17 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             })
         }
     }
+
+    const handleAddTag = () => {
+        if (newTag.trim() !== "") {
+            setValue("tags", [...tagsValue, newTag.trim()]);
+            setNewTag("");
+        }
+    };
+
+    const handleRemoveTag = (tagToRemove: string) => {
+        setValue("tags", tagsValue.filter(tag => tag !== tagToRemove));
+    };
 
     const addPresentation = () => {
         setValue("presentations", [
@@ -262,13 +271,17 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             presenters: transformPresenters(presentation.presenters),
         }));
 
-
     const showDeleteButton = currentPath.startsWith("/proposal-edit/") && (proposal?.status === "DRAFT" || proposal?.status === "PENDING");
     const showSaveAsDraftButton = currentPath === "/proposal";
 
     return (
         <Form {...form}>
             <form
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                    }
+                }}
                 className="flex flex-col gap-2 w-1/2"
                 onSubmit={handleSubmit(async (data) => {
                     const transformedData = {
@@ -298,7 +311,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                                 <Input
                                     placeholder="Enter the title"
                                     {...field}
-                                    disabled={isDisabled}
                                 />
                             </FormControl>
                             <FormMessage/>
@@ -314,7 +326,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                             <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
-                                disabled={isDisabled}
                             >
                                 <FormControl>
                                     <SelectTrigger>
@@ -341,7 +352,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                                 <Textarea
                                     placeholder="Enter the description"
                                     {...field}
-                                    disabled={isDisabled}
                                 />
                             </FormControl>
                             <FormMessage/>
@@ -350,15 +360,22 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                 />
                 <FormItem>
                     <FormLabel>Tags</FormLabel>
-                    <div className="flex w-full items-center justify-between space-x-2">
-                        <div className="flex flex-wrap gap-2">
-                            {tagsValue.map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="text-xs">
-                                    {tag}
-                                </Badge>
-                            ))}
-                        </div>
-                        {isDisabled ? null : (
+                    <div className="flex-col w-full items-center justify-between space-x-2 space-y-2">
+                        <div className="flex space-x-2">
+                            <Input
+                                type="text"
+                                placeholder="Add a tag"
+                                value={newTag}
+                                onChange={(e) => setNewTag(e.target.value)}
+                                className="flex-grow"
+                            />
+                            <Button
+                                type="button"
+                                variant="default"
+                                onClick={handleAddTag}
+                            >
+                                Add Tag
+                            </Button>
                             <Button
                                 type="button"
                                 variant="outline"
@@ -367,13 +384,13 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                             >
                                 {loadingTags ? (
                                     <>
-                                        <span className="mr-2">
-                                            <svg className="animate-spin h-4 w-4 text-primary"
-                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10"
-                                                        stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor"
-                                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <span className="mr-2">
+                                        <svg className="animate-spin h-4 w-4 text-primary"
+                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10"
+                                                    stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor"
+                                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
                                         </span>
                                         Generating tags...
@@ -382,7 +399,24 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                                     'Generate tags'
                                 )}
                             </Button>
-                        )}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {tagsValue.map((tag, index) => (
+                                <Badge key={index} variant="secondary"
+                                       className="flex h-10 flex-row pr-0 justify-between">
+                                    {tag}
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleRemoveTag(tag)}
+                                        className="ml-2"
+                                    >
+                                        <X/>
+                                    </Button>
+                                </Badge>
+                            ))}
+                        </div>
                     </div>
                 </FormItem>
 
@@ -400,18 +434,16 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                                 />
                             </div>
                         ))}
-                        {isDisabled ? null : (
-                            <div className="w-full">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={addPresentation}
-                                >
-                                    <Plus className="h-4 w-4"/>
-                                    Add Presentation
-                                </Button>
-                            </div>
-                        )}
+                        <div className="w-full">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={addPresentation}
+                            >
+                                <Plus className="h-4 w-4"/>
+                                Add Presentation
+                            </Button>
+                        </div>
                     </div>
                 </FormItem>
                 <div className="flex flex-row justify-between items-center mt-4">
