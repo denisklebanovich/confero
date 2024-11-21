@@ -13,6 +13,7 @@ const SessionsView = () => {
     const navigate = useNavigate();
     const {authorized} = useAuth();
 
+
     const {data: sessions, isLoading} = useApiQuery<SessionPreviewResponse[]>(
         ["sessions"],
         () => apiClient.session.getSessions()
@@ -42,7 +43,7 @@ const SessionsView = () => {
                     <div className={"w-2/3 items-center gap-5 flex flex-col"}>
                         <div className="flex w-full">
                             <div className="text-3xl font-bold w-full">All Sessions:</div>
-                            {authorized &&
+                            {authorized  && !isLoadingProfileData && profileData.isInvitee &&
                                 <Button onClick={() => navigate("/my-calendar")}>
                                     View my calendar
                                 </Button>

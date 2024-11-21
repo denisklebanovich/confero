@@ -8,6 +8,7 @@ import {useApi} from "@/api/useApi.ts";
 import {useQueryClient} from "@tanstack/react-query";
 import {useCalendarStatus} from "@/hooks/useCalendarStatus.ts";
 import {useAuth} from "@/auth/AuthProvider.tsx";
+import {useUser} from "@/state/UserContext.tsx";
 
 const extractTime = (date: string) => {
     const d = new Date(date);
@@ -21,6 +22,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
     const {apiClient, useApiMutation} = useApi();
 
     const {changeCalendarStatus} = useCalendarStatus();
+    const {profileData, isLoading: isLoadingProfile} = useUser();
 
     const {mutate: addToCalendar} = useApiMutation(
         (sessionId: number) => apiClient.session.addSessionToAgenda({sessionId}),
@@ -46,7 +48,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
-                    {!authorized ? <></> :  session.isInCalendar ? (
+                    {!authorized || (isLoadingProfile && !profileData?.isInvitee)  ? <></> :  session.isInCalendar ? (
                         <Button
                             onClick={(e) => {
                                 e.stopPropagation();

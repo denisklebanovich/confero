@@ -33,7 +33,6 @@ export default function PresentationCard({
     const {toast} = useToast()
     const {authorized} = useAuth()
     const fileInputRef = useRef(null);
-    console.log(isMine, "vlad", title)
 
     const {mutate: uploadFile} = useApiMutation<AttachmentResponse, {
         sessionId: number,
