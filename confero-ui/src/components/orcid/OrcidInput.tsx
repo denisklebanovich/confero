@@ -1,4 +1,4 @@
-import { useState} from 'react'
+import {useState} from 'react'
 import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button"
 import {Badge} from "@/components/ui/badge"
@@ -10,10 +10,9 @@ import {useToast} from "@/hooks/use-toast.ts";
 interface OrcidInputProps {
     value: PresenterResponse[];
     onChange: (value: PresenterResponse[]) => void;
-    isDisabled?: boolean;
 }
 
-export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProps) {
+export default function OrcidInput({value, onChange}: OrcidInputProps) {
     const [currentORCID, setCurrentORCID] = useState('')
     const [currentEmail, setCurrentEmail] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -104,30 +103,28 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
 
     return (
         <div className="space-y-4">
-            {!isDisabled && (
-                <div className="space-y-2">
-                    <div className="flex space-x-2">
-                        <Input
-                            type="text"
-                            placeholder="Enter ORCID (e.g., 0000-0000-0000-0000)"
-                            value={currentORCID}
-                            onChange={handleORCIDChange}
-                            className="flex-grow"
-                        />
-                        <Input
-                            type="email"
-                            placeholder="Enter email"
-                            value={currentEmail}
-                            onChange={handleEmailChange}
-                            className="flex-grow"
-                        />
-                        <Button onClick={handleORCIDSubmit} disabled={isLoading}>
-                            {isLoading ? "Validating..." : "Add"}
-                        </Button>
-                    </div>
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
+            <div className="space-y-2">
+                <div className="flex space-x-2">
+                    <Input
+                        type="text"
+                        placeholder="Enter ORCID (e.g., 0000-0000-0000-0000)"
+                        value={currentORCID}
+                        onChange={handleORCIDChange}
+                        className="flex-grow"
+                    />
+                    <Input
+                        type="email"
+                        placeholder="Enter email"
+                        value={currentEmail}
+                        onChange={handleEmailChange}
+                        className="flex-grow"
+                    />
+                    <Button onClick={handleORCIDSubmit} disabled={isLoading}>
+                        {isLoading ? "Validating..." : "Add"}
+                    </Button>
                 </div>
-            )}
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+            </div>
 
             <div className="grid grid-cols-1 gap-2">
                 {value.map((entry) => (
@@ -140,32 +137,30 @@ export default function OrcidInput({value, onChange, isDisabled}: OrcidInputProp
                             <span className="font-semibold truncate">{entry.name} {entry.surname}</span>
                             <span className="text-xs truncate">ORCID: {entry.orcid}</span>
                         </div>
-                        {!isDisabled && (
-                            <div className="flex items-center space-x-1">
-                                {entry.isSpeaker && (
-                                    <span className="text-xs truncate">Main Speaker</span>
-                                )}
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => toggleMainSpeaker(e, entry.orcid)}
-                                    className="shrink-0"
-                                    disabled={entry.isSpeaker}
-                                >
-                                    <Star className={`h-4 w-4 ${entry.isSpeaker ? 'fill-current' : ''}`}/>
-                                    <span className="sr-only">Set as Main Speaker</span>
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeORCID(entry.orcid)}
-                                    className="shrink-0"
-                                >
-                                    <X className="h-4 w-4"/>
-                                    <span className="sr-only">Remove</span>
-                                </Button>
-                            </div>
-                        )}
+                        <div className="flex items-center space-x-1">
+                            {entry.isSpeaker && (
+                                <span className="text-xs truncate">Main Speaker</span>
+                            )}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => toggleMainSpeaker(e, entry.orcid)}
+                                className="shrink-0"
+                                disabled={entry.isSpeaker}
+                            >
+                                <Star className={`h-4 w-4 ${entry.isSpeaker ? 'fill-current' : ''}`}/>
+                                <span className="sr-only">Set as Main Speaker</span>
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeORCID(entry.orcid)}
+                                className="shrink-0"
+                            >
+                                <X className="h-4 w-4"/>
+                                <span className="sr-only">Remove</span>
+                            </Button>
+                        </div>
                     </Badge>
                 ))}
             </div>
