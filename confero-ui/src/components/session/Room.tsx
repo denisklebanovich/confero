@@ -131,7 +131,7 @@ const Room = ({roomID, title}) => {
                     subject: title,
                     hideConferenceSubject: false,
                 }}
-                userInfo={{ displayName: "", email: emails[0].email }}
+                userInfo={{ displayName: "", email: ""}}
                 lang="en"
                 onApiReady={(externalApi) => handleApiReady(externalApi)}
                 onReadyToClose={handleReadyToClose}

@@ -8,6 +8,7 @@ import {useApi} from "@/api/useApi.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {Organisers} from "@/utils/Organisers.tsx";
 import {useAuth} from "@/auth/AuthProvider.tsx";
+import {useUser} from "@/state/UserContext.tsx";
 
 
 interface PresentationCardProps {
@@ -33,7 +34,6 @@ export default function PresentationCard({
     const {toast} = useToast()
     const {authorized} = useAuth()
     const fileInputRef = useRef(null);
-    console.log(isMine, "vlad", title)
 
     const {mutate: uploadFile} = useApiMutation<AttachmentResponse, {
         sessionId: number,
@@ -103,6 +103,7 @@ export default function PresentationCard({
         deleteFile({sessionId: Number(sessionId), presentationId: Number(presentationId), attachmentId: file.id})
     }
 
+    const {profileData, isLoading: isLoadingProfile} = useUser();
 
 
 
@@ -110,9 +111,9 @@ export default function PresentationCard({
         <Card className={`${!authorized ? "min-w-[500px] max-w-[600px]" : "w-[95%] mb-3"} snap-start`}>
             <CardHeader>
                 <div className={"w-full flex flex-row justify-around"}>
-                    <div className={`space-y-2 ${authorized ? "w-3/4" : "w-full" } `}>
+                    <div className={`space-y-2 ${authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ? "w-3/4" : "w-full" } `}>
                         <div className="text-sm text-muted-foreground">
-                            <Organisers organisers={presenters} chunkSize={authorized ? 10 : 4}/>
+                            <Organisers organisers={presenters} chunkSize={authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ? 10 : 4}/>
                         </div>
                         <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
                         <p className="text-muted-foreground">{description}</p>
@@ -121,7 +122,7 @@ export default function PresentationCard({
                             <span>{getFormattedTime(startTime)} - {getFormattedTime(endTime)}</span>
                         </div>
                     </div>
-                    {authorized && (
+                    {authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) && (
                     <div className={"w-1/4"}>
                         <Card className="w-full max-w-2x">
                             <div className="flex flex-row items-center justify-between space-y-0 px-5 pt-4">

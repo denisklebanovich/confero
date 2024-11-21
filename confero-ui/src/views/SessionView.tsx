@@ -8,12 +8,15 @@ import PresentationCard from "@/components/presentations/PresentationCard.tsx";
 import {useRef} from "react";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
+import {useUser} from "@/state/UserContext.tsx";
 
 
 export default function SessionView() {
     const {id} = useParams()
     const {apiClient, useApiQuery} = useApi()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const {profileData, isLoading: isLoadingProfile} = useUser();
+    const {authorized} = useAuth()
 
 
     const scroll = (direction: "left" | "right") => {
@@ -34,7 +37,7 @@ export default function SessionView() {
     )
 
 
-    const {authorized} = useAuth()
+
 
     const getOrganisers = () => {
         return session.presentations.map(presentation => presentation.presenters).flat()
@@ -49,16 +52,16 @@ export default function SessionView() {
             :
             <>
 
-                <div className={`w-full flex items-center ${authorized ? "justify-around" : "justify-center"} mt-2`}>
+                <div className={`w-full flex items-center ${authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee)  ? "justify-around" : "justify-center"} mt-2`}>
                     {
-                        authorized &&
+                        authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) &&
                         <Room roomID={session.title.split(" ").join("-")} title={session.title}/>
                     }
 
                     <SessionDescription title={session.title} description={session.description}
                                         organisers={getOrganisers()}/>
                 </div>
-                {authorized ?
+                {authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ?
                     <div className='flex flex-col items-center w-full'>
                         {
                             session.presentations.map(presentation => (
