@@ -16,6 +16,7 @@ import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.exception.ServiceException;
 import org.zpi.conferoapi.security.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
+@Slf4j
 public class ProfileService {
     UserRepository userRepository;
     UserEmailRepository userEmailRepository;
@@ -93,8 +95,29 @@ public class ProfileService {
     }
 
     private boolean isUserInvitee(User user) {
+        log.info("Checking if the user with emails {} is an invitee.", user.getEmailList());
+
         var edition = conferenceEditionRepository.findCurrentConferenceEdition();
-        return edition.map(conferenceEdition -> conferenceEdition.getInvitees().stream().anyMatch(i -> user.getEmailList().contains(i.getEmail())))
-                .orElse(false);
+        if (edition.isPresent()) {
+            log.info("Current conference edition found: {}", edition.get().getId());
+
+            log.info("{} invitees found.", edition.get().getInvitees().size());
+            boolean isInvitee = edition.get().getInvitees().stream()
+                    .peek(i -> log.debug("Checking invitee with email: {}", i.getEmail()))  // Log each invitee's email
+                    .anyMatch(i -> {
+                        log.debug("Comparing user's emails {} to invitee's email {}", user.getEmailList(), i.getEmail());
+                        boolean isMatch = user.getEmailList().contains(i.getEmail());
+                        if (isMatch) {
+                            log.debug("Found a match: User's email {} matches invitee's email {}", user.getEmailList(), i.getEmail());
+                        }
+                        return isMatch;
+                    });
+
+            log.info("User with emails {} is {} an invitee.", user.getEmailList(), isInvitee ? "" : "not");
+            return isInvitee;
+        } else {
+            log.warn("No current conference edition found.");
+            return false;
+        }
     }
 }

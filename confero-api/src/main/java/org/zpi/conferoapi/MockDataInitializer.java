@@ -51,7 +51,7 @@ public class MockDataInitializer implements CommandLineRunner {
                 .name("Dzianis")
                 .surname("Klebanovich")
                 .orcid("0009-0005-9044-6202")
-                .isAdmin(false)
+                .isAdmin(true)
                 .build();
         userRepository.save(user);
         userEmailRepository.save(new UserEmail("denis.klebanovich@gmail.com", true, user, null));
