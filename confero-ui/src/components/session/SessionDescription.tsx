@@ -2,6 +2,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {PresenterResponse} from "@/generated";
 import {useAuth} from "@/auth/AuthProvider.tsx";
 import {Organisers} from "@/utils/Organisers.tsx";
+import {useUser} from "@/state/UserContext.tsx";
 
 type SessionDescriptionProps = {
     title: string;
@@ -11,9 +12,10 @@ type SessionDescriptionProps = {
 const SessionDescription = ({title, description, organisers}: SessionDescriptionProps) => {
 
     const {authorized} = useAuth()
+    const {profileData, isLoading: isLoadingProfile} = useUser();
 
     return (
-        <Card className={`${authorized ? "w-1/3 h-[300px]" : "w-4/5"} mb-8`}>
+        <Card className={`${authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ? "w-1/3 h-[300px]" : "w-4/5"} mb-8`}>
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>

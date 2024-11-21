@@ -48,7 +48,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
-                    {!authorized || (isLoadingProfile && !profileData?.isInvitee)  ? <></> :  session.isInCalendar ? (
+                    {!authorized || isLoadingProfile || !profileData.isInvitee  ? <></> :  session.isInCalendar ? (
                         <Button
                             onClick={(e) => {
                                 e.stopPropagation();
