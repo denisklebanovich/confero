@@ -26,13 +26,13 @@ const ProfileView = () => {
         (request) => apiClient.profile.updateUserEmail(request),
         {
             onSuccess: (data) => {
+                setEmail('');
                 toast({
                     title: "Email added",
                     description: "Check your inbox for the verification email",
                     variant: "success",
                 })
                 queryClient.setQueryData<ProfileResponse>(["profile"], data);
-                setEmail(undefined);
             },
             onError: (error) => {
                 toast({

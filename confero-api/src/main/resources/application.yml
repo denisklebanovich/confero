@@ -14,15 +14,15 @@ spring:
 
   mail:
     host: smtp.gmail.com
-    port: 465
+    port: 587
     username: confero.contact@gmail.com
     password: ${MAIL_PASS:secret}
     properties:
       mail:
         smtp:
           auth: true
-          ssl:
-            enable: true
+          starttls:
+              enable: true
   sql:
     init:
       schema-locations: classpath:schema.sql
