@@ -23,6 +23,7 @@ import {
 } from "@/generated";
 import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "../ui/collapsible";
 import {useToast} from "@/hooks/use-toast";
+import Ajv from "ajv";
 
 interface UploadedFile {
     name: string;
@@ -30,27 +31,51 @@ interface UploadedFile {
     jsonData?: Record<string, any> | null;
 }
 
+const schema = {
+    type: "object",
+    properties: {
+        title: {type: "string"},
+        type: {type: "string", enum: ["SESSION", "WORKSHOP", "TUTORIAL"]},
+        tags: {
+            type: "array",
+            items: {type: "string"},
+        },
+        description: {type: "string"},
+        presentations: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    title: {type: "string"},
+                    description: {type: "string"},
+                    presenters: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                orcid: {type: "string"},
+                                email: {type: "string"},
+                                isSpeaker: {type: "boolean"},
+                            },
+                            required: ["orcid", "email"],
+                            additionalProperties: false,
+                        },
+                    },
+                },
+                required: ["title", "description", "presenters"],
+                additionalProperties: false,
+            },
+        },
+    },
+    required: ["title", "type", "tags", "description", "presentations"],
+    additionalProperties: false,
+};
+
+const ajv = new Ajv();
+const validate = ajv.compile(schema);
+
 const verifyApplicationJsonStructure = (data: Record<string, any>): boolean => {
-    return (
-        typeof data.title === "string" &&
-        ["SESSION", "WORKSHOP", "TUTORIAL"].includes(data.type) &&
-        Array.isArray(data.tags) &&
-        data.tags.every((tag) => typeof tag === "string") &&
-        typeof data.description === "string" &&
-        Array.isArray(data.presentations) &&
-        data.presentations.every(
-            (presentation) =>
-                typeof presentation.title === "string" &&
-                typeof presentation.description === "string" &&
-                Array.isArray(presentation.presenters) &&
-                presentation.presenters.every(
-                    (presenter) =>
-                        typeof presenter.orcid === "string" &&
-                        typeof presenter.email === "string" &&
-                        typeof presenter.isSpeaker === "boolean"
-                )
-        )
-    );
+    return validate(data) as boolean;
 };
 
 const jsonPreview = `
@@ -144,6 +169,7 @@ const FileUpload = () => {
 
     const handleFile = async (file: File) => {
         setError(null);
+        setUploadedFile(null);
 
         if (file.type !== "application/json") {
             setError("Please upload a JSON file.");
@@ -159,7 +185,7 @@ const FileUpload = () => {
             } else {
                 setUploadedFile({name: file.name, status: "error", jsonData: null});
                 setError(
-                    "Invalid JSON structure. Please check your file and try again."
+                    `Invalid JSON structure. ${JSON.stringify(validate.errors?.[0].params)} ${validate.errors?.[0].message}`
                 );
             }
         } catch (err) {
@@ -229,40 +255,38 @@ const FileUpload = () => {
             </pre>
                     </CollapsibleContent>
                 </Collapsible>
-                <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => inputRef.current?.click()}
-                    className={`
-            mt-4 cursor-pointer rounded-lg border-2 border-dashed p-10
-            text-center transition-colors
-            hover:bg-muted/50
-            ${
-                        isDragging
-                            ? "border-primary bg-muted/50"
-                            : "border-muted-foreground/25"
-                    }
-          `}
-                >
-                    <div className="flex flex-col items-center gap-4">
-                        <UploadCloud className="h-10 w-10 text-muted-foreground"/>
-                        <div className="space-y-2">
-                            <p className="text-lg font-medium">Drag and drop JSON file</p>
-                            <p className="text-sm text-muted-foreground">or</p>
-                            <Button variant="default" size="sm" type="button">
-                                Browse files
-                            </Button>
+                {!uploadedFile &&
+                    <div
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => inputRef.current?.click()}
+                        className={`
+                                mt-4 cursor-pointer rounded-lg border-2 border-dashed p-10
+                                text-center transition-colors
+                                hover:bg-muted/50
+                                ${isDragging ? "border-primary bg-muted/50" : "border-muted-foreground/25"}
+                                `}
+                    >
+                        <div className="flex flex-col items-center gap-4">
+                            <UploadCloud className="h-10 w-10 text-muted-foreground"/>
+                            <div className="space-y-2">
+                                <p className="text-lg font-medium">Drag and drop JSON file</p>
+                                <p className="text-sm text-muted-foreground">or</p>
+                                <Button variant="default" size="sm" type="button">
+                                    Browse files
+                                </Button>
+                            </div>
                         </div>
+                        <input
+                            ref={inputRef}
+                            type="file"
+                            accept=".json,application/json"
+                            className="hidden"
+                            onChange={handleFileInput}
+                        />
                     </div>
-                    <input
-                        ref={inputRef}
-                        type="file"
-                        accept=".json,application/json"
-                        className="hidden"
-                        onChange={handleFileInput}
-                    />
-                </div>
+                }
                 {uploadedFile && (
                     <div className="mt-4 flex items-center justify-between rounded-md border p-2">
                         <span className="truncate">{uploadedFile.name}</span>
