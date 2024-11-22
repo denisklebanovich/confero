@@ -20,20 +20,21 @@ import SignUpView from "@/views/SignUpView.tsx";
 import ProfileView from "@/views/ProfileView.tsx";
 import {UserContextProvider} from "@/state/UserContext.tsx";
 import ErrorView from "@/components/ui/error-view.tsx";
+import {FilterProvider} from "@/state/FilterContext.tsx";
 
 export const router = createBrowserRouter([
     {
         path: '/',
         element: (
             <>
-
                 <AuthProvider>
                     <UserContextProvider>
-                        <Toaster/>
-                        <Layout/>
+                        <FilterProvider>
+                            <Toaster/>
+                            <Layout/>
+                        </FilterProvider>
                     </UserContextProvider>
                 </AuthProvider>
-
             </>
         ),
         errorElement: <ErrorView/>,
