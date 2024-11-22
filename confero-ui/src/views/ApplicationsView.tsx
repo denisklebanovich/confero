@@ -24,6 +24,7 @@ import {ApplicationStatus} from "@/generated";
 import useFilteredApplications from "@/hooks/useFilteredApplications.ts";
 import {useUser} from "@/state/UserContext.tsx";
 import {Spinner} from "@/components/ui/spiner.tsx";
+import {useFilterContext} from "@/state/FilterContext";
 
 const ITEMS_PER_PAGE = 4;
 
@@ -41,17 +42,8 @@ const ApplicationsView = () => {
         },
     });
 
-    const {control, watch, setValue} = form;
-
-    const yearValue = watch("year");
-    const statusValue = watch("status");
-    const orderValue = watch("order");
-
-    const {filteredApplications, years, isLoading} = useFilteredApplications(
-        yearValue,
-        statusValue,
-        orderValue
-    );
+    const {filteredApplications, years } = useFilteredApplications();
+    const {year, setYear, status, setStatus, order, setOrder } = useFilterContext();
 
     useEffect(() => {
         setTotalPages(Math.ceil(filteredApplications.length / ITEMS_PER_PAGE));
@@ -101,8 +93,11 @@ const ApplicationsView = () => {
                                         <FormItem className="w-40">
                                             <FormLabel>Year</FormLabel>
                                             <Select
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
+                                                onValueChange={(value) => {
+                                                    field.onChange(value);
+                                                    setYear(value);
+                                                }}
+                                                defaultValue={year}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
@@ -130,8 +125,11 @@ const ApplicationsView = () => {
                                         <FormItem className="w-40">
                                             <FormLabel>Status</FormLabel>
                                             <Select
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
+                                                onValueChange={(value) => {
+                                                    field.onChange(value);
+                                                    setStatus(value);
+                                                }}
+                                                defaultValue={status}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
@@ -171,8 +169,11 @@ const ApplicationsView = () => {
                                         <FormItem className="w-40">
                                             <FormLabel>Order</FormLabel>
                                             <Select
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
+                                                onValueChange={(value) => {
+                                                    field.onChange(value);
+                                                    setOrder(value);
+                                                }}
+                                                defaultValue={order}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
