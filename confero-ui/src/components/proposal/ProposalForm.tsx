@@ -32,12 +32,9 @@ const orcidSchema = z.string().regex(/^(\d{4}-){3}\d{3}[\dX]$|^\d{16}$/, {
         "Invalid ORCID format. It should be 16 digits with optional hyphens.",
 });
 
-const descriptionSchema = z.string().min(2, {
-    message: "Description must be at least 2 characters long"
-}).max(500, {
-    message: "Description must be at most 500 characters long"
-});
-
+const descriptionSchema = z.string()
+    .min(1, {message: "Description is required"})
+    .max(500, {message: "Description must be at most 500 characters long"});
 
 const formSchema = z.object({
     title: z.string({message: "Title is required"}).min(2).max(100),
@@ -183,8 +180,6 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
 
     const {control, watch, setValue, handleSubmit} = form;
 
-    const titleValue = watch("title");
-    const typeValue = watch("type");
     const descriptionValue = watch("description");
     const tagsValue = watch("tags");
     const presentationsValue = watch("presentations");
@@ -217,7 +212,8 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         if (descriptionValue) {
             try {
                 const tags = await analyzeText(descriptionValue);
-                setValue("tags", [...tagsValue, ...tags]);
+                const uniqueTags = new Set([...tagsValue, ...tags]);
+                setValue("tags", Array.from(uniqueTags));
             } catch (error) {
                 console.error("Error analyzing text:", error);
             }
@@ -270,6 +266,21 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             ...presentation,
             presenters: transformPresenters(presentation.presenters),
         }));
+
+    const handleDescriptionValidation = (e, fieldOnChange, form) => {
+        fieldOnChange(e);
+        const value = e.target.value;
+        const result = descriptionSchema.safeParse(value);
+
+        if (result.success) {
+            form.clearErrors("description");
+        } else {
+            form.setError("description", {
+                type: "manual",
+                message: result.error.errors[0].message,
+            });
+        }
+    };
 
     const showDeleteButton = currentPath.startsWith("/proposal-edit/") && (proposal?.status === "DRAFT" || proposal?.status === "PENDING");
     const showSaveAsDraftButton = currentPath === "/proposal";
@@ -352,6 +363,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                                 <Textarea
                                     placeholder="Enter the description"
                                     {...field}
+                                    onInput={(e) => handleDescriptionValidation(e, field.onChange, form)}
                                 />
                             </FormControl>
                             <FormMessage/>
