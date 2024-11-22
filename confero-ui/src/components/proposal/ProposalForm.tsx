@@ -217,7 +217,8 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
         if (descriptionValue) {
             try {
                 const tags = await analyzeText(descriptionValue);
-                setValue("tags", [...tagsValue, ...tags]);
+                const uniqueTags = new Set([...tagsValue, ...tags]);
+                setValue("tags", Array.from(uniqueTags));
             } catch (error) {
                 console.error("Error analyzing text:", error);
             }
