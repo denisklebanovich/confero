@@ -13,6 +13,7 @@ import org.zpi.conferoapi.user.User;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +40,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
             return null;
         });
 
-        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+        when(orcidService.getOrcidInfoAsync(ORCID)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("John").surname("Doe")));
 
 
         // Prepare mock data for CreateApplicationRequest
@@ -153,7 +154,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
             return null;
         });
 
-        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+        when(orcidService.getOrcidInfoAsync(ORCID)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("John").surname("Doe")));
 
         // Execute the POST request to create an application
         var response = RestAssured
@@ -187,7 +188,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
             return null;
         });
 
-        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+        when(orcidService.getOrcidInfoAsync(ORCID)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("John").surname("Doe")));
+
 
         RestAssured
                 .given()
@@ -228,7 +230,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
         });
 
 
-        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+
+        when(orcidService.getOrcidInfoAsync(ORCID)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("John").surname("Doe")));
 
         var response = RestAssured
                 .given()
@@ -263,7 +266,9 @@ class ApplicationControllerTest extends IntegrationTestBase {
         var user = getUser();
         createConferenceEdition();
 
-        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+        when(orcidService.getOrcidInfoAsync(ORCID)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("John").surname("Doe")));
+
+
 
         var response = RestAssured
                 .given()
@@ -330,7 +335,7 @@ class ApplicationControllerTest extends IntegrationTestBase {
 
         createConferenceEdition();
 
-        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
+        when(orcidService.getOrcidInfoAsync(ORCID)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("John").surname("Doe")));
 
         var response = RestAssured
                 .given()
@@ -390,8 +395,8 @@ class ApplicationControllerTest extends IntegrationTestBase {
             return null;
         });
 
-        when(orcidService.getRecord(ORCID)).thenReturn(new OrcidInfoResponse().name("John").surname("Doe"));
-        when(orcidService.getRecord(ORCID_2)).thenReturn(new OrcidInfoResponse().name("Jane").surname("Doe"));
+        when(orcidService.getOrcidInfoAsync(ORCID)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("John").surname("Doe")));
+        when(orcidService.getOrcidInfoAsync(ORCID_2)).thenReturn(CompletableFuture.completedFuture(new OrcidInfoResponse().name("Jane").surname("Doe")));
 
 
         var presentationRequest = presentationRequest()
