@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.zpi.conferoapi.orcid.OrcidService;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
@@ -15,6 +16,7 @@ import java.util.List;
 public class OrganizerService {
 
     OrganizerRepository organizerRepository;
+
     OrcidService orcidService;
 
 
@@ -32,15 +34,25 @@ public class OrganizerService {
 
     public List<OrganizerResponse> massUpdateOrganizers() {
         var organizers = organizerRepository.findAll();
-        return organizers.stream()
-                .map(organizer -> {
-                    var info = orcidService.getRecord(organizer.getOrcid());
-                    organizer.setName(info.getName());
-                    organizer.setSurname(info.getSurname());
-                    organizer.setOrganization(info.getOrganization());
-                    organizer.setTitle(info.getTitle());
-                    return organizerRepository.save(organizer);
-                })
+
+        var futures = organizers.stream()
+                .map(organizer -> orcidService.getOrcidInfoAsync(organizer.getOrcid())
+                        .thenApply(info -> {
+                            organizer.setName(info.getName());
+                            organizer.setSurname(info.getSurname());
+                            organizer.setOrganization(info.getOrganization());
+                            organizer.setTitle(info.getTitle());
+                            return organizerRepository.save(organizer);
+                        })
+                )
+                .toList();
+
+        var completedOrganizers = futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+
+
+        return completedOrganizers.stream()
                 .map(organizer -> new OrganizerResponse()
                         .id(organizer.getId())
                         .name(organizer.getName())

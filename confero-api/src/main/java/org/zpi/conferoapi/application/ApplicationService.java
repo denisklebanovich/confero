@@ -203,7 +203,7 @@ public class ApplicationService {
 
     private void addPresentersToPresentation(Presentation presentation, List<PresenterRequest> presenterRequests) {
         List<CompletableFuture<Presenter>> presenterFutures = presenterRequests.stream()
-                .map(presenterRequest -> getOrcidInfoAsync(presenterRequest.getOrcid())
+                .map(presenterRequest -> orcidService.getOrcidInfoAsync(presenterRequest.getOrcid())
                         .thenApply(orcidInfo -> createPresenter(presentation, presenterRequest, orcidInfo)))
                 .toList();
 
@@ -225,17 +225,6 @@ public class ApplicationService {
                 .organization(orcidInfo.getOrganization())
                 .isSpeaker(presenterRequest.getIsSpeaker())
                 .build();
-    }
-
-
-    private CompletableFuture<OrcidInfoResponse> getOrcidInfoAsync(String orcid) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return orcidService.getRecord(orcid);
-            } catch (Exception e) {
-                throw new ServiceException(INVALID_ORCID);
-            }
-        });
     }
 
 
