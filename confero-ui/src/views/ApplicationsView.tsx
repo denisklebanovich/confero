@@ -63,6 +63,8 @@ const ApplicationsView = () => {
     useEffect(() => {
         form.setValue("year", "All");
         setYear("All");
+        setOrder(order);
+        setStatus(status);
         form.setValue("status", status);
         form.setValue("order", order);
     }, []);
