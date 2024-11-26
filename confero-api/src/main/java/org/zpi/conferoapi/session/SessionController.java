@@ -113,4 +113,9 @@ public class SessionController implements SessionApi {
         log.info("Responding with session events: {}", events);
         return ResponseEntity.ok(events);
     }
+
+    @Override
+    public ResponseEntity<List<Long>> getMySessions() {
+        return ResponseEntity.ok(sessionService.getMySessions());
+    }
 }

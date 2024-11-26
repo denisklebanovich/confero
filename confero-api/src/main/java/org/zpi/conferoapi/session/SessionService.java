@@ -343,4 +343,12 @@ public class SessionService {
                 ))
                 .findFirst();
     }
+
+    public List<Long> getMySessions() {
+        User currentUser = securityUtils.getCurrentUser();
+        return sessionRepository.findUsersParticipations(currentUser.getOrcid(), currentUser.getEmailList())
+                .stream()
+                .map(Session::getId)
+                .toList();
+    }
 }

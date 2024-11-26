@@ -7,6 +7,7 @@ import org.openapitools.api.OrganizerApi;
 import org.openapitools.model.OrganizerResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.zpi.conferoapi.orcid.OrcidService;
 import org.zpi.conferoapi.security.SecurityUtils;
 
 import java.util.List;
@@ -25,6 +26,13 @@ public class OrganizerController implements OrganizerApi {
         log.info("User {} is searching for organizers with query: {}", securityUtils.getCurrentUser(), searchQuery);
         var organizers = organizerService.findOrganizers(searchQuery);
         log.info("Responding with following organizers: {}", organizers);
+        return ResponseEntity.ok(organizers);
+    }
+
+    @Override
+    public ResponseEntity<List<OrganizerResponse>> massUpdateOrganizers() {
+        log.info("User {} is updating all organizers", securityUtils.getCurrentUser());
+        var organizers = organizerService.massUpdateOrganizers();
         return ResponseEntity.ok(organizers);
     }
 }

@@ -144,6 +144,7 @@ public class ApplicationService {
 
     private void updateSessionWithRequest(Session session, UpdateApplicationRequest request) {
         Optional.ofNullable(request.getTitle()).ifPresent(session::setTitle);
+        Optional.ofNullable(request.getLocation()).ifPresent(session::setLocation);
         Optional.ofNullable(request.getType()).ifPresent(session::setType);
         Optional.ofNullable(request.getTags()).ifPresent(session::setTags);
         Optional.ofNullable(request.getDescription()).ifPresent(session::setDescription);
@@ -173,6 +174,7 @@ public class ApplicationService {
                 .tags(request.getTags())
                 .edition(edition)
                 .description(request.getDescription())
+                .location(request.getLocation())
                 .status(request.getSaveAsDraft() ? DRAFT : PENDING)
                 .createdAt(Instant.now())
                 .presentations(new ArrayList<>())

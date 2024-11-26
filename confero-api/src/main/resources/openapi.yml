@@ -137,34 +137,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /profile/email/verify:
-    get:
-      tags:
-        - Profile
-        - User
-      summary: Verify user email
-      description: |-
-        Verify user email.
-      operationId: verifyUserEmail
-      parameters:
-        - name: token
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
 
   /profile/avatar:
@@ -610,6 +582,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /session/my:
+    get:
+      tags:
+        - Session
+        - User
+      summary: Get all sessions user is presenter in.
+      description: |-
+        Retrieves all sessions that the current user is a presenter in. The response includes session ids.
+      operationId: getMySessions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int64
+
+
+
 
   /session/manage:
     get:
@@ -934,6 +928,31 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/OrganizerResponse'
+  /organizer/mass-update:
+    post:
+      tags:
+        - Organizer
+        - Admin
+      summary: Mass update organizers
+      description: |-
+        Mass update organizers. It will be possible only for admins. It will refetch all organizers from the ORCID and update their data.
+      operationId: massUpdateOrganizers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizerResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /organizer/{orginizerId}/participation:
     get:
       deprecated: true
@@ -1198,6 +1217,8 @@ components:
             type: string
         description:
           type: string
+        location:
+            type: string
         presentations:
           type: array
           items:
@@ -1217,6 +1238,8 @@ components:
           items:
             type: string
         description:
+          type: string
+        location:
           type: string
         presentations:
           type: array

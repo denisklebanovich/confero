@@ -9,9 +9,9 @@ import org.openapitools.model.UpdateEmailRequest;
 import org.openapitools.model.UpdateProfileInfoRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.view.RedirectView;
 import org.zpi.conferoapi.security.SecurityUtils;
 
 @RestController
@@ -49,11 +49,15 @@ public class ProfileController implements ProfileApi {
         return ResponseEntity.ok(profileService.updateUserEmail(updateEmailRequest));
     }
 
-    @Override
-    public ResponseEntity<String> verifyUserEmail(String token) {
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/profile/email/verify",
+            produces = { "application/json" }
+    )
+    public RedirectView verifyUserEmail(@RequestParam String token) {
         log.info("Got request to verify email with token: {}", token);
         profileService.verifyEmail(token);
-        return ResponseEntity.ok("redirect:" + redirectBaseUrl + "/login");
+        return new RedirectView(redirectBaseUrl + "/login");
     }
 
     @Override

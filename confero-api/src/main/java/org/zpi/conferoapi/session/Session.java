@@ -65,6 +65,10 @@ public class Session {
     @Column(name = "description", nullable = false, length = 40000)
     private String description;
 
+    @Size(max = 512)
+    @Column(name = "location", nullable = false)
+    private String location;
+
     @NotNull
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
