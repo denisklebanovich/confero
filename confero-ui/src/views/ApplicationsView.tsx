@@ -43,6 +43,7 @@ const ApplicationsView = () => {
     });
 
     const {filteredApplications, years } = useFilteredApplications();
+    console.log(years)
     const {year, setYear, status, setStatus, order, setOrder } = useFilterContext();
 
     useEffect(() => {
@@ -58,6 +59,23 @@ const ApplicationsView = () => {
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
+
+    useEffect(() => {
+        form.setValue("year", "All");
+        form.setValue("status", status);
+        form.setValue("order", order);
+    }, []);
+
+    function resetOptions(){
+        setYear("All");
+        setStatus("All");
+        setOrder("Descending");
+        form.reset({
+            year: "All",
+            status: "All",
+            order: "Descending",
+        });
+    }
 
     return isLoadingProfile ? (
         <div className={"w-full flex justify-center mt-20"}>
@@ -98,6 +116,7 @@ const ApplicationsView = () => {
                                                     setYear(value);
                                                 }}
                                                 defaultValue={year}
+                                                value={form.watch("year")}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
@@ -130,6 +149,7 @@ const ApplicationsView = () => {
                                                     setStatus(value);
                                                 }}
                                                 defaultValue={status}
+                                                value={form.watch("status")}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
@@ -174,6 +194,7 @@ const ApplicationsView = () => {
                                                     setOrder(value);
                                                 }}
                                                 defaultValue={order}
+                                                value={form.watch("order")}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
@@ -191,6 +212,7 @@ const ApplicationsView = () => {
                                 />
                             </form>
                         </Form>
+                        <Button className={"w-40 mt-5"} variant={"secondary_grey"} onClick={()=> resetOptions()}>Clean all</Button>
                     </div>
                 </div>
                 <div className={"grid grid-cols-2 gap-4 w-2/3 justify-around mt-4"}>
