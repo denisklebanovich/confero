@@ -29,7 +29,7 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
     const [dragActive, setDragActive] = useState(false)
     const [file, setFile] = useState<File | null>(null)
     const [date, setDate] = useState<string | undefined>(edition ? getInputDate(edition.applicationDeadlineTime) : undefined)
-
+    const [error, setError] = useState<string | null>(null)
 
 
     const {toast} = useToast()
@@ -80,6 +80,16 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
             default:
                 return "Unable to update conference editions"
         }
+    }
+
+    const validateDate = (date: string | undefined) => {
+        const selectedDate = new Date(date)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        if (selectedDate < today) {
+            return "The date cannot be in the past"
+        }
+        return null
     }
 
 
@@ -146,6 +156,12 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
     )
 
     const handleSave = () => {
+        const validationError = validateDate(date)
+        if (validationError) {
+            setError(validationError)
+            return
+        }
+        setError(null)
         const formattedDate = new Date(date).toISOString()
         if (edition) {
             updateMutation.mutate({
@@ -169,6 +185,7 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
         if (!edition) {
             setDate("")
         }
+        setError(null)
         setOpen(false)
     }
 
@@ -188,9 +205,22 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
                                 id="deadline"
                                 type="date"
                                 value={date}
-                                onChange={(e) => setDate(e.target.value)}
+                                onChange={(e) => {
+                                    const validationError = validateDate(e.target.value)
+                                    if (validationError) {
+                                        setError(validationError)
+                                    }
+                                    else{
+                                        setError(null)
+                                    }
+                                    setDate(e.target.value)}}
                             />
                         </div>
+                        {error && (
+                            <p className="text-sm text-red-500 mt-1">
+                                {error}
+                            </p>
+                        )}
                     </div>
                     <div className="grid gap-2">
                         <Label>Participants</Label>
