@@ -15,6 +15,7 @@ public interface OrganizerRepository extends JpaRepository<Presenter, Long> {
         JOIN Session s ON pr.session.id = s.id
         JOIN ConferenceEdition ce ON s.edition.id = ce.id
         WHERE ce.applicationDeadlineTime > CURRENT_TIMESTAMP
+        AND s.status = 'ACCEPTED'
           AND (
               p.name LIKE %:searchQuery%
               OR p.surname LIKE %:searchQuery%

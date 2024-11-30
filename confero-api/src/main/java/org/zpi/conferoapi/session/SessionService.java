@@ -205,6 +205,7 @@ public class SessionService {
 
         var sessionsToAddToAgenda = presenterParticipations.stream()
                 .filter(this::isFromCurrentConference)
+                .filter(session -> ApplicationStatus.ACCEPTED.equals(session.getStatus()))
                 .filter(session -> !userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
                 .toList();
 
