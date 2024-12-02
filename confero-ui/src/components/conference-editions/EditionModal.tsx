@@ -54,7 +54,12 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
     }
 
     const handleFileSelection = (selectedFile: File) => {
-        setFile(selectedFile)
+        if (selectedFile.type !== "text/csv") {
+            setError("Please upload a valid CSV file.");
+            return;
+        }
+        setError(null);
+        setFile(selectedFile);
     }
 
     const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,8 +76,8 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
     }, [edition])
 
 
-    function reasonToDescription(reason:string){
-        switch (reason){
+    function reasonToDescription(reason: string) {
+        switch (reason) {
             case "ACTIVE_CONFERENCE_EDITION_ALREADY_EXISTS":
                 return "Active edition already exists"
             case "CONFERENCE_EDITION_CANNOT_HAVE_DEADLINE_IN_THE_PAST":
@@ -109,7 +114,7 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
                     description: "New conference edition created",
                 })
             },
-            onError: (error:ApiError) => {
+            onError: (error: ApiError) => {
                 toast({
                     title: "Error occurred",
                     description: reasonToDescription(error.body['reason']),
@@ -209,11 +214,11 @@ export default function EditionModal({open, setOpen, edition}: EditionModalProps
                                     const validationError = validateDate(e.target.value)
                                     if (validationError) {
                                         setError(validationError)
-                                    }
-                                    else{
+                                    } else {
                                         setError(null)
                                     }
-                                    setDate(e.target.value)}}
+                                    setDate(e.target.value)
+                                }}
                             />
                         </div>
                         {error && (
