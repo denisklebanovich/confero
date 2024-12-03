@@ -8,7 +8,7 @@ import {Spinner} from "@/components/ui/spiner.tsx";
 import {useUser} from "@/state/UserContext.tsx";
 import {useAuth} from "@/auth/AuthProvider.tsx";
 import {DatePagination} from "@/components/sessions/DatePagination.tsx";
-import {format, isSameDay, parseISO} from 'date-fns'
+import {isSameDay, parseISO} from 'date-fns'
 import {useState} from "react";
 
 const SessionsView = () => {
@@ -51,8 +51,7 @@ const SessionsView = () => {
                     <div className="w-2/3 items-center gap-5 flex flex-col">
                         <DatePagination onDateChange={handleDateChange}/>
                         <div className="flex w-full">
-                            <div className="text-3xl font-bold w-full">Sessions
-                                for {format(selectedDate, 'dd MMM yyyy')}:
+                            <div className="text-3xl font-bold w-full">Sessions:
                             </div>
                             {authorized && !isLoadingProfileData && profileData.isInvitee && (
                                 <Button onClick={() => navigate("/my-calendar")}>
