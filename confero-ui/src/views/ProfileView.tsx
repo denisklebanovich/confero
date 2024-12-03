@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
-import {Avatar, AvatarImage} from "@/components/ui/avatar"
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
 import {useProfile} from "@/hooks/useProfile.ts";
 import {Spinner} from "@/components/ui/spiner.tsx";
 import {handleOrcidLogin} from "@/views/LoginView.tsx";
@@ -12,6 +12,7 @@ import {useToast} from "@/hooks/use-toast.ts";
 import {useQueryClient} from "@tanstack/react-query";
 import {Label} from "@/components/ui/label.tsx";
 import {useSearchParams} from "react-router-dom";
+import {AvatarIcon} from "@radix-ui/react-icons";
 
 
 const ProfileView = () => {
@@ -133,6 +134,9 @@ const ProfileView = () => {
                     <div className="flex flex-col items-center space-y-4">
                         <Avatar className="w-56 h-56 bg-[#8BA663]">
                             <AvatarImage alt="Profile picture" src={profile?.avatarUrl}/>
+                            <AvatarFallback>
+                                <AvatarIcon className="w-full h-full"/>
+                            </AvatarFallback>
                         </Avatar>
                         <Button variant="link" className="text-gray-600 relative">
                             <Input type="file" onChange={(e) => {
