@@ -48,6 +48,10 @@ const Navbar = () => {
                 to: "/applications",
             },
             {
+                name: "My Calendar",
+                to: "/my-calendar",
+            },
+            {
                 name: "Organizers",
                 to: "/organizers",
             },
