@@ -5,10 +5,14 @@ import {SessionPreviewResponse} from "@/generated";
 import {Button} from "@/components/ui/button.tsx";
 import React from "react";
 import {useApi} from "@/api/useApi.ts";
-import {useQueryClient} from "@tanstack/react-query";
 import {useCalendarStatus} from "@/hooks/useCalendarStatus.ts";
 import {useAuth} from "@/auth/AuthProvider.tsx";
 import {useUser} from "@/state/UserContext.tsx";
+
+const extractDate = (date: string) => {
+    const d = new Date(date);
+    return d.toLocaleDateString("en-GB", {day: "2-digit", month: "short", year: "numeric"});
+}
 
 const extractTime = (date: string) => {
     const d = new Date(date);
@@ -48,7 +52,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
-                    {!authorized || isLoadingProfile || !profileData.isInvitee  ? <></> :  session.isInCalendar ? (
+                    {!authorized || isLoadingProfile || !profileData.isInvitee ? <></> : session.isInCalendar ? (
                         <Button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -72,7 +76,6 @@ const SessionCard = (session: SessionPreviewResponse) => {
                 </div>
             </CardHeader>
             <CardContent>
-
                 <div className="h-full w-2/3">
                     <p className="text-sm text-muted-foreground mb-4">
                         Topics: {session.tags?.map((topic) => topic).join(", ")}
@@ -80,11 +83,10 @@ const SessionCard = (session: SessionPreviewResponse) => {
                     <div className="flex items-center text-sm text-muted-foreground">
                         <CalendarIcon className="mr-2 h-4 w-4"/>
                         <time>
-                            {extractTime(session.startTime!)} - {extractTime(session.endTime!)}
+                            {extractDate(session.startTime!)} | {extractTime(session.startTime!)} - {extractTime(session.endTime!)}
                         </time>
                     </div>
                 </div>
-
             </CardContent>
         </Card>
     );
