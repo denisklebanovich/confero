@@ -8,8 +8,9 @@ type SessionDescriptionProps = {
     title: string;
     description: string;
     organisers: PresenterResponse[];
+    location?: string;
 }
-const SessionDescription = ({title, description, organisers}: SessionDescriptionProps) => {
+const SessionDescription = ({title, description, organisers, location}: SessionDescriptionProps) => {
 
     const {authorized} = useAuth()
     const {profileData, isLoading: isLoadingProfile} = useUser();
@@ -22,9 +23,15 @@ const SessionDescription = ({title, description, organisers}: SessionDescription
                     {description}
                 </CardDescription>
             </CardHeader>
-            <CardContent>
-                <h3 className="font-semibold">Organizers</h3>
-                <Organisers organisers={organisers} chunkSize={authorized ?  3 : 10}/>
+            <CardContent className="flex-col space-y-2">
+                <div>
+                    <h3 className="font-semibold">Organizers</h3>
+                    <Organisers organisers={organisers} chunkSize={authorized ? 3 : 10}/>
+                </div>
+                <div>
+                    <h3 className="font-semibold">Location</h3>
+                    <p className="text-sm text-muted-foreground">{location ? location : "The location for this session has not been specified yet."}</p>
+                </div>
             </CardContent>
         </Card>
     );
