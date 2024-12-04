@@ -1,16 +1,23 @@
 'use client'
 
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {Button} from "@/components/ui/button"
 import {ChevronLeft, ChevronRight} from 'lucide-react'
 import {format, addDays, subDays} from 'date-fns'
 
 interface DatePaginationProps {
-    onDateChange: (date: Date) => void
+    onDateChange: (date: Date) => void,
+    initialDate?: string
 }
 
-export function DatePagination({onDateChange}: DatePaginationProps) {
-    const [currentDate, setCurrentDate] = useState(new Date())
+export function DatePagination({onDateChange, initialDate}: DatePaginationProps) {
+    const [currentDate, setCurrentDate] = useState(initialDate ? new Date(initialDate) : new Date());
+
+    useEffect(() => {
+        if (initialDate) {
+            setCurrentDate(new Date(initialDate));
+        }
+    }, [initialDate]);
 
     const handlePreviousDay = () => {
         const newDate = subDays(currentDate, 1)

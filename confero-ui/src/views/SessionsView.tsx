@@ -8,14 +8,30 @@ import {Spinner} from "@/components/ui/spiner.tsx";
 import {useUser} from "@/state/UserContext.tsx";
 import {useAuth} from "@/auth/AuthProvider.tsx";
 import {DatePagination} from "@/components/sessions/DatePagination.tsx";
-import {isSameDay, parseISO} from 'date-fns'
-import {useState} from "react";
+import {differenceInMilliseconds, endOfDay, isWithinInterval, parseISO, startOfDay} from 'date-fns'
+import {useEffect, useState} from "react";
+
+const findClosestSession = (sessions: SessionPreviewResponse[]) => {
+    if (!sessions || sessions.length === 0) return null;
+
+    return sessions.reduce((closest, session) => {
+        if (!session.startTime) return closest;
+        const sessionDate = parseISO(session.startTime);
+        const closestDate = closest ? parseISO(closest.startTime) : null;
+
+        return !closestDate ||
+        Math.abs(differenceInMilliseconds(sessionDate, new Date())) <
+        Math.abs(differenceInMilliseconds(closestDate, new Date()))
+            ? session
+            : closest;
+    }, null);
+};
 
 const SessionsView = () => {
     const {apiClient, useApiQuery, useApiMutation} = useApi();
     const navigate = useNavigate();
     const {authorized} = useAuth()
-    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     const {data: sessions, isLoading} = useApiQuery<SessionPreviewResponse[]>(
         ["sessions"],
@@ -31,9 +47,27 @@ const SessionsView = () => {
 
     const {profileData, isLoading: isLoadingProfileData} = useUser();
 
-    const filteredSessions = sessions?.filter(session =>
-        session.startTime && isSameDay(parseISO(session.startTime), selectedDate)
-    )
+    useEffect(() => {
+        const closestSession = findClosestSession(sessions);
+        if (closestSession?.startTime) {
+            setSelectedDate(parseISO(closestSession.startTime));
+        } else {
+            setSelectedDate(new Date());
+        }
+    }, [sessions]);
+
+    const filteredSessions = sessions?.filter((session) => {
+        const sessionDate = session.startTime ? parseISO(session.startTime) : null;
+        return (
+            sessionDate &&
+            isWithinInterval(sessionDate, {
+                start: startOfDay(selectedDate || new Date()),
+                end: endOfDay(selectedDate || new Date()),
+            })
+        );
+    });
+    console.log('Sessions:', sessions);
+    console.log('Filtered', filteredSessions);
 
     const handleDateChange = (date: Date) => {
         setSelectedDate(date)
@@ -49,7 +83,10 @@ const SessionsView = () => {
                 <div className="flex w-full justify-around">
                     <div className="w-1/5"></div>
                     <div className="w-2/3 items-center gap-5 flex flex-col">
-                        <DatePagination onDateChange={handleDateChange}/>
+                        <DatePagination
+                            onDateChange={handleDateChange}
+                            initialDate={selectedDate ? selectedDate.toISOString() : ""}
+                        />
                         <div className="flex w-full">
                             <div className="text-3xl font-bold w-full">Sessions:
                             </div>
