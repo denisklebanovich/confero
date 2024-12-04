@@ -1,6 +1,6 @@
 import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Clock, Download, Upload, X} from 'lucide-react'
+import {Card, CardContent, CardHeader} from "@/components/ui/card"
+import {Clock, X} from 'lucide-react'
 import {useRef, useState} from "react"
 import {AttachmentRequest, AttachmentResponse, PresentationSessionResponse} from "@/generated";
 import {getFormattedTime} from "@/utils/dateUtils.ts";
@@ -91,7 +91,11 @@ export default function PresentationCard({
         const files = event.target.files
         console.log(event.target.files[0])
         if (files) {
-            uploadFile({sessionId: Number(sessionId), presentationId: Number(presentationId), formData: {file: files[0]}})
+            uploadFile({
+                sessionId: Number(sessionId),
+                presentationId: Number(presentationId),
+                formData: {file: files[0]}
+            })
         }
     }
 
@@ -106,14 +110,15 @@ export default function PresentationCard({
     const {profileData, isLoading: isLoadingProfile} = useUser();
 
 
-
     return (
         <Card className={`${!authorized ? "min-w-[500px] max-w-[600px]" : "w-[95%] mb-3"} snap-start`}>
             <CardHeader>
                 <div className={"w-full flex flex-row justify-around"}>
-                    <div className={`space-y-2 ${authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ? "w-3/4" : "w-full" } `}>
+                    <div
+                        className={`space-y-2 ${authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ? "w-3/4" : "w-full"} `}>
                         <div className="text-sm text-muted-foreground">
-                            <Organisers organisers={presenters} chunkSize={authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ? 10 : 4}/>
+                            <Organisers organisers={presenters}
+                                        chunkSize={authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ? 10 : 4}/>
                         </div>
                         <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
                         <p className="text-muted-foreground">{description}</p>
@@ -123,53 +128,55 @@ export default function PresentationCard({
                         </div>
                     </div>
                     {authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) && (
-                    <div className={"w-1/4"}>
-                        <Card className="w-full max-w-2x">
-                            <div className="flex flex-row items-center justify-between space-y-0 px-5 pt-4">
-                                <div className="text-xl font-semibold">Files</div>
-                                {isMine && <><Button
-                                    variant="secondary"
-                                    className="text-sm font-medium"
-                                    onClick={() => {
-                                        fileInputRef.current.click();
-                                    }}
-                                >
-                                    Upload files
-                                </Button>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        style={{display: 'none'}}
-                                        onChange={handleFileUpload}
-                                    /></>}
+                        <div className={"w-1/4"}>
+                            <Card className="w-full max-w-2x">
+                                <div className="flex flex-row items-center justify-between space-y-0 px-5 pt-4">
+                                    <div className="text-xl font-semibold">Files</div>
+                                    {isMine && <><Button
+                                        variant="secondary"
+                                        className="text-sm font-medium"
+                                        onClick={() => {
+                                            fileInputRef.current.click();
+                                        }}
+                                    >
+                                        Upload files
+                                    </Button>
+                                        <input
+                                            type="file"
+                                            accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.rar,.7z,.png,.jpg,.jpeg,.gif,.mp4,.mp3,.wav,.flac"
+                                            ref={fileInputRef}
+                                            style={{display: 'none'}}
+                                            onChange={handleFileUpload}
+                                        /></>}
 
-                            </div>
-                            <CardContent>
-                                <div>
-                                    {uploadedFiles.map((file) => (
-                                        <div
-                                            key={file.name}
-                                            className="flex items-center justify-between py-2"
-                                        >
-                                            <span className="text-sm cursor-pointer" onClick={()=>handleFileDownload(file)}>{file.name}</span>
-                                            {
-                                                isMine &&  <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8"
-                                                    onClick={() => handleFileDelete(file)}
-                                                >
-                                                    <X className="h-4 w-4 cursor-pointer" />
-                                                    <span className="sr-only cursor-pointer">Remove file</span>
-                                                </Button>
-                                            }
-                                        </div>
-                                    ))}
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                        )}
+                                <CardContent>
+                                    <div>
+                                        {uploadedFiles.map((file) => (
+                                            <div
+                                                key={file.name}
+                                                className="flex items-center justify-between py-2"
+                                            >
+                                                <span className="text-sm cursor-pointer"
+                                                      onClick={() => handleFileDownload(file)}>{file.name}</span>
+                                                {
+                                                    isMine && <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8"
+                                                        onClick={() => handleFileDelete(file)}
+                                                    >
+                                                        <X className="h-4 w-4 cursor-pointer"/>
+                                                        <span className="sr-only cursor-pointer">Remove file</span>
+                                                    </Button>
+                                                }
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
                 </div>
 
             </CardHeader>

@@ -139,12 +139,13 @@ const ProfileView = () => {
                             </AvatarFallback>
                         </Avatar>
                         <Button variant="link" className="text-gray-600 relative">
-                            <Input type="file" onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                    updateProfilePicture({avatarFile: file});
-                                }
-                            }}
+                            <Input type="file" accept="image/*"
+                                   onChange={(e) => {
+                                       const file = e.target.files?.[0];
+                                       if (file) {
+                                           updateProfilePicture({avatarFile: file});
+                                       }
+                                   }}
                                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
                             />
                             Change profile picture
