@@ -16,10 +16,7 @@ import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.openapitools.model.ErrorReason.*;
@@ -54,7 +51,7 @@ public class SessionService {
                 .toList();
     }
 
-    public List<SessionPreviewResponse> getManagableSessions() {
+    public List<ManagableSessionPreviewResponse> getManagableSessions() {
         var user = securityUtils.getCurrentUser();
 
         log.info("Getting managable sessions for user: {}", user);
@@ -65,11 +62,19 @@ public class SessionService {
         var participations = sessionRepository.findUsersParticipations(user.getOrcid(), user.getEmailList());
 
         return participations.stream()
-                .map(session -> sessionMapper.toPreviewDto(session)
-                        .fromCurrentConferenceEdition(isFromCurrentConference(session))
-                        .startTime(getSessionStartTime(session).orElse(null))
-                        .endTime(getSessionEndTime(session).orElse(null))
-                        .isInCalendar(userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
+                .map(session -> {
+                    var participationsWithinSession = presentationRepository.findUserParticipationsWithinSession(user, session);
+                    var hasUserConfiguredAllParticiopations = participationsWithinSession
+                            .stream()
+                            .allMatch(presentation -> presentation.startTime().isPresent() && presentation.endTime().isPresent());
+
+                    return sessionMapper.toManagablePreviewDto(session)
+                                    .fromCurrentConferenceEdition(isFromCurrentConference(session))
+                                    .startTime(getSessionStartTime(session).orElse(null))
+                                    .endTime(getSessionEndTime(session).orElse(null))
+                                    .isInCalendar(userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
+                                    .hasUserConfiguredTimetable(hasUserConfiguredAllParticiopations);
+                    }
                 )
                 .peek(session -> {
                     log.info("Returning managable session: {}", session);

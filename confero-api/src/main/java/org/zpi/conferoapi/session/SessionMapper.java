@@ -1,6 +1,7 @@
 package org.zpi.conferoapi.session;
 
 import org.mapstruct.*;
+import org.openapitools.model.ManagableSessionPreviewResponse;
 import org.openapitools.model.PresenterResponse;
 import org.openapitools.model.SessionPreviewResponse;
 import org.openapitools.model.SessionResponse;
@@ -18,6 +19,9 @@ public interface SessionMapper {
 
     @Mapping(target = "presenters", source = "presentations", qualifiedByName = "mapPresentersFromPresentations")
     SessionPreviewResponse toPreviewDto(Session session);
+
+    @Mapping(target = "presenters", source = "presentations", qualifiedByName = "mapPresentersFromPresentations")
+    ManagableSessionPreviewResponse toManagablePreviewDto(Session session);
 
     static List<String> tagsToString(Map<String, Object> tags) {
         return tags.keySet().stream().toList();

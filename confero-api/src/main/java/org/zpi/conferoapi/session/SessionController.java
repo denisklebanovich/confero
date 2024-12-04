@@ -31,7 +31,7 @@ public class SessionController implements SessionApi {
     }
 
     @Override
-    public ResponseEntity<List<SessionPreviewResponse>> getManagableSessions() {
+    public ResponseEntity<List<ManagableSessionPreviewResponse>> getManagableSessions() {
         log.info("User {} requested managable sessions", securityUtils.getCurrentUser());
         return ResponseEntity.ok(sessionService.getManagableSessions());
     }

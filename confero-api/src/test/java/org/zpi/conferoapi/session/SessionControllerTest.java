@@ -124,6 +124,15 @@ class SessionControllerTest extends IntegrationTestBase {
                 false,
                 List.of("artsi@gmail.com")
         );
+
+        givenUser(
+                "0000-0002-5678-1236",
+                "access-token8",
+                "http://example.com/avatar.png",
+                false,
+                List.of("random1@gmail.com")
+        );
+
         var conferenceEdition = givenConferenceEdition(Instant.now().plusSeconds(3600));
         var session = givenSession(
                 "Test Session",
@@ -173,6 +182,14 @@ class SessionControllerTest extends IntegrationTestBase {
                 presentation_2_end
         );
 
+        var presentation_2_2 = givenPresentation(
+                "Test Presentation 2",
+                "Presentation Description",
+                session_2,
+                null,
+                null
+        );
+
 
         givenPresenter(
                 "random@gmail.com",
@@ -185,6 +202,16 @@ class SessionControllerTest extends IntegrationTestBase {
                 presentation_2
         );
 
+        givenPresenter(
+                "random1@gmail.com",
+                "0000-0002-5678-1236",
+                "name21",
+                "surnam5e1",
+                "titl1e 1",
+                "Po2litechnika Wrocławska",
+                true,
+                presentation_2_2
+        );
 
         var response = RestAssured
                 .given()
@@ -196,18 +223,38 @@ class SessionControllerTest extends IntegrationTestBase {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .response()
-                .as(SessionPreviewResponse[].class);
+                .as(ManagableSessionPreviewResponse[].class);
 
         assertNotNull(response);
         assertEquals(2, response.length, "Expected one session in the response");
-
         var sessionResponse = response[0];
         assertNull(sessionResponse.getStartTime(), "Start time mismatch");
         assertNull(sessionResponse.getEndTime(), "End time mismatch");
+        assertThat(sessionResponse.getHasUserConfiguredTimetable()).isEqualTo(false);
 
         var sessionResponse_2 = response[1];
-        assertNotNull(sessionResponse_2.getStartTime(), "Start time mismatch");
-        assertNotNull(sessionResponse_2.getEndTime(), "End time mismatch");
+        assertNull(sessionResponse_2.getStartTime(), "Start time mismatch");
+        assertNull(sessionResponse_2.getEndTime(), "End time mismatch");
+        assertThat(sessionResponse_2.getHasUserConfiguredTimetable()).isEqualTo(true);
+
+        var response_for_other_presenter = RestAssured
+                .given()
+                .contentType("application/json")
+                .header("Authorization", "random1@gmail.com")
+                .get("/api/session/manage")
+                .then()
+                .log().ifError()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .response()
+                .as(ManagableSessionPreviewResponse[].class);
+
+        assertNotNull(response_for_other_presenter);
+        assertEquals(1, response_for_other_presenter.length, "Expected one session in the response");
+        var sessionResponse_for_other_presenter = response_for_other_presenter[0];
+        assertNull(sessionResponse_for_other_presenter.getStartTime(), "Start time mismatch");
+        assertNull(sessionResponse_for_other_presenter.getEndTime(), "End time mismatch");
+        assertThat(sessionResponse_for_other_presenter.getHasUserConfiguredTimetable()).isEqualTo(false);
     }
 
 
