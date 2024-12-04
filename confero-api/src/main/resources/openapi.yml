@@ -1218,7 +1218,7 @@ components:
         description:
           type: string
         location:
-            type: string
+          type: string
         presentations:
           type: array
           items:
@@ -1431,6 +1431,8 @@ components:
           format: int64
         title:
           type: string
+        location:
+          type: string
         tags:
           type: array
           items:
@@ -1460,6 +1462,8 @@ components:
         isMine:
           type: boolean
         description:
+          type: string
+        location:
           type: string
         presentations:
           type: array
