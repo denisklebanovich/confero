@@ -96,9 +96,23 @@ const ProposalAdminView = () => {
                         </Badge>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2">Description</h3>
-                            <p className="text-muted-foreground">{application.description}</p>
+                        <div className="flex-col space-y-2">
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2">Description</h3>
+                                <p className="text-muted-foreground">{application.description}</p>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2">Location</h3>
+                                <div className="border border-gray-300 rounded-lg p-4 bg-gray-50 mt-4 text-center">
+                                    {application.location ? (
+                                        <p className="text-gray-700 text-lg">{application.location}</p>
+                                    ) : (
+                                        <p className="text-gray-700 text-lg font-medium">
+                                            The location for this session has not been specified yet.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
                         <div>

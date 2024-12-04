@@ -40,6 +40,7 @@ const formSchema = z.object({
     title: z.string({message: "Title is required"}).min(2).max(100),
     type: z.string({message: "Type is required"}),
     description: descriptionSchema,
+    location: z.string().optional(),
     tags: z.array(z.string()).optional(),
     presentations: z
         .array(
@@ -79,6 +80,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             title: proposal?.title,
             type: proposal?.type,
             description: proposal?.description,
+            location: proposal?.location || "",
             tags: proposal?.tags || [],
             presentations: proposal?.presentations || [],
         },
@@ -90,6 +92,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                 title: proposal.title,
                 type: proposal.type,
                 description: proposal.description,
+                location: proposal.location || "",
                 tags: proposal.tags || [],
                 presentations: proposal.presentations || [],
             });
@@ -189,6 +192,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             title: data.title,
             type: data.type as SessionType,
             description: data.description,
+            location: data.location,
             tags: data.tags,
             presentations: data.presentations as PresentationRequest[],
             saveAsDraft: !!asDraft,
@@ -200,6 +204,7 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
             title: data.title,
             type: data.type as SessionType,
             description: data.description,
+            location: data.location,
             tags: data.tags,
             presentations: data.presentations as PresentationRequest[],
             saveAsDraft: false,
@@ -364,6 +369,22 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                                     placeholder="Enter the description"
                                     {...field}
                                     onInput={(e) => handleDescriptionValidation(e, field.onChange, form)}
+                                />
+                            </FormControl>
+                            <FormMessage/>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="location"
+                    render={({field}) => (
+                        <FormItem>
+                            <FormLabel>Location</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Enter the location"
+                                    {...field}
                                 />
                             </FormControl>
                             <FormMessage/>
