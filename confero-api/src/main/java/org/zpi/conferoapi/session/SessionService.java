@@ -206,7 +206,7 @@ public class SessionService {
         var presenter = presenterRepository.findById(presenterId)
                 .orElseThrow(() -> new ServiceException(PRESENTER_NOT_FOUND));
 
-        var presenterParticipations = sessionRepository.findParticipationsByOrganizerId(presenter.getId());
+        var presenterParticipations = sessionRepository.findUsersParticipations(presenter.getOrcid(), List.of(presenter.getEmail()));
 
         var sessionsToAddToAgenda = presenterParticipations.stream()
                 .filter(this::isFromCurrentConference)
