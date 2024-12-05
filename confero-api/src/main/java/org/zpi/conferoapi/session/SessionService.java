@@ -51,7 +51,9 @@ public class SessionService {
                             var answ = userHasSessionInAgenda(securityUtils.getCurrentUser(), session);
                             log.info("User has session in agenda123: {}", answ);
                             return answ;
-                        }).getOrElse(false))
+                        })
+                                .onFailure(e -> log.info("123error:{}", String.valueOf(e)))
+                                .getOrElse(false))
                 )
                 .peek(session -> {
                     log.info("Returning session: {}", session);
