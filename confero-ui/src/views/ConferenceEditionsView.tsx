@@ -16,7 +16,7 @@ const ConferenceEditionsView = () => {
         () => apiClient.conferenceEdition.getAllConferenceEditions()
     );
 
-    const massUpdateOrganisersMutation = useApiMutation<>(
+    const massUpdateOrganisersMutation = useApiMutation(
         () => apiClient.organizer.massUpdateOrganizers(),
         {
             onSuccess: () => {
