@@ -101,7 +101,7 @@ const SessionsView = () => {
                         <div className="flex w-full">
                             <div className="text-3xl font-bold w-full">Sessions:
                             </div>
-                            {authorized && !isLoadingProfileData && profileData.isInvitee && (
+                            {authorized && !isLoadingProfileData && profileData?.isInvitee && (
                                 <Button onClick={() => navigate("/my-calendar")}>
                                     View my calendar
                                 </Button>
