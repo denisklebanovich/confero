@@ -2,9 +2,9 @@ import {Button} from "@/components/ui/button";
 import {Card, CardHeader, CardTitle,} from "@/components/ui/card";
 import {useNavigate} from "react-router-dom";
 import {Organisers} from "@/utils/Organisers.tsx";
-import {SessionPreviewResponse} from "@/generated";
+import {ManagableSessionPreviewResponse, SessionPreviewResponse} from "@/generated";
 
-const SessionTimeSetter = ({id, title, presenters}: SessionPreviewResponse) => {
+const SessionTimeSetter = ({id, title, presenters, has_user_configured_timetable}: ManagableSessionPreviewResponse) => {
     const navigate = useNavigate();
     return (
         <Card className="w-full m-2">
@@ -15,12 +15,23 @@ const SessionTimeSetter = ({id, title, presenters}: SessionPreviewResponse) => {
                     </CardTitle>
 
                     <div className="flex flex-col sm:flex-row items-center sm:space-y-0 sm:space-x-2">
-                        <Button
-                            className="w-full sm:w-auto mr-2"
-                            onClick={() => navigate(`/sessions/${id}/timetable`)}
-                        >
-                            Set timetable
-                        </Button>
+                        {
+                            has_user_configured_timetable ?
+                                <Button
+                                    className="w-full sm:w-auto mr-2"
+                                    variant={"secondary_grey" as any}
+                                    onClick={() => navigate(`/sessions/${id}/timetable`)}
+                                >
+                                    Update timetable
+                                </Button>
+                                :<Button
+                                    className="w-full sm:w-auto mr-2"
+                                    onClick={() => navigate(`/sessions/${id}/timetable`)}
+                                >
+                                    Set timetable
+                                </Button>
+                        }
+
                     </div>
                 </div>
                 <h3 className="font-semibold">Organizers:</h3>

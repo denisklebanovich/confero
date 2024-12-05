@@ -31,9 +31,9 @@ export function DatePagination({onDateChange, initialDate}: DatePaginationProps)
         onDateChange(newDate)
     }
 
-    const renderDateDisplay = (date: Date, isSelected: boolean) => (
-        <div className={`flex-1 text-center ${isSelected ? 'font-bold' : ''}`}>
-            <div className="flex flex-col items-center">
+    const renderDateDisplay = (date: Date, isSelected: boolean, func: any) => (
+        <div className={`flex-1 text-center ${isSelected ? 'font-bold' : ''}`} onClick={func}>
+            <div className="flex flex-col items-center select-none cursor-pointer">
                 <span className="text-sm">{format(date, 'EEE')}</span>
                 <span className="text-lg">{format(date, 'd')}</span>
                 <span className="text-xs">{format(date, 'MMM')}</span>
@@ -47,9 +47,9 @@ export function DatePagination({onDateChange, initialDate}: DatePaginationProps)
                 <ChevronLeft className="h-4 w-4"/>
             </Button>
             <div className="flex-1 flex justify-between">
-                {renderDateDisplay(subDays(currentDate, 1), false)}
-                {renderDateDisplay(currentDate, true)}
-                {renderDateDisplay(addDays(currentDate, 1), false)}
+                {renderDateDisplay(subDays(currentDate, 1), false, handlePreviousDay)}
+                {renderDateDisplay(currentDate, true, ()=>{})}
+                {renderDateDisplay(addDays(currentDate, 1), false, handleNextDay)}
             </div>
             <Button variant="outline" size="icon" onClick={handleNextDay} aria-label="Next day">
                 <ChevronRight className="h-4 w-4"/>
