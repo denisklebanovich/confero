@@ -47,16 +47,7 @@ public class SessionService {
                         .fromCurrentConferenceEdition(isFromCurrentConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
-                        .isInCalendar(Try.of(() -> {
-                            var answ = userHasSessionInAgenda(securityUtils.getCurrentUser(), session);
-                            log.info("User has session in agenda123: {}", answ);
-                            return answ;
-                        })
-                                .onFailure(e -> {
-                                    for (StackTraceElement element : e.getStackTrace()) {
-                                        log.info("123error: {}", element);
-                                    }
-                                })
+                        .isInCalendar(Try.of(() -> userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
                                 .getOrElse(false))
                 )
                 .peek(session -> {
@@ -349,16 +340,9 @@ public class SessionService {
                 .max(Instant::compareTo);
     }
 
-
     private boolean userHasSessionInAgenda(User user, Session session) {
-        log.info("Computing if user {} has session {} in agenda", user, session);
-        log.info("User agenda: {}", user.getAgenda());
-        log.info("Session: {}", session);
-        var response =  user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
-        log.info("User has session in agenda: {}", response);
-        return response;
+        return user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
     }
-
 
     private Optional<Presenter> findPresenterByUser(Presentation presentation, User user) {
         return presentation.getPresenters().stream()

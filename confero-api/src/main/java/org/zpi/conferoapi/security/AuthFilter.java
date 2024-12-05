@@ -45,9 +45,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         return
-//                requestURI.equals("/api/session") ||
                 requestURI.startsWith("/api/auth/orcid") ||
-//                requestURI.matches("^/api/session/\\d+/preview") ||
                 requestURI.startsWith("/api/profile/email/verify");
     }
 
