@@ -40,6 +40,7 @@ const schema = {
             type: "array",
             items: {type: "string"},
         },
+        location: {type: "string"},
         description: {type: "string"},
         presentations: {
             type: "array",
@@ -86,6 +87,7 @@ const jsonPreview = `
     "string"
   ],
   "description": "string",
+  "location": "string",
   "presentations": [
     {
       "title": "string",
