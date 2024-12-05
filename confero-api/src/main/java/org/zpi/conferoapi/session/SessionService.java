@@ -37,6 +37,10 @@ public class SessionService {
     S3Service s3Service;
     AttachmentRepository attachmentRepository;
 
+    private static boolean isAcceptedSession(Session session) {
+        return Objects.equals(session.getStatus(), ApplicationStatus.ACCEPTED);
+    }
+
     public List<SessionPreviewResponse> getSessions() {
         return getSessionsWithConfiguredTimeTable()
                 .map(session -> sessionMapper.toPreviewDto(session)
@@ -62,6 +66,7 @@ public class SessionService {
         var participations = sessionRepository.findUsersParticipations(user.getOrcid(), user.getEmailList());
 
         return participations.stream()
+                .filter(SessionService::isAcceptedSession)
                 .map(session -> {
                     var participationsWithinSession = presentationRepository.findUserParticipationsWithinSession(user, session);
                     var hasUserConfiguredAllParticiopations = participationsWithinSession
