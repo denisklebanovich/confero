@@ -341,6 +341,9 @@ public class SessionService {
 
 
     private boolean userHasSessionInAgenda(User user, Session session) {
+        log.info("Computing if user {} has session {} in agenda", user, session);
+        log.info("User agenda: {}", user.getAgenda());
+        log.info("Session: {}", session);
         return user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
     }
 
