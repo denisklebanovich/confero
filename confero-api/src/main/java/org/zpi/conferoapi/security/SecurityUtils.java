@@ -20,7 +20,18 @@ public class SecurityUtils {
 
     public static Long getCurrentUserId() {
         return (long) Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .map(Authentication::getPrincipal)
+                .map(authentication -> {
+                    Object principal = authentication.getPrincipal();
+                    // Log or inspect the principal value
+                    System.out.println("Principal: " + principal + " (Type: " + (principal != null ? principal.getClass() : "null") + ")");
+                    if (principal instanceof Long) {
+                        return (Long) principal;
+                    } else if (principal instanceof String) {
+                        return Long.valueOf((String) principal);
+                    } else {
+                        throw new ServiceException(ErrorReason.UNAUTHORIZED);
+                    }
+                })
                 .orElseThrow(() -> new ServiceException(ErrorReason.UNAUTHORIZED));
     }
 
