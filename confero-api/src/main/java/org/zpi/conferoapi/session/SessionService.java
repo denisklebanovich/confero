@@ -52,7 +52,11 @@ public class SessionService {
                             log.info("User has session in agenda123: {}", answ);
                             return answ;
                         })
-                                .onFailure(e -> log.info("123error:{}", String.valueOf(e)))
+                                .onFailure(e -> {
+                                    for (StackTraceElement element : e.getStackTrace()) {
+                                        log.info("123error: {}", element);
+                                    }
+                                })
                                 .getOrElse(false))
                 )
                 .peek(session -> {
