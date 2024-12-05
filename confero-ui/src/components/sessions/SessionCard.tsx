@@ -81,10 +81,14 @@ const SessionCard = ({id,title, isInCalendar, tags, startTime, endTime, isMine}:
                         Topics: {tags?.map((topic) => topic).join(", ")}
                     </p>
                     <div className="flex items-center text-sm text-muted-foreground">
+                        { startTime && endTime &&
+                            <>
                         <CalendarIcon className="mr-2 h-4 w-4"/>
                         <time>
                             {extractDate(startTime!)} | {extractTime(startTime!)} - {extractTime(endTime!)}
                         </time>
+                            </>
+                        }
                     </div>
                 </div>
             </CardContent>

@@ -111,7 +111,7 @@ const SessionsView = () => {
                             <SessionCard key={session.id} {...session} isMine={checkIfSessionIsMine(session.id)} />
                         ))}
                     </div>
-                    <div className="w-1/5 flex flex-col justify-center pl-8 ml-5 mt-12">
+                    <div className="w-1/4 flex flex-col justify-start pl-8 ml-5 mt-12">
                         {profileData?.isInvitee && !isLoadingProfileData && (
                             <>
                                 {events?.map(event => (
