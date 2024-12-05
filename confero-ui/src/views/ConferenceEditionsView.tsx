@@ -16,7 +16,7 @@ const ConferenceEditionsView = () => {
         () => apiClient.conferenceEdition.getAllConferenceEditions()
     );
 
-    const massUpdateOrganisersMutation = useApiMutation<OrganizerResponse[]>(
+    const massUpdateOrganisersMutation = useApiMutation<>(
         () => apiClient.organizer.massUpdateOrganizers(),
         {
             onSuccess: () => {
@@ -54,7 +54,7 @@ const ConferenceEditionsView = () => {
                         <div className={"w-2/3 items-center gap-5 flex flex-col"}>
                             <div className="flex w-full">
                                 <div className="text-3xl font-bold w-full">Editions:</div>
-                                <Button className={"mr-3"} variant={"secondary_grey" as any} onClick={() => massUpdateOrganisersMutation.mutate()}>
+                                <Button className={"mr-3"} variant={"secondary_grey" as any} onClick={() => massUpdateOrganisersMutation.mutate({},{})}>
                                     Update organizers
                                 </Button>
                                 <Button variant={"secondary_grey" as any} onClick={() => addConferenceEdition()}>

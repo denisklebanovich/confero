@@ -38,7 +38,7 @@ const SessionsView = () => {
         () => apiClient.session.getSessions()
     );
 
-    const {data: mySessionIds, isLoadingSessionIds} = useApiQuery<number[]>(
+    const {data: mySessionIds, isLoading: isLoadingSessionIds} = useApiQuery<number[]>(
         ["mySessionsIds"],
         () => {if (authorized) return apiClient.session.getMySessions()}
     );
