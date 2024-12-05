@@ -1,15 +1,16 @@
 import React from 'react';
 import SessionTimeSetter from "@/components/admin-session/SessionTimeSetter.tsx";
-import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router-dom";
 import {useApi} from "@/api/useApi.ts";
-import {ApiError, ConferenceEditionResponse, CreateConferenceEditionRequest, SessionPreviewResponse} from "@/generated";
+import {
+    ManagableSessionPreviewResponse,
+} from "@/generated";
 
 const MySessionsView = () => {
     const navigate = useNavigate();
     const {apiClient, useApiQuery} = useApi();
 
-    const {data: sessions, isLoading} = useApiQuery<SessionPreviewResponse[]>(
+    const {data: sessions, isLoading} = useApiQuery<ManagableSessionPreviewResponse[]>(
         ["managable-sessions"],
         () => apiClient.session.getManagableSessions()
     );

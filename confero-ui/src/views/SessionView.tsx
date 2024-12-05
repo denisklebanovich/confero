@@ -37,8 +37,6 @@ export default function SessionView() {
     )
 
 
-
-
     const getOrganisers = () => {
         return session.presentations.map(presentation => presentation.presenters).flat()
     }
