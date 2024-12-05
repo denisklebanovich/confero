@@ -215,6 +215,7 @@ const FileUpload = () => {
             tags: uploadedFile.jsonData.tags,
             description: uploadedFile.jsonData.description,
             presentations: uploadedFile.jsonData.presentations,
+            location: uploadedFile.jsonData.location,
             saveAsDraft: true
         });
     };
