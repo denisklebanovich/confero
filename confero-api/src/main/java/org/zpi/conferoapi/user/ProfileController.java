@@ -27,8 +27,12 @@ public class ProfileController implements ProfileApi {
 
     @Override
     public ResponseEntity<ProfileResponse> getUserProfile() {
+        long startTime = System.currentTimeMillis(); // Record start time
         log.info("Got request from user {} to get profile", securityUtils.getCurrentUser());
-        return ResponseEntity.ok(profileService.getUserProfile());
+        var resp =  ResponseEntity.ok(profileService.getUserProfile());
+        long endTime = System.currentTimeMillis(); // Record end time
+        log.info("Execution time for getUserProfile: {} ms", (endTime - startTime));
+        return resp;
     }
 
     @Override
