@@ -344,7 +344,9 @@ public class SessionService {
         log.info("Computing if user {} has session {} in agenda", user, session);
         log.info("User agenda: {}", user.getAgenda());
         log.info("Session: {}", session);
-        return user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
+        var response =  user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
+        log.info("User has session in agenda: {}", response);
+        return response;
     }
 
 
