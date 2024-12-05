@@ -47,7 +47,11 @@ public class SessionService {
                         .fromCurrentConferenceEdition(isFromCurrentConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
-                        .isInCalendar(Try.of(() -> userHasSessionInAgenda(securityUtils.getCurrentUser(), session)).getOrElse(false))
+                        .isInCalendar(Try.of(() -> {
+                            var answ = userHasSessionInAgenda(securityUtils.getCurrentUser(), session);
+                            log.info("User has session in agenda123: {}", answ);
+                            return answ;
+                        }).getOrElse(false))
                 )
                 .peek(session -> {
                     log.info("Returning session: {}", session);
