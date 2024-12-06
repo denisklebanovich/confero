@@ -71,7 +71,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
         if (!authenticated &&
                 !request.getRequestURI().matches("^/api/session/\\d+$")
-                && !request.getRequestURI().matches("^/api/session/\\d+/preview$")
+                && !request.getRequestURI().matches("^/api/session/?$")
         ) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             log.info("Unauthorized request from {}", request.getRemoteAddr());
