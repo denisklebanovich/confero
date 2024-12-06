@@ -23,7 +23,8 @@ const Navbar = () => {
         if(!authorized || isLoading){
             return []
         }
-        const {isAdmin, isInvitee} = profileData;
+        const isAdmin = profileData?.isAdmin;
+        const isInvitee = profileData?.isInvitee;
         const authorizedRoutes = [
             {
                 name: "Sessions",

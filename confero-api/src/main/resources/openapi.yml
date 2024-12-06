@@ -624,7 +624,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SessionPreviewResponse'
+                  $ref: '#/components/schemas/ManagableSessionPreviewResponse'
 
 
   /session/event:
@@ -1398,6 +1398,8 @@ components:
             type: string
         description:
           type: string
+        location:
+          type: string
         presentations:
           type: array
           items:
@@ -1451,6 +1453,38 @@ components:
           type: boolean
         from_current_conference_edition:
           type: boolean
+
+    ManagableSessionPreviewResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        location:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        presenters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenterResponse'
+        isInCalendar:
+          type: boolean
+        from_current_conference_edition:
+          type: boolean
+        has_user_configured_timetable:
+          type: boolean
+
     SessionResponse:
       type: object
       properties:

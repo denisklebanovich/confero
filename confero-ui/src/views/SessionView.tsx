@@ -37,8 +37,6 @@ export default function SessionView() {
     )
 
 
-
-
     const getOrganisers = () => {
         return session.presentations.map(presentation => presentation.presenters).flat()
     }
@@ -59,7 +57,7 @@ export default function SessionView() {
                     }
 
                     <SessionDescription title={session.title} description={session.description}
-                                        organisers={getOrganisers()}/>
+                                        organisers={getOrganisers()} location={session.location}/>
                 </div>
                 {authorized && !isLoadingProfile && (profileData.isAdmin || profileData.isInvitee) ?
                     <div className='flex flex-col items-center w-full'>

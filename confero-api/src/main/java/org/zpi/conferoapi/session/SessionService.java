@@ -16,10 +16,7 @@ import org.zpi.conferoapi.user.User;
 import org.zpi.conferoapi.user.UserRepository;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.openapitools.model.ErrorReason.*;
@@ -40,13 +37,18 @@ public class SessionService {
     S3Service s3Service;
     AttachmentRepository attachmentRepository;
 
+    private static boolean isAcceptedSession(Session session) {
+        return Objects.equals(session.getStatus(), ApplicationStatus.ACCEPTED);
+    }
+
     public List<SessionPreviewResponse> getSessions() {
         return getSessionsWithConfiguredTimeTable()
                 .map(session -> sessionMapper.toPreviewDto(session)
                         .fromCurrentConferenceEdition(isFromCurrentConference(session))
                         .startTime(getSessionStartTime(session).orElse(null))
                         .endTime(getSessionEndTime(session).orElse(null))
-                        .isInCalendar(Try.of(() -> userHasSessionInAgenda(securityUtils.getCurrentUser(), session)).getOrElse(false))
+                        .isInCalendar(Try.of(() -> userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
+                                .getOrElse(false))
                 )
                 .peek(session -> {
                     log.info("Returning session: {}", session);
@@ -54,7 +56,7 @@ public class SessionService {
                 .toList();
     }
 
-    public List<SessionPreviewResponse> getManagableSessions() {
+    public List<ManagableSessionPreviewResponse> getManagableSessions() {
         var user = securityUtils.getCurrentUser();
 
         log.info("Getting managable sessions for user: {}", user);
@@ -65,11 +67,20 @@ public class SessionService {
         var participations = sessionRepository.findUsersParticipations(user.getOrcid(), user.getEmailList());
 
         return participations.stream()
-                .map(session -> sessionMapper.toPreviewDto(session)
-                        .fromCurrentConferenceEdition(isFromCurrentConference(session))
-                        .startTime(getSessionStartTime(session).orElse(null))
-                        .endTime(getSessionEndTime(session).orElse(null))
-                        .isInCalendar(userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
+                .filter(SessionService::isAcceptedSession)
+                .map(session -> {
+                    var participationsWithinSession = presentationRepository.findUserParticipationsWithinSession(user, session);
+                    var hasUserConfiguredAllParticiopations = participationsWithinSession
+                            .stream()
+                            .allMatch(presentation -> presentation.startTime().isPresent() && presentation.endTime().isPresent());
+
+                    return sessionMapper.toManagablePreviewDto(session)
+                                    .fromCurrentConferenceEdition(isFromCurrentConference(session))
+                                    .startTime(getSessionStartTime(session).orElse(null))
+                                    .endTime(getSessionEndTime(session).orElse(null))
+                                    .isInCalendar(userHasSessionInAgenda(securityUtils.getCurrentUser(), session))
+                                    .hasUserConfiguredTimetable(hasUserConfiguredAllParticiopations);
+                    }
                 )
                 .peek(session -> {
                     log.info("Returning managable session: {}", session);
@@ -201,7 +212,7 @@ public class SessionService {
         var presenter = presenterRepository.findById(presenterId)
                 .orElseThrow(() -> new ServiceException(PRESENTER_NOT_FOUND));
 
-        var presenterParticipations = sessionRepository.findParticipationsByOrganizerId(presenter.getId());
+        var presenterParticipations = sessionRepository.findUsersParticipations(presenter.getOrcid(), List.of(presenter.getEmail()));
 
         var sessionsToAddToAgenda = presenterParticipations.stream()
                 .filter(this::isFromCurrentConference)
@@ -329,11 +340,9 @@ public class SessionService {
                 .max(Instant::compareTo);
     }
 
-
     private boolean userHasSessionInAgenda(User user, Session session) {
         return user.getAgenda().stream().anyMatch(s -> s.getId().equals(session.getId()));
     }
-
 
     private Optional<Presenter> findPresenterByUser(Presentation presentation, User user) {
         return presentation.getPresenters().stream()

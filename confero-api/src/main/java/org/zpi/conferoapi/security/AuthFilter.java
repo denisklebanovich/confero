@@ -44,9 +44,8 @@ public class AuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
 
-        return requestURI.equals("/api/session") ||
+        return
                 requestURI.startsWith("/api/auth/orcid") ||
-                requestURI.matches("^/api/session/\\d+/preview") ||
                 requestURI.startsWith("/api/profile/email/verify");
     }
 
@@ -70,7 +69,10 @@ public class AuthFilter extends OncePerRequestFilter {
             authenticated = handleJwtAuthentication(authHeader);
         }
 
-        if (!authenticated && !request.getRequestURI().matches("^/api/session/\\d+$")) {
+        if (!authenticated &&
+                !request.getRequestURI().matches("^/api/session/\\d+$")
+                && !request.getRequestURI().matches("^/api/session/?$")
+        ) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             log.info("Unauthorized request from {}", request.getRemoteAddr());
             return;

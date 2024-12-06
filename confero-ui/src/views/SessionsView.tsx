@@ -38,6 +38,11 @@ const SessionsView = () => {
         () => apiClient.session.getSessions()
     );
 
+    const {data: mySessionIds, isLoading: isLoadingSessionIds} = useApiQuery<number[]>(
+        ["mySessionsIds"],
+        () => {if (authorized) return apiClient.session.getMySessions()}
+    );
+
     const {data: events, isLoading: isLoadingEvents} = useApiQuery<SesssionEventResponse[]>(
         ["events"],
         () => {
@@ -66,6 +71,12 @@ const SessionsView = () => {
             })
         );
     });
+
+    function checkIfSessionIsMine(sessionId: number) {
+        if (!mySessionIds) return false;
+        return sessions.some(session => session.id === sessionId);
+    }
+
     console.log('Sessions:', sessions);
     console.log('Filtered', filteredSessions);
 
@@ -74,7 +85,7 @@ const SessionsView = () => {
     }
 
     return (
-        isLoading || isLoadingEvents ?
+        isLoading || isLoadingEvents || isLoadingSessionIds ?
             <div className={"w-full flex justify-center mt-20"}>
                 <Spinner/>
             </div>
@@ -90,17 +101,17 @@ const SessionsView = () => {
                         <div className="flex w-full">
                             <div className="text-3xl font-bold w-full">Sessions:
                             </div>
-                            {authorized && !isLoadingProfileData && profileData.isInvitee && (
+                            {authorized && !isLoadingProfileData && profileData?.isInvitee && (
                                 <Button onClick={() => navigate("/my-calendar")}>
                                     View my calendar
                                 </Button>
                             )}
                         </div>
                         {filteredSessions?.map((session) => (
-                            <SessionCard key={session.id} {...session} />
+                            <SessionCard key={session.id} {...session} isMine={checkIfSessionIsMine(session.id)} />
                         ))}
                     </div>
-                    <div className="w-1/5 flex flex-col justify-center pl-8 ml-5 mt-12">
+                    <div className="w-1/4 flex flex-col justify-start pl-8 ml-5 mt-12">
                         {profileData?.isInvitee && !isLoadingProfileData && (
                             <>
                                 {events?.map(event => (

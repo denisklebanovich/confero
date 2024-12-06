@@ -19,7 +19,7 @@ const extractTime = (date: string) => {
     return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 }
 
-const SessionCard = (session: SessionPreviewResponse) => {
+const SessionCard = ({id,title, isInCalendar, tags, startTime, endTime, isMine}:any) => {
     const {authorized} = useAuth();
     const navigate = useNavigate();
 
@@ -32,7 +32,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
         (sessionId: number) => apiClient.session.addSessionToAgenda({sessionId}),
         {
             onSuccess: () => {
-                changeCalendarStatus(session.id, true);
+                changeCalendarStatus(id, true);
             }
         }
     );
@@ -41,22 +41,22 @@ const SessionCard = (session: SessionPreviewResponse) => {
         (sessionId: number) => apiClient.session.removeSessionFromAgenda({sessionId}),
         {
             onSuccess: () => {
-                changeCalendarStatus(session.id, false);
+                changeCalendarStatus(id, false);
             }
         }
     );
 
 
     return (
-        <Card className="w-full cursor-pointer" onClick={() => navigate(`/session/${session.id}`)}>
+        <Card className={`w-full cursor-pointer ${isMine && "border-2"}`} onClick={() => navigate(`/session/${id}`)}>
             <CardHeader>
                 <div className="flex justify-between items-start">
-                    <CardTitle className="text-xl font-bold">{session.title}</CardTitle>
-                    {!authorized || isLoadingProfile || !profileData.isInvitee ? <></> : session.isInCalendar ? (
+                    <CardTitle className="text-xl font-bold">{title}</CardTitle>
+                    {!authorized || isLoadingProfile || !profileData.isInvitee ? <></> : isInCalendar ? (
                         <Button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                deleteFromCalendar(session.id);
+                                deleteFromCalendar(id);
                             }}
                             variant={"secondary_grey"}
                         >
@@ -66,7 +66,7 @@ const SessionCard = (session: SessionPreviewResponse) => {
                         <Button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                addToCalendar(session.id);
+                                addToCalendar(id);
                             }}
                             variant={"secondary_grey"}
                         >
@@ -78,13 +78,17 @@ const SessionCard = (session: SessionPreviewResponse) => {
             <CardContent>
                 <div className="h-full w-2/3">
                     <p className="text-sm text-muted-foreground mb-4">
-                        Topics: {session.tags?.map((topic) => topic).join(", ")}
+                        Topics: {tags?.map((topic) => topic).join(", ")}
                     </p>
                     <div className="flex items-center text-sm text-muted-foreground">
+                        { startTime && endTime &&
+                            <>
                         <CalendarIcon className="mr-2 h-4 w-4"/>
                         <time>
-                            {extractDate(session.startTime!)} | {extractTime(session.startTime!)} - {extractTime(session.endTime!)}
+                            {extractDate(startTime!)} | {extractTime(startTime!)} - {extractTime(endTime!)}
                         </time>
+                            </>
+                        }
                     </div>
                 </div>
             </CardContent>
