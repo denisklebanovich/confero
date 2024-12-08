@@ -61,6 +61,7 @@ export default function OrcidInput({value, onChange}: OrcidInputProps) {
             if (result.valid && result.value) {
                 const newPresenter: PresenterResponse = {
                     ...result.value,
+                    surname: result.value.surname ?? "",
                     isSpeaker: value.length === 0,
                 };
                 onChange([...value, newPresenter]);

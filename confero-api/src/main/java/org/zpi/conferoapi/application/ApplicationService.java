@@ -220,7 +220,7 @@ public class ApplicationService {
                 .presentation(presentation)
                 .orcid(presenterRequest.getOrcid())
                 .name(orcidInfo.getName())
-                .surname(orcidInfo.getSurname())
+                .surname(Optional.ofNullable(orcidInfo.getSurname()).orElse(""))
                 .title(orcidInfo.getTitle())
                 .organization(orcidInfo.getOrganization())
                 .isSpeaker(presenterRequest.getIsSpeaker())
