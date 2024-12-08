@@ -62,8 +62,7 @@ const formSchema = z.object({
                     )
                     .min(1, {message: "At least one presenter is required"}),
             })
-        )
-        .min(1, {message: "At least one presentation is required"}),
+        ).min(1, {message: "At least one presentation is required"}),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -505,16 +504,14 @@ const ProposalForm = ({proposal, proposalId}: ProposalFormProps) => {
                             <Button
                                 variant="secondary"
                                 onClick={async () => {
-                                    const formData = form.getValues();
-                                    try {
-                                        formSchema.parse(formData);
-                                        handleCreateProposal(formData, true);
-                                    } catch (e) {
-                                        toast({
-                                            title: "Invalid form",
-                                            description: "Please fill in all required fields.",
-                                            variant: "error",
-                                        });
+                                    const isValid = await form.trigger();
+                                    if (isValid) {
+                                        const formData = form.getValues();
+                                        const transformedData = {
+                                            ...formData,
+                                            presentations: transformPresentations(formData.presentations),
+                                        };
+                                        handleCreateProposal(transformedData, true);
                                     }
                                 }}
                             >
