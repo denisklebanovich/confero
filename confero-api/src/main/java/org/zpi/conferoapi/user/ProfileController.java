@@ -61,7 +61,7 @@ public class ProfileController implements ProfileApi {
     public RedirectView verifyUserEmail(@RequestParam String token) {
         log.info("Got request to verify email with token: {}", token);
         profileService.verifyEmail(token);
-        return new RedirectView(redirectBaseUrl + "/login");
+        return new RedirectView(redirectBaseUrl + "/profile");
     }
 
     @Override

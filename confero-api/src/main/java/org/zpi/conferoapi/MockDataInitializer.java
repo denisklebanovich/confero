@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.zpi.conferoapi.application.ApplicationService;
 import org.zpi.conferoapi.conference.ConferenceEdition;
 import org.zpi.conferoapi.conference.ConferenceEditionRepository;
+import org.zpi.conferoapi.conference.ConferenceInvitee;
+import org.zpi.conferoapi.conference.ConferenceInviteeRepository;
 import org.zpi.conferoapi.email.UserEmail;
 import org.zpi.conferoapi.email.UserEmailRepository;
 import org.zpi.conferoapi.presentation.Presentation;
@@ -34,6 +36,7 @@ public class MockDataInitializer implements CommandLineRunner {
     private final ApplicationService applicationService;
     private final UserEmailRepository userEmailRepository;
     private final SessionRepository sessionRepository;
+    private final ConferenceInviteeRepository conferenceInviteeRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -42,7 +45,7 @@ public class MockDataInitializer implements CommandLineRunner {
                 .setAuthentication(new UsernamePasswordAuthenticationToken(admin.getId(), null, null));
         var edition = saveCurrentEdition();
         var users = saveMockUsers();
-        saveMockSessions(users, edition,admin);
+        saveMockSessions(users, edition, admin);
     }
 
     private User initAdmin() {
@@ -51,7 +54,7 @@ public class MockDataInitializer implements CommandLineRunner {
                 .name("Dzianis")
                 .surname("Klebanovich")
                 .orcid("0009-0005-9044-6202")
-                .isAdmin(true)
+                .isAdmin(false)
                 .build();
         userRepository.save(user);
         userEmailRepository.save(new UserEmail("denis.klebanovich@gmail.com", true, user, null));
@@ -92,15 +95,16 @@ public class MockDataInitializer implements CommandLineRunner {
 
 
     private ConferenceEdition saveCurrentEdition() {
-        return conferenceEditionRepository.save(ConferenceEdition
+        ConferenceEdition conferenceEdition = conferenceEditionRepository.save(ConferenceEdition
                 .builder()
                 .createdAt(Instant.now())
                 .applicationDeadlineTime(Instant.now().plus(180, java.time.temporal.ChronoUnit.DAYS))
                 .build());
-
+        conferenceInviteeRepository.save(new ConferenceInvitee(conferenceEdition, "denis.klebanovich@gmail.com"));
+        return conferenceEdition;
     }
 
-    public List<Session> saveMockSessions(List<User> users, ConferenceEdition edition,User admin) {
+    public List<Session> saveMockSessions(List<User> users, ConferenceEdition edition, User admin) {
         var sessions = List.of(
                 Session.builder()
                         .title("Innovative Approaches in Quantum Computing")
@@ -147,9 +151,10 @@ public class MockDataInitializer implements CommandLineRunner {
                                         .endTime(Instant.parse("2024-12-10T16:30:00Z"))
                                         .presenters(List.of(
                                                 Presenter.builder()
-                                                        .name("Charles")
-                                                        .surname("Lee")
+                                                        .name("Dzianis")
+                                                        .surname("Klebanovich")
                                                         .orcid("0000-0002-0577-7316")
+                                                        .email("denis.klebanovich@gmail.com")
                                                         .isSpeaker(true)
                                                         .build()
                                         )).build()))
@@ -198,8 +203,6 @@ public class MockDataInitializer implements CommandLineRunner {
                                 Presentation.builder()
                                         .title("Solar Energy Innovations")
                                         .description("This presentation will cover the latest innovations in solar energy.")
-                                        .startTime(Instant.parse("2024-12-10T09:00:00Z"))
-                                        .endTime(Instant.parse("2024-12-10T10:30:00Z"))
                                         .presenters(List.of(
                                                 Presenter.builder()
                                                         .name("Dzianis")
